@@ -143,7 +143,7 @@ CREATE TABLE IF NOT EXISTS attachment (
     created_at      DATETIME NOT NULL,           -- 创建时间
     created_by      INT NOT NULL,                -- 创建人
     KEY idx_business (business_type, business_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='附件表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='附件表;
 
 -- AI辅助记账规则表
 CREATE TABLE IF NOT EXISTS ai_accounting_rule (
@@ -162,7 +162,7 @@ CREATE TABLE IF NOT EXISTS ai_accounting_rule (
     updated_at      DATETIME,
     updated_by      INT,
     KEY idx_scene (business_scene)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI辅助记账规则表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI辅助记账规则表;
 
 -- AI分析报告表
 CREATE TABLE IF NOT EXISTS ai_analysis_report (
@@ -175,7 +175,7 @@ CREATE TABLE IF NOT EXISTS ai_analysis_report (
     created_at      DATETIME NOT NULL,
     created_by      INT NOT NULL,
     KEY idx_period (period_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI分析报告表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI分析报告表;
 
 -- AI预警规则表
 CREATE TABLE IF NOT EXISTS ai_alert_rule (
@@ -190,7 +190,7 @@ CREATE TABLE IF NOT EXISTS ai_alert_rule (
     created_by      INT NOT NULL,
     updated_at      DATETIME,
     updated_by      INT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI预警规则表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI预警规则表;
 
 -- AI预警记录表
 CREATE TABLE IF NOT EXISTS ai_alert_log (
@@ -207,7 +207,7 @@ CREATE TABLE IF NOT EXISTS ai_alert_log (
     processed_by    INT,
     KEY idx_rule (rule_id),
     KEY idx_business (business_type, business_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI预警记录表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI预警记录表;
 
 -- 期初余额表
 CREATE TABLE IF NOT EXISTS account_initial_balance (
@@ -226,7 +226,7 @@ CREATE TABLE IF NOT EXISTS account_initial_balance (
     updated_at      DATETIME,
     updated_by      INT,
     UNIQUE KEY uk_subject_period (subject_id, period_year, period_month, currency_code)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='期初余额表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='期初余额表;
 
 -- 会计制度变更明细表
 CREATE TABLE IF NOT EXISTS accounting_system_change_detail (
@@ -244,7 +244,7 @@ CREATE TABLE IF NOT EXISTS accounting_system_change_detail (
     updated_at         DATETIME,
     updated_by         INT,
     KEY idx_change_id (change_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会计制度变更明细表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会计制度变更明细表;
 
 -- 科目映射历史表
 CREATE TABLE IF NOT EXISTS subject_mapping_history (
@@ -258,7 +258,7 @@ CREATE TABLE IF NOT EXISTS subject_mapping_history (
     created_at          DATETIME NOT NULL,
     created_by          INT NOT NULL,
     KEY idx_detail_id (change_detail_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='科目映射历史表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='科目映射历史表;
 
 -- AI票据识别记录表
 CREATE TABLE IF NOT EXISTS ai_document_recognition_record (
@@ -278,7 +278,7 @@ CREATE TABLE IF NOT EXISTS ai_document_recognition_record (
     verified_by     INT COMMENT '验证人',
     KEY idx_doc_number (doc_number),
     KEY idx_doc_date (doc_date)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI票据识别记录表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI票据识别记录表;
 
 -- AI自动记账规则表
 CREATE TABLE IF NOT EXISTS ai_booking_rule (
@@ -297,7 +297,7 @@ CREATE TABLE IF NOT EXISTS ai_booking_rule (
     updated_at      DATETIME ON UPDATE CURRENT_TIMESTAMP,
     updated_by      INT,
     UNIQUE KEY uk_rule_code (rule_code)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI自动记账规则表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI自动记账规则表;
 
 -- AI自动记账结果表
 CREATE TABLE IF NOT EXISTS ai_booking_result (
@@ -315,7 +315,7 @@ CREATE TABLE IF NOT EXISTS ai_booking_result (
     approved_by     INT COMMENT '审核人',
     KEY idx_doc_id (doc_id),
     KEY idx_booking_date (booking_date)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI自动记账结果表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI自动记账结果表;
 
 -- AI审核规则表
 CREATE TABLE IF NOT EXISTS ai_audit_rule (
@@ -333,7 +333,7 @@ CREATE TABLE IF NOT EXISTS ai_audit_rule (
     updated_at      DATETIME ON UPDATE CURRENT_TIMESTAMP,
     updated_by      INT,
     UNIQUE KEY uk_rule_code (rule_code)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI审核规则表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI审核规则表;
 
 -- AI审核记录表
 CREATE TABLE IF NOT EXISTS ai_audit_record (
@@ -349,7 +349,7 @@ CREATE TABLE IF NOT EXISTS ai_audit_record (
     created_by      INT NOT NULL,
     KEY idx_target (target_type, target_id),
     KEY idx_created_at (created_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI审核记录表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI审核记录表;
 
 -- AI财务分析记录表
 CREATE TABLE IF NOT EXISTS ai_financial_analysis (
@@ -364,7 +364,7 @@ CREATE TABLE IF NOT EXISTS ai_financial_analysis (
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by      INT NOT NULL,
     KEY idx_period (period_start, period_end)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI财务分析记录表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI财务分析记录表;
 
 -- AI异常预警记录表
 CREATE TABLE IF NOT EXISTS ai_warning_record (
@@ -380,7 +380,7 @@ CREATE TABLE IF NOT EXISTS ai_warning_record (
     handled_by      INT COMMENT '处理人',
     KEY idx_warning_type (warning_type),
     KEY idx_created_at (created_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI异常预警记录表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI异常预警记录表;
 
 -- AI决策建议记录表
 CREATE TABLE IF NOT EXISTS ai_decision_suggestion (
@@ -398,4 +398,59 @@ CREATE TABLE IF NOT EXISTS ai_decision_suggestion (
     updated_by      INT,
     KEY idx_scenario (scenario),
     KEY idx_created_at (created_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI决策建议记录表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI决策建议记录表;
+
+-- 辅助核算类型表
+CREATE TABLE IF NOT EXISTS auxiliary_type (
+    id              INT PRIMARY KEY AUTO_INCREMENT,
+    code            VARCHAR(20) NOT NULL,         -- 类型编码
+    name            VARCHAR(50) NOT NULL,         -- 类型名称
+    status          TINYINT NOT NULL DEFAULT 1,   -- 状态
+    created_at      DATETIME NOT NULL,            -- 创建时间
+    created_by      INT NOT NULL,                 -- 创建人
+    updated_at      DATETIME,                     -- 更新时间
+    updated_by      INT,                          -- 更新人
+    UNIQUE KEY uk_code (code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='辅助核算类型表';
+
+-- 辅助核算项目表
+CREATE TABLE IF NOT EXISTS auxiliary_item (
+    id              INT PRIMARY KEY AUTO_INCREMENT,
+    type_id         INT NOT NULL,                 -- 类型ID
+    code            VARCHAR(20) NOT NULL,         -- 项目编码
+    name            VARCHAR(50) NOT NULL,         -- 项目名称
+    status          TINYINT NOT NULL DEFAULT 1,   -- 状态
+    created_at      DATETIME NOT NULL,            -- 创建时间
+    created_by      INT NOT NULL,                 -- 创建人
+    updated_at      DATETIME,                     -- 更新时间
+    updated_by      INT,                          -- 更新人
+    UNIQUE KEY uk_type_code (type_id, code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='辅助核算项目表';
+
+-- 辅助核算余额表
+CREATE TABLE IF NOT EXISTS auxiliary_balance (
+    id              INT PRIMARY KEY AUTO_INCREMENT,
+    period_id       INT NOT NULL,                 -- 会计期间ID
+    subject_id      INT NOT NULL,                 -- 科目ID
+    auxiliary_type_id INT NOT NULL,               -- 辅助核算类型ID
+    auxiliary_id    INT NOT NULL,                 -- 辅助核算项目ID
+    currency_id     INT NOT NULL DEFAULT 1,       -- 币种ID
+    begin_debit     DECIMAL(18,2) NOT NULL DEFAULT 0,  -- 期初借方余额
+    begin_credit    DECIMAL(18,2) NOT NULL DEFAULT 0,  -- 期初贷方余额
+    period_debit    DECIMAL(18,2) NOT NULL DEFAULT 0,  -- 本期借方发生额
+    period_credit   DECIMAL(18,2) NOT NULL DEFAULT 0,  -- 本期贷方发生额
+    end_debit       DECIMAL(18,2) NOT NULL DEFAULT 0,  -- 期末借方余额
+    end_credit      DECIMAL(18,2) NOT NULL DEFAULT 0,  -- 期末贷方余额
+    UNIQUE KEY uk_balance (period_id, subject_id, auxiliary_type_id, auxiliary_id, currency_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='辅助核算余额表';
+
+-- 凭证分录辅助核算表
+CREATE TABLE IF NOT EXISTS voucher_entry_auxiliary (
+    id              INT PRIMARY KEY AUTO_INCREMENT,
+    entry_id        INT NOT NULL,                 -- 分录ID
+    auxiliary_type_id INT NOT NULL,               -- 辅助核算类型ID
+    auxiliary_id    INT NOT NULL,                 -- 辅助核算项目ID
+    created_at      DATETIME NOT NULL,            -- 创建时间
+    created_by      INT NOT NULL,                 -- 创建人
+    KEY idx_entry (entry_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='凭证分录辅助核算表';
