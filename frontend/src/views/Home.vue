@@ -12,8 +12,11 @@
         background-color="#304156"
         text-color="#bfcbd9"
         active-text-color="#409EFF"
-        unique-opened
-        router>
+        :popper-effect="'light'"
+        :default-openeds="[]"
+        :collapse-transition="true"
+        router
+        @select="handleSelect">
         <template v-for="item in menuItems" :key="item.path">
           <el-sub-menu v-if="item.children" :index="item.path">
             <template #title>
@@ -21,8 +24,8 @@
               <span>{{ item.name }}</span>
             </template>
             <el-menu-item v-for="child in item.children"
-              :key="item.path + '/' + child.path"
-              :index="item.path + '/' + child.path">
+              :key="child.path"
+              :index="`${item.path}/${child.path}`">
               <span>{{ child.name }}</span>
             </el-menu-item>
           </el-sub-menu>
@@ -95,9 +98,11 @@
         <!-- 路由视图 -->
         <el-main class="main-content">
           <router-view v-slot="{ Component }">
-            <keep-alive>
-              <component :is="Component" />
-            </keep-alive>
+            <transition name="fade" mode="out-in">
+              <keep-alive>
+                <component :is="Component" />
+              </keep-alive>
+            </transition>
           </router-view>
         </el-main>
       </el-container>
@@ -136,45 +141,44 @@ const activeTab = computed({
 
 // 处理菜单选择
 const handleSelect = (index) => {
+  if (index === route.path) return
   router.push(index)
 }
 
 // 处理标签页点击
 const handleTabClick = (tab) => {
+  if (tab.props.name === route.path) return
   router.push(tab.props.name)
 }
 
 // 处理标签页移除
 const removeTab = (targetPath) => {
-  const nextTab = tabsStore.closeTab(targetPath)
-  if (nextTab) {
-    router.push(nextTab.path)
+  tabsStore.removeTab(targetPath)
+  if (route.path === targetPath) {
+    const lastTab = tabsStore.tabs[tabsStore.tabs.length - 1]
+    if (lastTab) {
+      router.push(lastTab.path)
+    }
   }
 }
 
 // 处理标签页操作
 const handleTabsCommand = (command) => {
-  switch (command) {
-    case 'closeOther':
-      tabsStore.closeOtherTabs(route.path)
-      break
-    case 'closeAll':
-      tabsStore.closeAllTabs()
-      router.push('/')
-      break
+  if (command === 'closeOther') {
+    tabsStore.closeOtherTabs(route.path)
+  } else if (command === 'closeAll') {
+    tabsStore.closeAllTabs()
+    router.push('/dashboard')
   }
 }
 
 // 处理用户下拉菜单操作
 const handleCommand = (command) => {
-  switch (command) {
-    case 'profile':
-      router.push('/settings/profile')
-      break
-    case 'logout':
-      userStore.logout()
-      router.push('/login')
-      break
+  if (command === 'logout') {
+    userStore.logout()
+    router.push('/login')
+  } else if (command === 'profile') {
+    router.push('/settings/profile')
   }
 }
 

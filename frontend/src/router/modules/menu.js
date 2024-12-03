@@ -72,28 +72,6 @@ export const menuItems = [
     ]
   },
   {
-    path: '/auxiliary',
-    name: '辅助核算',
-    icon: 'Files',
-    children: [
-      {
-        path: 'customer',
-        name: '客户管理',
-        component: 'auxiliary/Customer'
-      },
-      {
-        path: 'supplier',
-        name: '供应商管理',
-        component: 'auxiliary/Supplier'
-      },
-      {
-        path: 'project',
-        name: '项目管理',
-        component: 'auxiliary/Project'
-      }
-    ]
-  },
-  {
     path: '/settings',
     name: '系统设置',
     icon: 'Setting',
