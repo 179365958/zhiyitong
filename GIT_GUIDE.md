@@ -184,3 +184,54 @@ git commit -m "fix: 解决冲突"
    git tag -a v1.0.0 -m "版本说明"
    git push origin master --tags
    ```
+
+## 七、Git 分支合并指南
+
+## 将 dev 分支合并到 master 的步骤
+
+### 1. 确保工作区清洁
+```bash
+git status
+```
+确保当前工作区没有未提交的更改。
+
+### 2. 切换到 master 分支
+```bash
+git checkout master
+```
+
+### 3. 拉取最新的 master 分支代码
+```bash
+git pull origin master
+```
+
+### 4. 合并 dev 分支
+```bash
+git merge dev
+```
+
+### 5. 解决冲突（如果有）
+如果出现冲突，需要手动解决冲突，然后：
+```bash
+git add .
+git commit -m "解决合并冲突"
+```
+
+### 6. 推送到远程仓库
+```bash
+git push origin master
+```
+
+## 注意事项
+1. 合并前先确保 dev 分支的代码已经经过测试
+2. 建议在重要合并前创建备份分支
+3. 如果不确定，可以先创建临时分支进行测试合并
+
+## 如果需要取消合并
+```bash
+# 如果合并出现问题，可以取消合并
+git merge --abort
+
+# 如果已经合并，想要回退
+git reset --hard HEAD^
+```
