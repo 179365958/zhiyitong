@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS sys_permission (
     updated_at      DATETIME,                    -- 更新时间
     updated_by      INT,                         -- 更新人
     UNIQUE KEY uk_perm_code (perm_code)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='权限表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='权限表();
 
 -- 用户角色关系表
 CREATE TABLE IF NOT EXISTS sys_user_role (
@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS sys_user_role (
     created_at      DATETIME NOT NULL,           -- 创建时间
     created_by      INT NOT NULL,                -- 创建人
     UNIQUE KEY uk_user_role (user_id, role_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户角色关系表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户角色关系表();
 
 -- 角色权限关系表
 CREATE TABLE IF NOT EXISTS sys_role_permission (
@@ -115,7 +115,7 @@ CREATE TABLE IF NOT EXISTS sys_role_permission (
     created_at      DATETIME NOT NULL,           -- 创建时间
     created_by      INT NOT NULL,                -- 创建人
     UNIQUE KEY uk_role_perm (role_id, permission_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色权限关系表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色权限关系表();
 
 -- 操作日志表
 CREATE TABLE IF NOT EXISTS sys_operation_log (
@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS sys_operation_log (
     status          TINYINT NOT NULL,            -- 状态(1:成功 0:失败)
     error_msg       TEXT,                        -- 错误信息
     created_at      DATETIME NOT NULL            -- 创建时间
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='操作日志表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='操作日志表;
 
 -- 登录日志表
 CREATE TABLE IF NOT EXISTS sys_login_log (
@@ -144,7 +144,7 @@ CREATE TABLE IF NOT EXISTS sys_login_log (
     status          TINYINT NOT NULL,            -- 状态(1:成功 0:失败)
     msg             VARCHAR(200),                -- 提示信息
     login_time      DATETIME NOT NULL            -- 登录时间
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='登录日志表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='登录日志表;
 
 -- AI模型配置表
 CREATE TABLE IF NOT EXISTS sys_ai_model (
@@ -163,7 +163,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_model (
     updated_at      DATETIME ON UPDATE CURRENT_TIMESTAMP,
     updated_by      INT,
     UNIQUE KEY uk_code_version (model_code, version)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI模型配置表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI模型配置表;
 
 -- AI知识库表
 CREATE TABLE IF NOT EXISTS sys_ai_knowledge (
@@ -179,7 +179,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_knowledge (
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      DATETIME ON UPDATE CURRENT_TIMESTAMP,
     KEY idx_domain_topic (domain, topic)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI知识库表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI知识库表;
 
 -- AI业务规则表
 CREATE TABLE IF NOT EXISTS sys_ai_business_rule (
@@ -196,7 +196,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_business_rule (
     updated_at      DATETIME ON UPDATE CURRENT_TIMESTAMP,
     updated_by      INT,
     UNIQUE KEY uk_rule_code (rule_code)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI业务规则表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI业务规则表;
 
 -- AI分析模型表
 CREATE TABLE IF NOT EXISTS sys_ai_analysis_model (
@@ -214,7 +214,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_analysis_model (
     updated_at      DATETIME ON UPDATE CURRENT_TIMESTAMP,
     updated_by      INT,
     UNIQUE KEY uk_model_code (model_code)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI分析模型表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI分析模型表;
 
 -- AI训练数据集表
 CREATE TABLE IF NOT EXISTS sys_ai_training_data (
@@ -232,7 +232,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_training_data (
     updated_at      DATETIME ON UPDATE CURRENT_TIMESTAMP,
     updated_by      INT,
     UNIQUE KEY uk_dataset_code (dataset_code)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI训练数据集表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI训练数据集表;
 
 -- AI使用记录表
 CREATE TABLE IF NOT EXISTS sys_ai_usage_log (
@@ -249,7 +249,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_usage_log (
     created_by      INT NOT NULL,
     KEY idx_company_model (company_id, model_code),
     KEY idx_created_at (created_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI使用记录表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI使用记录表;
 
 -- AI模型配置表
 CREATE TABLE IF NOT EXISTS sys_ai_config (
@@ -267,7 +267,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_config (
     updated_at      DATETIME,
     updated_by      INT,
     UNIQUE KEY uk_provider_model (provider, model_name)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI模型配置表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI模型配置表;
 
 -- AI对话历史表
 CREATE TABLE IF NOT EXISTS sys_ai_conversation (
@@ -288,7 +288,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_conversation (
     created_at      DATETIME NOT NULL,
     KEY idx_user_session (user_id, session_id),
     KEY idx_business (business_type, business_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI对话历史表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI对话历史表;
 
 -- AI知识库表
 CREATE TABLE IF NOT EXISTS sys_ai_knowledge_base (
@@ -306,7 +306,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_knowledge_base (
     updated_at      DATETIME,
     updated_by      INT,
     KEY idx_category (category)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI知识库表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI知识库表;
 
 -- AI使用统计表
 CREATE TABLE IF NOT EXISTS sys_ai_usage_stats (
@@ -325,9 +325,117 @@ CREATE TABLE IF NOT EXISTS sys_ai_usage_stats (
     created_at      DATETIME NOT NULL,
     KEY idx_company_date (company_id, stat_date),
     KEY idx_user_date (user_id, stat_date)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI使用统计表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI使用统计表;
 
+-- 系统初始化配置表
+CREATE TABLE IF NOT EXISTS sys_init_config (
+    id              INT PRIMARY KEY AUTO_INCREMENT,
+    config_code     VARCHAR(50) NOT NULL COMMENT '配置编码',
+    config_name     VARCHAR(100) NOT NULL COMMENT '配置名称',
+    config_value    JSON NOT NULL COMMENT '配置值',
+    description     VARCHAR(500) COMMENT '说明',
+    is_required     BIT NOT NULL DEFAULT 1 COMMENT '是否必须',
+    status          TINYINT NOT NULL DEFAULT 1 COMMENT '状态',
+    created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by      INT NOT NULL,
+    updated_at      DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    updated_by      INT,
+    UNIQUE KEY uk_config_code (config_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统初始化配置表;
 
+-- 企业初始化记录表
+CREATE TABLE IF NOT EXISTS sys_company_init_log (
+    id              INT PRIMARY KEY AUTO_INCREMENT,
+    company_id      INT NOT NULL COMMENT '企业ID',
+    init_type       VARCHAR(50) NOT NULL COMMENT '初始化类型(基础数据/科目/期初/往来)',
+    init_status     TINYINT NOT NULL COMMENT '状态(0:未完成 1:已完成 2:失败)',
+    error_msg       TEXT COMMENT '错误信息',
+    start_time      DATETIME NOT NULL COMMENT '开始时间',
+    end_time        DATETIME COMMENT '结束时间',
+    created_by      INT NOT NULL COMMENT '操作人',
+    created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    KEY idx_company_type (company_id, init_type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='企业初始化记录表;
+
+-- 企业期初余额表
+CREATE TABLE IF NOT EXISTS sys_company_initial_balance (
+    id              INT PRIMARY KEY AUTO_INCREMENT,
+    company_id      INT NOT NULL COMMENT '企业ID',
+    subject_code    VARCHAR(50) NOT NULL COMMENT '科目编码',
+    period_year     INT NOT NULL COMMENT '会计年度',
+    period_month    INT NOT NULL COMMENT '会计月份',
+    currency_code   VARCHAR(10) NOT NULL COMMENT '币种',
+    debit_amount    DECIMAL(18,2) NOT NULL DEFAULT 0 COMMENT '借方金额',
+    credit_amount   DECIMAL(18,2) NOT NULL DEFAULT 0 COMMENT '贷方金额',
+    debit_qty       DECIMAL(18,4) DEFAULT 0 COMMENT '借方数量',
+    credit_qty      DECIMAL(18,4) DEFAULT 0 COMMENT '贷方数量',
+    aux_info        JSON COMMENT '辅助核算信息',
+    created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by      INT NOT NULL,
+    updated_at      DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    updated_by      INT,
+    UNIQUE KEY uk_company_subject_period (company_id, subject_code, period_year, period_month, currency_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='企业期初余额表;
+
+-- 企业初始化模板表
+CREATE TABLE IF NOT EXISTS sys_init_template (
+    id              INT PRIMARY KEY AUTO_INCREMENT,
+    template_code   VARCHAR(50) NOT NULL COMMENT '模板编码',
+    template_name   VARCHAR(100) NOT NULL COMMENT '模板名称',
+    industry_code   VARCHAR(50) COMMENT '行业编码',
+    company_type    VARCHAR(50) COMMENT '企业类型',
+    init_items      JSON NOT NULL COMMENT '初始化项目配置',
+    description     VARCHAR(500) COMMENT '说明',
+    status          TINYINT NOT NULL DEFAULT 1 COMMENT '状态',
+    created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by      INT NOT NULL,
+    updated_at      DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    updated_by      INT,
+    UNIQUE KEY uk_template_code (template_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='企业初始化模板表;
+
+-- 账套状态记录表
+CREATE TABLE IF NOT EXISTS sys_company_status_log (
+    id              INT PRIMARY KEY AUTO_INCREMENT,
+    company_id      INT NOT NULL COMMENT '企业ID',
+    old_status      TINYINT NOT NULL COMMENT '原状态',
+    new_status      TINYINT NOT NULL COMMENT '新状态',
+    change_reason   VARCHAR(500) NOT NULL COMMENT '变更原因',
+    operator_id     INT NOT NULL COMMENT '操作人ID',
+    created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    KEY idx_company_status (company_id, new_status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='账套状态记录表;
+
+-- 账套授权表
+CREATE TABLE IF NOT EXISTS sys_company_license (
+    id              INT PRIMARY KEY AUTO_INCREMENT,
+    company_id      INT NOT NULL COMMENT '企业ID',
+    license_type    VARCHAR(50) NOT NULL COMMENT '授权类型(试用/正式)',
+    start_date      DATE NOT NULL COMMENT '开始日期',
+    end_date        DATE NOT NULL COMMENT '结束日期',
+    max_users       INT NOT NULL DEFAULT 0 COMMENT '最大用户数',
+    features        JSON COMMENT '功能清单',
+    status          TINYINT NOT NULL DEFAULT 1 COMMENT '状态',
+    created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by      INT NOT NULL,
+    updated_at      DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    updated_by      INT,
+    UNIQUE KEY uk_company_id (company_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='账套授权表;
+
+-- 账套数据备份记录表
+CREATE TABLE IF NOT EXISTS sys_company_backup_log (
+    id              INT PRIMARY KEY AUTO_INCREMENT,
+    company_id      INT NOT NULL COMMENT '企业ID',
+    backup_type     VARCHAR(20) NOT NULL COMMENT '备份类型(自动/手动)',
+    backup_path     VARCHAR(500) NOT NULL COMMENT '备份路径',
+    file_size       BIGINT NOT NULL COMMENT '文件大小(字节)',
+    status          TINYINT NOT NULL COMMENT '状态(0:失败 1:成功)',
+    error_msg       TEXT COMMENT '错误信息',
+    created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by      INT NOT NULL,
+    KEY idx_company_date (company_id, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='账套数据备份记录表;
 
 -- 会计科目模板表
 CREATE TABLE IF NOT EXISTS sys_subject_template (
@@ -349,7 +457,7 @@ CREATE TABLE IF NOT EXISTS sys_subject_template (
     updated_at      DATETIME,
     updated_by      INT,
     UNIQUE KEY uk_system_code (system_id, code)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会计科目模板表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会计科目模板表;
 
 -- 会计制度切换记录表
 CREATE TABLE IF NOT EXISTS sys_accounting_system_change (
@@ -365,7 +473,7 @@ CREATE TABLE IF NOT EXISTS sys_accounting_system_change (
     created_at          DATETIME NOT NULL,
     created_by          INT NOT NULL,
     KEY idx_company_date (company_id, change_date)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会计制度切换记录表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会计制度切换记录表;
 
 -- 会计制度版本更新日志表
 CREATE TABLE IF NOT EXISTS sys_accounting_system_version_log (
@@ -379,7 +487,7 @@ CREATE TABLE IF NOT EXISTS sys_accounting_system_version_log (
     created_at          DATETIME NOT NULL,
     created_by          INT NOT NULL,
     KEY idx_system_version (system_id, new_version)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会计制度版本更新日志表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会计制度版本更新日志表;
 
 -- 科目对照映射表
 CREATE TABLE IF NOT EXISTS sys_subject_mapping (
@@ -395,7 +503,7 @@ CREATE TABLE IF NOT EXISTS sys_subject_mapping (
     updated_at          DATETIME,
     updated_by          INT,
     UNIQUE KEY uk_mapping (from_system_id, to_system_id, from_subject_code, to_subject_code)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='科目对照映射表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='科目对照映射表;
 
 -- 初始化基础会计制度数据
 INSERT INTO sys_accounting_system (code, name, description, version, effective_date, status, created_at, created_by) VALUES
