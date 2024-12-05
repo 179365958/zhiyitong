@@ -3,6 +3,22 @@ CREATE DATABASE IF NOT EXISTS zyt_sys DEFAULT CHARACTER SET utf8mb4 COLLATE utf8
 
 USE zyt_sys;
 
+-- 会计制度表
+CREATE TABLE IF NOT EXISTS sys_accounting_system (
+    id              INT PRIMARY KEY AUTO_INCREMENT,
+    code            VARCHAR(50) NOT NULL,        -- 制度编码
+    name            VARCHAR(100) NOT NULL,       -- 制度名称
+    description     TEXT,                        -- 制度说明
+    version         VARCHAR(50) NOT NULL,        -- 版本号
+    effective_date  DATE NOT NULL,              -- 生效日期
+    status          TINYINT NOT NULL DEFAULT 1,  -- 状态(1:启用 0:停用)
+    created_at      DATETIME NOT NULL,
+    created_by      INT NOT NULL,
+    updated_at      DATETIME,
+    updated_by      INT,
+    UNIQUE KEY uk_code_version (code, version)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会计制度表';
+
 -- 企业账套表
 CREATE TABLE IF NOT EXISTS sys_company (
     id              INT PRIMARY KEY AUTO_INCREMENT,
@@ -311,21 +327,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_usage_stats (
     KEY idx_user_date (user_id, stat_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI使用统计表';
 
--- 会计制度表
-CREATE TABLE IF NOT EXISTS sys_accounting_system (
-    id              INT PRIMARY KEY AUTO_INCREMENT,
-    code            VARCHAR(50) NOT NULL,        -- 制度编码
-    name            VARCHAR(100) NOT NULL,       -- 制度名称
-    description     TEXT,                        -- 制度说明
-    version         VARCHAR(50) NOT NULL,        -- 版本号
-    effective_date  DATE NOT NULL,              -- 生效日期
-    status          TINYINT NOT NULL DEFAULT 1,  -- 状态(1:启用 0:停用)
-    created_at      DATETIME NOT NULL,
-    created_by      INT NOT NULL,
-    updated_at      DATETIME,
-    updated_by      INT,
-    UNIQUE KEY uk_code_version (code, version)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会计制度表';
+
 
 -- 会计科目模板表
 CREATE TABLE IF NOT EXISTS sys_subject_template (
