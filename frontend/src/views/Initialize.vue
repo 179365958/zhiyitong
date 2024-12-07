@@ -53,6 +53,12 @@
           :rules="dbRules"
           label-width="120px"
         >
+          <el-form-item label="数据库类型" prop="type">
+            <el-select v-model="dbForm.type" placeholder="请选择数据库类型">
+              <el-option label="MySQL" value="mysql" />
+              <el-option label="SQL Server" value="mssql" />
+            </el-select>
+          </el-form-item>
           <el-form-item label="数据库主机" prop="host">
             <el-input v-model="dbForm.host" />
           </el-form-item>
@@ -89,12 +95,6 @@
           <el-form-item label="确认密码" prop="confirmPassword">
             <el-input v-model="adminForm.confirmPassword" type="password" />
           </el-form-item>
-          <el-form-item label="姓名" prop="realName">
-            <el-input v-model="adminForm.realName" />
-          </el-form-item>
-          <el-form-item label="邮箱" prop="email">
-            <el-input v-model="adminForm.email" />
-          </el-form-item>
         </el-form>
         <div class="step-buttons">
           <el-button @click="prevStep">上一步</el-button>
@@ -122,26 +122,36 @@ const checkErrorMessage = ref('')
 // 数据库配置表单
 const dbFormRef = ref(null)
 const dbForm = ref({
+  type: 'mysql',
   host: 'localhost',
   port: '3306',
-  username: 'root',
+  username: '',
   password: ''
 })
 const dbRules = {
-  host: [{ required: true, message: '请输入数据库主机', trigger: 'blur' }],
-  port: [{ required: true, message: '请输入端口号', trigger: 'blur' }],
-  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+  type: [
+    { required: true, message: '请选择数据库类型', trigger: 'change' }
+  ],
+  host: [
+    { required: true, message: '请输入数据库主机', trigger: 'blur' }
+  ],
+  port: [
+    { required: true, message: '请输入端口号', trigger: 'blur' }
+  ],
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' }
+  ]
 }
 
 // 管理员设置表单
 const adminFormRef = ref(null)
 const adminForm = ref({
-  username: 'admin',
+  username: '',
   password: '',
-  confirmPassword: '',
-  realName: '',
-  email: ''
+  confirmPassword: ''
 })
 const adminRules = {
   username: [
@@ -164,11 +174,6 @@ const adminRules = {
       },
       trigger: 'blur'
     }
-  ],
-  realName: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
-  email: [
-    { required: true, message: '请输入邮箱', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
   ]
 }
 
@@ -220,9 +225,7 @@ const handleInitialize = async () => {
       dbConfig: dbForm.value,
       adminUser: {
         username: adminForm.value.username,
-        password: adminForm.value.password,
-        realName: adminForm.value.realName,
-        email: adminForm.value.email
+        password: adminForm.value.password
       }
     }
 
