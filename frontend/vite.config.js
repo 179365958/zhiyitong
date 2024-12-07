@@ -32,5 +32,33 @@ export default defineConfig({
         drop_debugger: true
       }
     }
+  },
+  test: {
+    // 启用类似 jest 的全局测试 API
+    globals: true,
+    // 使用 jsdom 环境
+    environment: 'jsdom',
+    // 支持 tsx 组件
+    transformMode: {
+      web: [/.[tj]sx$/]
+    },
+    // 测试设置文件
+    setupFiles: ['./src/test/setup.js'],
+    // CSS 相关配置
+    css: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'node_modules/',
+        'src/assets/',
+        'dist/',
+        '**/*.d.ts',
+        'tests/',
+        'test-utils/',
+        '**/*.test.ts',
+        'src/test/setup.js'
+      ]
+    }
   }
 })

@@ -30,7 +30,12 @@ request.interceptors.response.use(
   response => {
     const res = response.data
 
-    // 这里假设后端返回的数据结构为 { code: number, data: any, message: string }
+    // 如果响应是原始数据，直接返回
+    if (res.initialized !== undefined) {
+      return res
+    }
+
+    // 处理标准响应格式
     if (res.code === 0) {
       return res.data
     }

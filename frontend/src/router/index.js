@@ -3,6 +3,8 @@ import { menuItems } from './modules/menu'
 import { getToken } from '@/utils/auth'
 import Home from '@/views/Home.vue'
 import Login from '@/views/Login.vue'
+import { checkSystemInit } from '@/api/system'
+import Initialize from '@/views/Initialize.vue'
 
 // 动态导入组件的函数
 const loadView = (view) => {
@@ -81,6 +83,12 @@ function generateRoutes(menuItems) {
 // 基础路由
 const baseRoutes = [
   {
+    path: '/init',
+    name: 'Initialize',
+    component: Initialize,
+    meta: { title: '系统初始化' }
+  },
+  {
     path: '/login',
     name: 'login',
     component: Login,
@@ -108,13 +116,16 @@ const router = createRouter({
 // 路由守卫
 router.beforeEach((to, from, next) => {
   const token = getToken()
-  
+
+  // 登录页面逻辑
   if (to.path === '/login') {
     if (token) {
       next('/')
     } else {
       next()
     }
+  } else if (to.path === '/init') {
+    next() // 直接跳转到初始化页面
   } else {
     if (token) {
       next()
@@ -123,5 +134,6 @@ router.beforeEach((to, from, next) => {
     }
   }
 })
+
 
 export default router
