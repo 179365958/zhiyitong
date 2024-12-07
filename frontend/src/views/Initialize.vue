@@ -109,7 +109,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { checkSystemInit, initializeSystem } from '@/api/system'
+import { checkSystemInit, initializeSystem, validateDbConfig as testDbConnection } from '@/api/system'
 
 const router = useRouter()
 
@@ -194,12 +194,21 @@ const checkEnvironment = async () => {
 }
 
 // 验证数据库配置
-const validateDbConfig = () => {
-  dbFormRef.value?.validate((valid) => {
-    if (valid) {
+const validateDbConfig = async () => {
+  try {
+    await dbFormRef.value?.validate()
+    
+    // 验证数据库配置
+    const res = await testDbConnection(dbForm.value)
+    if (res.success) {
+      ElMessage.success('数据库连接成功')
       nextStep()
+    } else {
+      ElMessage.error(res.message || '数据库连接失败')
     }
-  })
+  } catch (error) {
+    ElMessage.error(error.message || '验证失败')
+  }
 }
 
 // 初始化系统
