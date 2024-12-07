@@ -13,15 +13,17 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
             autoIncrement: true
         },
-        key: {
+        config_key: {
             type: DataTypes.STRING(50),
             allowNull: false,
             unique: true,
+            field: 'config_key',
             comment: '配置键'
         },
-        value: {
+        config_value: {
             type: DataTypes.TEXT,
             allowNull: false,
+            field: 'config_value',
             comment: '配置值'
         },
         description: {

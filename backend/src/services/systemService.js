@@ -178,8 +178,10 @@ class SystemService {
 
             // 创建管理员账户
             await this.createAdminUser({
-                ...adminUser,
-                password: await encrypt(adminUser.password)
+                username: adminUser.username,
+                password: await encrypt(adminUser.password),
+                realName: '系统管理员',
+                email: ''
             });
 
             // 记录系统配置
@@ -332,35 +334,46 @@ class SystemService {
     }
 
     async createAdminUser(adminUser) {
-        await sequelize.query(
-            `INSERT INTO zyt_sys.sys_user (
-                username, password, real_name, email, 
-                is_admin, status, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, 1, 1, NOW(), NOW())`,
-            {
-                replacements: [
-                    adminUser.username,
-                    adminUser.password,
-                    adminUser.realName,
-                    adminUser.email
-                ]
-            }
-        );
+        try {
+            await sequelize.query(
+                `INSERT INTO zyt_sys.sys_user (
+                    username, password, real_name, email, 
+                    is_admin, status, created_at, created_by
+                ) VALUES (?, ?, ?, ?, 1, 1, NOW(), 1)`,
+                {
+                    replacements: [
+                        adminUser.username,
+                        adminUser.password,
+                        adminUser.realName || '系统管理员',
+                        adminUser.email || ''
+                    ]
+                }
+            );
+        } catch (error) {
+            logger.error('创建管理员账号失败:', error);
+            throw new Error('创建管理员账号失败: ' + error.message);
+        }
     }
 
     async saveSystemConfig() {
-        await SystemConfig.bulkCreate([
-            {
-                config_key: 'system_initialized',
-                config_value: 'true',
-                description: '系统是否已初始化'
-            },
-            {
-                config_key: 'init_time',
-                config_value: new Date().toISOString(),
-                description: '系统初始化时间'
-            }
-        ]);
+        try {
+            await sequelize.query(
+                `INSERT INTO zyt_sys.sys_config (
+                    config_key, config_value, description, created_at, updated_at
+                ) VALUES 
+                (?, ?, ?, NOW(), NOW()),
+                (?, ?, ?, NOW(), NOW())`,
+                {
+                    replacements: [
+                        'system_initialized', 'true', '系统是否已初始化',
+                        'init_time', new Date().toISOString(), '系统初始化时间'
+                    ]
+                }
+            );
+        } catch (error) {
+            logger.error('保存系统配置失败:', error);
+            throw new Error('保存系统配置失败: ' + error.message);
+        }
     }
 }
 

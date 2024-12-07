@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS sys_company (
 CREATE TABLE IF NOT EXISTS sys_user (
     id              INT PRIMARY KEY AUTO_INCREMENT,
     username        VARCHAR(50) NOT NULL,        -- 用户名
-    password        VARCHAR(100) NOT NULL,       -- 密码(加密)
+    password        VARCHAR(255) NOT NULL,       -- 密码(加密)，增加长度以支持bcrypt加密
     real_name       VARCHAR(50) NOT NULL,        -- 真实姓名
     email           VARCHAR(100),                -- 邮箱
     mobile          VARCHAR(20),                 -- 手机
@@ -327,7 +327,16 @@ CREATE TABLE IF NOT EXISTS sys_ai_usage_stats (
     KEY idx_user_date (user_id, stat_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI使用统计表';
 
-
+-- 系统配置表
+CREATE TABLE IF NOT EXISTS sys_config (
+    id              INT PRIMARY KEY AUTO_INCREMENT,
+    config_key      VARCHAR(50) NOT NULL,        -- 配置键
+    config_value    TEXT NOT NULL,               -- 配置值
+    description     VARCHAR(200),                -- 配置说明
+    created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,           -- 创建时间
+    updated_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,           -- 更新时间
+    UNIQUE KEY uk_config_key (config_key)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统配置表';
 
 -- 会计科目模板表
 CREATE TABLE IF NOT EXISTS sys_subject_template (
@@ -402,7 +411,6 @@ INSERT INTO sys_accounting_system (code, name, description, version, effective_d
 ('SMALL', '小企业会计准则', '小企业会计准则（2013年颁布）', '2013', '2013-01-01', 1, NOW(), 1),
 ('CAS', '企业会计准则', '企业会计准则（2006年颁布）', '2006', '2007-01-01', 1, NOW(), 1),
 ('NPO', '民间非营利组织会计制度', '民间非营利组织会计制度（2005年颁布）', '2005', '2005-01-01', 1, NOW(), 1);
-
 
 -- 初始化会计科目模板数据
 
