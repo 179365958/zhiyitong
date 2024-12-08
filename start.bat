@@ -17,4 +17,4 @@ timeout /t 2 > nul
 :: 打开浏览器
 ::echo.
 ::echo 正在打开浏览器...
-::start http://localhost:8080
+start http://localhost:5173
