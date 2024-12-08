@@ -25,3 +25,34 @@ export function initializeSystem(data) {
     data
   })
 }
+
+// 获取企业账套列表
+export function getCompanyList() {
+  return request({
+    url: '/api/system/companies',
+    method: 'get'
+  }).then(response => {
+    // 确保返回的数据符合前端预期
+    if (response.success && response.data) {
+      return response
+    } else {
+      throw new Error(response.message || '获取企业账套列表失败')
+    }
+  })
+}
+
+// 用户登录
+export function login(data) {
+  return request({
+    url: '/api/system/login',
+    method: 'post',
+    data
+  }).then(response => {
+    // 确保返回的数据符合前端预期
+    if (response.success && response.data) {
+      return response
+    } else {
+      throw new Error(response.message || '登录失败')
+    }
+  })
+}

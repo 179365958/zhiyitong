@@ -1,82 +1,119 @@
 <template>
   <div class="login-container">
-    <div class="login-box">
-      <div class="login-header">
-        <img src="../assets/vue.svg" alt="Logo" class="logo">
-        <h2>智易通</h2>
-        <p>小微企业财务管理系统</p>
-      </div>
+    <el-form 
+      ref="loginFormRef" 
+      :model="loginForm" 
+      :rules="loginRules" 
+      class="login-form"
+      label-width="100px"
+    >
+      <h2 class="login-title">智易通 - 财务管理系统</h2>
       
-      <el-form
-        ref="formRef"
-        :model="loginForm"
-        :rules="loginRules"
-        class="login-form"
-      >
-        <el-form-item prop="username">
-          <el-input
-            v-model="loginForm.username"
-            placeholder="用户名"
-            :prefix-icon="User"
+      <el-form-item label="服务器地址" prop="serverAddress">
+        <el-input 
+          v-model="loginForm.serverAddress" 
+          placeholder="请输入服务器地址"
+          prefix-icon="Connection"
+        >
+          <template #prepend>
+            <el-select 
+              v-model="loginForm.protocol" 
+              style="width: 100px"
+            >
+              <el-option label="HTTP" value="http://" />
+              <el-option label="HTTPS" value="https://" />
+            </el-select>
+          </template>
+        </el-input>
+      </el-form-item>
+
+      <el-form-item label="账套选择" prop="companyId">
+        <el-select 
+          v-model="loginForm.companyId" 
+          placeholder="请选择企业账套"
+          filterable
+        >
+          <el-option 
+            v-for="company in companyList" 
+            :key="company.id" 
+            :label="company.name" 
+            :value="company.id"
           />
-        </el-form-item>
-        
-        <el-form-item prop="password">
-          <el-input
-            v-model="loginForm.password"
-            type="password"
-            placeholder="密码"
-            :prefix-icon="Lock"
-            show-password
-            @keyup.enter="handleLogin"
-          />
-        </el-form-item>
+        </el-select>
+      </el-form-item>
 
-        <el-form-item class="remember-me">
-          <el-checkbox v-model="loginForm.remember">记住我</el-checkbox>
-          <el-link type="primary" :underline="false">忘记密码？</el-link>
-        </el-form-item>
+      <el-form-item label="登录日期" prop="loginDate">
+        <el-date-picker
+          v-model="loginForm.loginDate"
+          type="date"
+          placeholder="选择登录日期"
+          :disabled-date="disabledDate"
+        />
+      </el-form-item>
 
-        <el-form-item>
-          <el-button
-            type="primary"
-            class="login-button"
-            :loading="loading"
-            @click="handleLogin"
-          >
-            登录
-          </el-button>
-        </el-form-item>
-      </el-form>
-    </div>
+      <el-form-item label="用户名" prop="username">
+        <el-input 
+          v-model="loginForm.username" 
+          placeholder="请输入用户名"
+          prefix-icon="User"
+        />
+      </el-form-item>
 
-    <div class="login-footer">
-      <p>Copyright  2024 智易通 All Rights Reserved.</p>
-    </div>
+      <el-form-item label="密码" prop="password">
+        <el-input 
+          v-model="loginForm.password" 
+          type="password" 
+          placeholder="请输入密码"
+          show-password
+          prefix-icon="Lock"
+        />
+      </el-form-item>
+
+      <el-form-item>
+        <el-button 
+          type="primary" 
+          @click="submitLogin" 
+          :loading="loading"
+          style="width: 100%"
+        >
+          登 录
+        </el-button>
+      </el-form-item>
+    </el-form>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { User, Lock } from '@element-plus/icons-vue'
-import { setToken, setUserInfo } from '../utils/auth'
+import { useRouter } from 'vue-router'
+import { getCompanyList, login } from '@/api/system'
 
 const router = useRouter()
-const route = useRoute()
+const loginFormRef = ref(null)
 const loading = ref(false)
-const formRef = ref(null)
 
-// 登录表单
-const loginForm = ref({
+const loginForm = reactive({
+  serverAddress: 'localhost',
+  protocol: 'http://',
+  companyId: null,
+  loginDate: new Date(),
   username: '',
-  password: '',
-  remember: false
+  password: ''
 })
 
-// 表单验证规则
+const companyList = ref([])
+
 const loginRules = {
+  serverAddress: [
+    { required: true, message: '请输入服务器地址', trigger: 'blur' }
+  ],
+  companyId: [
+    { required: true, message: '请选择企业账套', trigger: 'change' }
+  ],
+  loginDate: [
+    { required: true, message: '请选择登录日期', trigger: 'change' }
+  ],
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' }
   ],
@@ -86,139 +123,102 @@ const loginRules = {
   ]
 }
 
-// 处理登录
-const handleLogin = () => {
-  if (!formRef.value) return
+// 禁用未来日期
+const disabledDate = (time) => {
+  return time.getTime() > Date.now()
+}
+
+// 获取企业账套列表
+const fetchCompanyList = async () => {
+  try {
+    loading.value = true
+    const response = await getCompanyList()
+    
+    // 检查响应数据
+    if (response.success && response.data && response.data.length > 0) {
+      companyList.value = response.data
+    } else {
+      ElMessage.warning('未找到可用的企业账套')
+      companyList.value = [{
+        id: 0,
+        code: 'TEST001',
+        name: '智易通测试企业'
+      }]
+    }
+  } catch (error) {
+    ElMessage.error(error.message || '获取企业账套列表失败')
+    
+    // 设置默认企业账套
+    companyList.value = [{
+      id: 0,
+      code: 'TEST001',
+      name: '智易通测试企业'
+    }]
+  } finally {
+    loading.value = false
+  }
+}
+
+// 提交登录
+const submitLogin = async () => {
+  if (!loginFormRef.value) return
   
-  formRef.value.validate((valid) => {
+  await loginFormRef.value.validate(async (valid) => {
     if (valid) {
       loading.value = true
-      // 模拟登录请求
-      setTimeout(() => {
-        // 这里应该调用实际的登录 API
-        if (loginForm.value.username === 'admin' && loginForm.value.password === '123456') {
-          const token = 'dummy-token'
-          const userInfo = {
-            id: 1,
-            username: 'admin',
-            name: '系统管理员',
-            role: 'admin'
-          }
-          
-          // 保存认证信息
-          setToken(token)
-          setUserInfo(userInfo)
-
-          // 如果选择记住我，保存用户名
-          if (loginForm.value.remember) {
-            localStorage.setItem('remembered_username', loginForm.value.username)
-          } else {
-            localStorage.removeItem('remembered_username')
-          }
-
-          // 登录成功提示
-          ElMessage({
-            type: 'success',
-            message: '登录成功'
-          })
-
-          // 跳转到重定向页面或首页
-          const redirect = route.query.redirect || '/'
-          router.push(redirect)
-        } else {
-          ElMessage({
-            type: 'error',
-            message: '用户名或密码错误'
-          })
+      try {
+        const fullServerAddress = `${loginForm.protocol}${loginForm.serverAddress}`
+        const loginData = {
+          serverAddress: fullServerAddress,
+          companyId: loginForm.companyId,
+          username: loginForm.username,
+          password: loginForm.password,
+          loginDate: loginForm.loginDate
         }
+        
+        // 调用登录接口
+        const response = await login(loginData)
+        
+        // 存储用户信息和 Token
+        localStorage.setItem('user', JSON.stringify(response.data.user))
+        localStorage.setItem('token', response.data.token)
+        
+        ElMessage.success('登录成功')
+        router.push('/dashboard')
+      } catch (error) {
+        ElMessage.error(error.message || '登录失败')
+      } finally {
         loading.value = false
-      }, 1000)
+      }
     }
   })
 }
 
-// 如果记住密码，自动填充用户名
 onMounted(() => {
-  const savedUsername = localStorage.getItem('remembered_username')
-  if (savedUsername) {
-    loginForm.value.username = savedUsername
-    loginForm.value.remember = true
-  }
+  fetchCompanyList()
 })
 </script>
 
 <style scoped>
 .login-container {
-  height: 100vh;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #1f4037 0%, #99f2c8 100%);
-}
-
-.login-box {
-  width: 400px;
-  padding: 40px;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-}
-
-.login-header {
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.login-header .logo {
-  width: 64px;
-  height: 64px;
-  margin-bottom: 16px;
-}
-
-.login-header h2 {
-  font-size: 24px;
-  color: #303133;
-  margin: 0 0 8px;
-}
-
-.login-header p {
-  font-size: 14px;
-  color: #909399;
-  margin: 0;
+  height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
 .login-form {
-  margin-top: 20px;
+  width: 450px;
+  padding: 30px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.remember-me {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.login-button {
-  width: 100%;
-}
-
-.login-footer {
-  margin-top: 40px;
+.login-title {
   text-align: center;
-  color: #ffffff;
-  font-size: 14px;
-}
-
-:deep(.el-input__wrapper) {
-  background-color: rgba(255, 255, 255, 0.8);
-}
-
-:deep(.el-checkbox__label) {
-  color: #606266;
-}
-
-:deep(.el-form-item__error) {
-  color: #f56c6c;
+  margin-bottom: 20px;
+  color: #409EFF;
 }
 </style>

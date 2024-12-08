@@ -179,7 +179,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_knowledge (
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      DATETIME ON UPDATE CURRENT_TIMESTAMP,
     KEY idx_domain_topic (domain, topic)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI知识库表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI知识库表();
 
 -- AI业务规则表
 CREATE TABLE IF NOT EXISTS sys_ai_business_rule (
@@ -196,7 +196,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_business_rule (
     updated_at      DATETIME ON UPDATE CURRENT_TIMESTAMP,
     updated_by      INT,
     UNIQUE KEY uk_rule_code (rule_code)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI业务规则表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI业务规则表;
 
 -- AI分析模型表
 CREATE TABLE IF NOT EXISTS sys_ai_analysis_model (
@@ -214,7 +214,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_analysis_model (
     updated_at      DATETIME ON UPDATE CURRENT_TIMESTAMP,
     updated_by      INT,
     UNIQUE KEY uk_model_code (model_code)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI分析模型表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI分析模型表;
 
 -- AI训练数据集表
 CREATE TABLE IF NOT EXISTS sys_ai_training_data (
@@ -232,7 +232,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_training_data (
     updated_at      DATETIME ON UPDATE CURRENT_TIMESTAMP,
     updated_by      INT,
     UNIQUE KEY uk_dataset_code (dataset_code)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI训练数据集表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI训练数据集表;
 
 -- AI使用记录表
 CREATE TABLE IF NOT EXISTS sys_ai_usage_log (
@@ -249,7 +249,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_usage_log (
     created_by      INT NOT NULL,
     KEY idx_company_model (company_id, model_code),
     KEY idx_created_at (created_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI使用记录表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI使用记录表;
 
 -- AI模型配置表
 CREATE TABLE IF NOT EXISTS sys_ai_config (
@@ -267,7 +267,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_config (
     updated_at      DATETIME,
     updated_by      INT,
     UNIQUE KEY uk_provider_model (provider, model_name)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI模型配置表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI模型配置表;
 
 -- AI对话历史表
 CREATE TABLE IF NOT EXISTS sys_ai_conversation (
@@ -288,7 +288,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_conversation (
     created_at      DATETIME NOT NULL,
     KEY idx_user_session (user_id, session_id),
     KEY idx_business (business_type, business_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI对话历史表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI对话历史表;
 
 -- AI知识库表
 CREATE TABLE IF NOT EXISTS sys_ai_knowledge_base (
@@ -306,7 +306,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_knowledge_base (
     updated_at      DATETIME,
     updated_by      INT,
     KEY idx_category (category)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI知识库表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI知识库表;
 
 -- AI使用统计表
 CREATE TABLE IF NOT EXISTS sys_ai_usage_stats (
@@ -327,7 +327,21 @@ CREATE TABLE IF NOT EXISTS sys_ai_usage_stats (
     KEY idx_user_date (user_id, stat_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI使用统计表';
 
-
+-- 系统配置表
+CREATE TABLE IF NOT EXISTS sys_config (
+    id              INT PRIMARY KEY AUTO_INCREMENT,
+    config_key      VARCHAR(100) NOT NULL,       -- 配置键
+    config_value    TEXT,                        -- 配置值
+    config_type     VARCHAR(50) NOT NULL,        -- 配置类型(database/system/security等)
+    description     VARCHAR(200),                -- 配置描述
+    is_encrypted    TINYINT NOT NULL DEFAULT 0,  -- 是否加密存储
+    status          TINYINT NOT NULL DEFAULT 1,  -- 状态(1:启用 0:禁用)
+    created_at      DATETIME NOT NULL,           -- 创建时间
+    created_by      INT NOT NULL,                -- 创建人
+    updated_at      DATETIME,                    -- 更新时间
+    updated_by      INT,                         -- 更新人
+    UNIQUE KEY uk_config_key (config_key)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统配置表';
 
 -- 会计科目模板表
 CREATE TABLE IF NOT EXISTS sys_subject_template (
@@ -402,7 +416,6 @@ INSERT INTO sys_accounting_system (code, name, description, version, effective_d
 ('SMALL', '小企业会计准则', '小企业会计准则（2013年颁布）', '2013', '2013-01-01', 1, NOW(), 1),
 ('CAS', '企业会计准则', '企业会计准则（2006年颁布）', '2006', '2007-01-01', 1, NOW(), 1),
 ('NPO', '民间非营利组织会计制度', '民间非营利组织会计制度（2005年颁布）', '2005', '2005-01-01', 1, NOW(), 1);
-
 
 -- 初始化会计科目模板数据
 

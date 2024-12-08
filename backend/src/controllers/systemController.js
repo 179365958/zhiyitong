@@ -44,6 +44,23 @@ exports.initializeSystem = async (req, res) => {
     }
 };
 
+// 获取企业账套列表
+exports.getCompanies = async (req, res) => {
+    try {
+        const companies = await systemService.getCompanyList();
+        return res.json({
+            success: true,
+            data: companies
+        });
+    } catch (error) {
+        logger.error('获取企业账套列表失败:', error);
+        return res.status(500).json({
+            success: false,
+            message: '获取企业账套列表失败: ' + error.message
+        });
+    }
+};
+
 // 获取系统状态
 exports.getSystemStatus = async (req, res) => {
     try {
@@ -81,6 +98,54 @@ exports.getSystemStatus = async (req, res) => {
         res.status(500).json({
             success: false,
             message: '获取系统状态失败: ' + error.message
+        });
+    }
+};
+
+// 登录接口
+exports.login = async (req, res) => {
+    try {
+        const { serverAddress, companyId, username, password, loginDate } = req.body;
+
+        // 参数校验
+        if (!serverAddress || !companyId || !username || !password) {
+            return res.status(400).json({
+                success: false,
+                message: '登录参数不完整'
+            });
+        }
+
+        // 调用登录服务
+        const loginResult = await systemService.login({
+            serverAddress,
+            companyId,
+            username,
+            password,
+            loginDate
+        });
+
+        // 登录成功
+        if (loginResult.success) {
+            return res.json({
+                success: true,
+                message: '登录成功',
+                data: {
+                    user: loginResult.user,
+                    token: loginResult.token
+                }
+            });
+        } else {
+            // 登录失败
+            return res.status(401).json({
+                success: false,
+                message: loginResult.message || '登录失败'
+            });
+        }
+    } catch (error) {
+        logger.error('登录过程发生错误:', error);
+        return res.status(500).json({
+            success: false,
+            message: '服务器内部错误'
         });
     }
 };

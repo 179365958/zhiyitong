@@ -18,6 +18,12 @@ request.interceptors.request.use(
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`
     }
+    
+    // 调试日志
+    console.log('Request URL:', config.url)
+    console.log('Request Method:', config.method)
+    console.log('Request Data:', config.data)
+    
     return config
   },
   error => {
@@ -30,6 +36,10 @@ request.interceptors.request.use(
 request.interceptors.response.use(
   response => {
     const res = response.data
+
+    // 调试日志
+    console.log('Response URL:', response.config.url)
+    console.log('Response Data:', res)
 
     // 如果是初始化相关的接口，直接返回数据
     if (
@@ -49,24 +59,46 @@ request.interceptors.response.use(
     ElMessage({
       message: res.message || '请求失败',
       type: 'error',
-      duration: 3000
     })
     return Promise.reject(new Error(res.message || '请求失败'))
   },
   error => {
     console.error('Response error:', error)
-    ElMessage({
-      message: error.response?.data?.message || '网络请求失败',
-      type: 'error',
-      duration: 3000
-    })
     
-    // 处理特定的错误码
-    if (error.response?.status === 401) {
-      clearAuth()
-      router.push('/login')
+    // 更详细的错误日志
+    if (error.response) {
+      console.error('Error response status:', error.response.status)
+      console.error('Error response data:', error.response.data)
     }
-    
+
+    // 处理不同的错误情况
+    if (error.response) {
+      switch (error.response.status) {
+        case 401:
+          ElMessage.error('登录状态已过期，请重新登录')
+          clearAuth()
+          router.push('/login')
+          break
+        case 403:
+          ElMessage.error('没有权限访问')
+          break
+        case 404:
+          ElMessage.error('请求的资源不存在')
+          break
+        case 500:
+          ElMessage.error('服务器内部错误')
+          break
+        default:
+          ElMessage.error(error.response.data.message || '请求失败')
+      }
+    } else if (error.request) {
+      // 请求已发出，但没有收到响应
+      ElMessage.error('网络错误，请检查您的网络连接')
+    } else {
+      // 在设置请求时发生了错误
+      ElMessage.error('请求发生错误')
+    }
+
     return Promise.reject(error)
   }
 )

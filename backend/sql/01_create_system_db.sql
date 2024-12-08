@@ -330,11 +330,16 @@ CREATE TABLE IF NOT EXISTS sys_ai_usage_stats (
 -- 系统配置表
 CREATE TABLE IF NOT EXISTS sys_config (
     id              INT PRIMARY KEY AUTO_INCREMENT,
-    config_key      VARCHAR(50) NOT NULL,        -- 配置键
-    config_value    TEXT NOT NULL,               -- 配置值
-    description     VARCHAR(200),                -- 配置说明
-    created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,           -- 创建时间
-    updated_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,           -- 更新时间
+    config_key      VARCHAR(100) NOT NULL,       -- 配置键
+    config_value    TEXT,                        -- 配置值
+    config_type     VARCHAR(50) NOT NULL,        -- 配置类型(database/system/security等)
+    description     VARCHAR(200),                -- 配置描述
+    is_encrypted    TINYINT NOT NULL DEFAULT 0,  -- 是否加密存储
+    status          TINYINT NOT NULL DEFAULT 1,  -- 状态(1:启用 0:禁用)
+    created_at      DATETIME NOT NULL,           -- 创建时间
+    created_by      INT NOT NULL,                -- 创建人
+    updated_at      DATETIME,                    -- 更新时间
+    updated_by      INT,                         -- 更新人
     UNIQUE KEY uk_config_key (config_key)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统配置表';
 
@@ -406,11 +411,25 @@ CREATE TABLE IF NOT EXISTS sys_subject_mapping (
     UNIQUE KEY uk_mapping (from_system_id, to_system_id, from_subject_code, to_subject_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='科目对照映射表';
 
--- 初始化基础会计制度数据
-INSERT INTO sys_accounting_system (code, name, description, version, effective_date, status, created_at, created_by) VALUES
+-- 初始化会计制度数据
+INSERT IGNORE INTO sys_accounting_system 
+(code, name, description, version, effective_date, status, created_at, created_by) 
+VALUES 
 ('SMALL', '小企业会计准则', '小企业会计准则（2013年颁布）', '2013', '2013-01-01', 1, NOW(), 1),
-('CAS', '企业会计准则', '企业会计准则（2006年颁布）', '2006', '2007-01-01', 1, NOW(), 1),
-('NPO', '民间非营利组织会计制度', '民间非营利组织会计制度（2005年颁布）', '2005', '2005-01-01', 1, NOW(), 1);
+('STANDARD', '企业会计准则', '企业会计准则（2021年版）', '2021', '2021-01-01', 1, NOW(), 1);
+
+-- 初始化企业账套数据
+INSERT IGNORE INTO sys_company 
+(company_code, company_name, tax_code, legal_person, contact, phone, 
+ address, email, db_name, fiscal_year, period_type, begin_date, 
+ currency_code, accounting_system_id, status, created_at, created_by) 
+VALUES 
+('ZYT001', '智易通科技有限公司', '91110108MA7XXXXX', '张三', '李四', '13800138000', 
+ '北京市海淀区中关村软件园', 'contact@zhiyitong.com', 'zyt_company_001', 2024, 1, '2024-01-01', 
+ 'CNY', 1, 1, NOW(), 1),
+('ZYT002', '北京数字科技有限公司', '91110108MA7YYYYY', '王五', '赵六', '13900139000', 
+ '北京市朝阳区望京科技园', 'contact@digitech.com', 'zyt_company_002', 2024, 1, '2024-01-01', 
+ 'CNY', 2, 1, NOW(), 1);
 
 -- 初始化会计科目模板数据
 

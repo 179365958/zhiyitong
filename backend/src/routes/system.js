@@ -14,4 +14,10 @@ router.post('/initialize', systemController.initializeSystem);
 // 获取系统状态
 router.get('/status', systemController.getSystemStatus);
 
+// 获取企业账套列表
+router.get('/companies', systemController.getCompanies);
+
+// 用户登录
+router.post('/login', systemController.login);
+
 module.exports = router;
