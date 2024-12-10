@@ -198,11 +198,6 @@ const submitLogin = async () => {
   })
 }
 
-// 跳转到账套管理登录窗口
-const goToAccountManagementLogin = () => {
-  router.push('/account-management-login')
-}
-
 onMounted(() => {
   // 移除 onMounted 中的 fetchCompanyList 调用
 })
