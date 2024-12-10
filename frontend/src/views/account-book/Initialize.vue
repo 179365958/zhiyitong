@@ -1,6 +1,7 @@
 <template>
   <div class="initialize-container">
     <el-card class="init-card">
+      <el-button type="default" @click="() => $router.push('/login')" style="position: absolute; right: 20px; top: 20px;">返回</el-button>
       <template #header>
         <div class="card-header">
           <h2>系统初始化</h2>
@@ -261,6 +262,7 @@ checkEnvironment()
 
 .init-card {
   width: 600px;
+  position: relative;
 }
 
 .card-header {

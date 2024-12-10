@@ -2,9 +2,9 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { menuItems } from './modules/menu'
 import { getToken } from '@/utils/auth'
 import Home from '@/views/Home.vue'
-import Login from '@/views/Login.vue'
+import Login from '@/views/account-book/Login.vue'
 import { checkSystemInit } from '@/api/system'
-import Initialize from '@/views/Initialize.vue'
+import Initialize from '@/views/account-book/Initialize.vue'
 
 // 动态导入组件的函数
 const loadView = (view) => {
@@ -24,6 +24,7 @@ const loadView = (view) => {
       'ledger/General': () => import('@/views/ledger/General.vue'),
       'ledger/Subsidiary': () => import('@/views/ledger/Subsidiary.vue'),
       'ledger/Balance': () => import('@/views/ledger/Balance.vue'),
+      'account-book/Initialize': () => import('@/views/account-book/Initialize.vue'),
       
       // 财务报表
       'report/BalanceSheet': () => import('@/views/report/BalanceSheet.vue'),
@@ -83,16 +84,28 @@ function generateRoutes(menuItems) {
 // 基础路由
 const baseRoutes = [
   {
+    path: '/login',
+    name: 'UserLogin',
+    component: () => import('@/views/Login.vue'),
+    meta: { title: '用户登录' }
+  },
+  {
+    path: '/account-book',
+    name: 'AccountBook',
+    component: () => import('@/views/account-book/AccountManagement.vue'),
+    meta: { title: '账套管理' }
+  },
+  {
+    path: '/account-book/login',
+    name: 'AccountBookLogin',
+    component: () => import('@/views/account-book/Login.vue'),
+    meta: { title: '账套管理登录' }
+  },
+  {
     path: '/init',
     name: 'Initialize',
     component: Initialize,
-    meta: { title: '系统初始化' }
-  },
-  {
-    path: '/login',
-    name: 'login',
-    component: Login,
-    meta: { title: '登录' }
+    meta: { title: '账套初始化' }
   },
   {
     path: '/',
@@ -116,24 +129,24 @@ const router = createRouter({
 // 路由守卫
 router.beforeEach((to, from, next) => {
   const token = getToken()
+  
+  // 不需要登录就可以访问的页面
+  const publicPages = ['/login', '/init', '/account-book', '/account-book/login']
+  const isPublicPage = publicPages.includes(to.path)
 
-  // 登录页面逻辑
-  if (to.path === '/login') {
-    if (token) {
-      next('/')
+  if (isPublicPage) {
+    if (token && to.path === '/login') {
+      next('/') // 已登录用户访问登录页，重定向到首页
     } else {
-      next()
+      next() // 允许访问公共页面
     }
-  } else if (to.path === '/init') {
-    next() // 直接跳转到初始化页面
   } else {
     if (token) {
-      next()
+      next() // 已登录用户可以访问其他页面
     } else {
-      next('/login')
+      next('/login') // 未登录用户重定向到登录页
     }
   }
 })
-
 
 export default router

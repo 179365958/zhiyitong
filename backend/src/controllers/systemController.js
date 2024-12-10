@@ -1,5 +1,8 @@
 const systemService = require('../services/systemService');
 const logger = require('../utils/logger');
+const fs = require('fs');
+const path = require('path');
+const { exec } = require('child_process');
 
 // 检查系统是否已初始化
 exports.checkSystemInit = async (req, res) => {
@@ -33,6 +36,20 @@ exports.validateDbConfig = async (req, res) => {
 exports.initializeSystem = async (req, res) => {
     try {
         const { dbConfig, adminUser } = req.body;
+
+        // 1. 检查数据库连接
+        const connectionResult = await systemService.testDatabaseConnection(dbConfig);
+        if (!connectionResult.success) {
+            return res.status(400).json({ success: false, message: '数据库连接失败' });
+        }
+
+        // 2. 执行 SQL 脚本
+        const sqlFilePath = path.join(__dirname, '../../sql/01_create_system_db.sql');
+        const sqlCommands = fs.readFileSync(sqlFilePath, 'utf8');
+
+        await systemService.executeSqlCommands(sqlCommands);
+
+        // 3. 初始化系统
         const result = await systemService.initializeSystem(dbConfig, adminUser);
         return res.json(result);
     } catch (error) {

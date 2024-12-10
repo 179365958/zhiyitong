@@ -70,14 +70,17 @@
       </el-form-item>
 
       <el-form-item>
-        <el-button 
-          type="primary" 
-          @click="submitLogin" 
-          :loading="loading"
-          style="width: 100%"
-        >
-          登 录
-        </el-button>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <el-button type="primary" @click="() => $router.push('/account-book/login')" style="width: 49%">账套管理</el-button>
+          <el-button 
+            type="primary" 
+            @click="submitLogin" 
+            :loading="loading"
+            style="width: 49%"
+          >
+            登 录
+          </el-button>
+        </div>
       </el-form-item>
     </el-form>
   </div>
@@ -184,6 +187,7 @@ const submitLogin = async () => {
         localStorage.setItem('token', response.data.token)
         
         ElMessage.success('登录成功')
+        await fetchCompanyList(); // 登录成功后获取公司列表
         router.push('/dashboard')
       } catch (error) {
         ElMessage.error(error.message || '登录失败')
@@ -194,8 +198,13 @@ const submitLogin = async () => {
   })
 }
 
+// 跳转到账套管理登录窗口
+const goToAccountManagementLogin = () => {
+  router.push('/account-management-login')
+}
+
 onMounted(() => {
-  fetchCompanyList()
+  // 移除 onMounted 中的 fetchCompanyList 调用
 })
 </script>
 
