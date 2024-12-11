@@ -88,6 +88,7 @@ const executeSqlInitialization = async () => {
     // 1. 执行 SQL 脚本以创建数据库和表
     const sqlFilePath = path.join(__dirname, '../../sql/01_create_system_db.sql');
     const sqlCommands = fs.readFileSync(sqlFilePath, 'utf8');
+    await checkAndCreateDatabase();
     await executeSqlCommands(sqlCommands);
 
     // 2. 检查 sys_user 表是否存在
