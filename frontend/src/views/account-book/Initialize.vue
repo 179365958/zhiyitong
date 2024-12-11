@@ -38,7 +38,7 @@
         <el-result
           v-else
           icon="success"
-          title="环境检查通过"
+          title="后台连接正常！"
         >
           <template #extra>
             <el-button type="primary" @click="nextStep">下一步</el-button>
@@ -194,7 +194,7 @@ const checkEnvironment = async () => {
     }
   } catch (error) {
     checking.value = false
-    checkError.value = '环境检查失败'
+    checkError.value = '环境检查失败,未能连接到后台服务'
     checkErrorMessage.value = error.message || '请检查系统配置'
   }
 }
