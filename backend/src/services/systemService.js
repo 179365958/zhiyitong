@@ -44,31 +44,31 @@ const checkInitialized = async () => {
         );
         return results && results.length > 0;
     } catch (error) {
-        logger.error('检查系统初始化状态失败:', error);
+        logger.error('检查系统初始化状态失败！:', error);
         return false;
     }
 };
 
 // 检查并创建数据库
 const checkAndCreateDatabase = async () => {
-    const sequelizeTemp = new Sequelize(process.env.DB_USER, process.env.DB_PASS, {
-        host: process.env.DB_HOST,
-        dialect: process.env.DB_TYPE,
-        port: process.env.DB_PORT,
-    });
-
-    const [results] = await sequelizeTemp.query(
-        'SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?', { replacements: ['zyt_sys'] }
-    );
-
-    if (results.length === 0) {
-        // 数据库不存在，创建数据库
-        await sequelizeTemp.query(
-            'CREATE DATABASE zyt_sys DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci'
+    try {
+        // 检查数据库是否存在
+        const [results] = await sequelize.query(
+            'SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?', { replacements: ['zyt_sys'] }
         );
-        logger.info('数据库 zyt_sys 创建成功');
-    } else {
-        logger.info('数据库 zyt_sys 已存在');
+
+        if (results.length === 0) {
+            // 数据库不存在，创建数据库
+            await sequelize.query('CREATE DATABASE zyt_sys');
+            logger.info('数据库 zyt_sys 创建成功');
+            return true; // 返回创建成功
+        } else {
+            logger.info('数据库 zyt_sys 已存在');
+            return false; // 数据库已存在
+        }
+    } catch (error) {
+        logger.error('检查或创建数据库失败:', error);
+        throw new Error('检查或创建数据库失败: ' + error.message);
     }
 };
 
@@ -126,4 +126,4 @@ const initializeSystem = async (dbConfig, adminUser) => {
     return { success: true, message: '系统初始化成功' };
 };
 
-module.exports = { testDatabaseConnection, executeSqlCommands, initializeSystem, checkInitialized };
+module.exports = { testDatabaseConnection, executeSqlCommands, initializeSystem, checkInitialized, checkAndCreateDatabase };

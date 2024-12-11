@@ -56,3 +56,10 @@ export function login(data) {
     }
   })
 }
+// 检查和创建数据库
+export function checkAndCreateDatabase() {
+  return request({
+    url: '/api/system/check-and-create-database',
+    method: 'get'
+  });
+}

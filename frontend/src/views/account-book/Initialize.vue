@@ -8,12 +8,6 @@
         </div>
       </template>
 
-      <el-steps :active="activeStep" finish-status="success">
-        <el-step title="检查环境" />
-        <el-step title="数据库配置" />
-        <el-step title="管理员设置" />
-      </el-steps>
-
       <!-- 检查环境步骤 -->
       <div v-if="activeStep === 0" class="step-content">
         <el-result
@@ -46,41 +40,8 @@
         </el-result>
       </div>
 
-      <!-- 数据库配置步骤 -->
-      <div v-if="activeStep === 1" class="step-content">
-        <el-form
-          ref="dbFormRef"
-          :model="dbForm"
-          :rules="dbRules"
-          label-width="120px"
-        >
-          <el-form-item label="数据库类型" prop="type">
-            <el-select v-model="dbForm.type" placeholder="请选择数据库类型">
-              <el-option label="MySQL" value="mysql" />
-              <el-option label="SQL Server" value="mssql" />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="数据库主机" prop="host">
-            <el-input v-model="dbForm.host" />
-          </el-form-item>
-          <el-form-item label="端口" prop="port">
-            <el-input v-model="dbForm.port" />
-          </el-form-item>
-          <el-form-item label="用户名" prop="username">
-            <el-input v-model="dbForm.username" />
-          </el-form-item>
-          <el-form-item label="密码" prop="password">
-            <el-input v-model="dbForm.password" type="password" />
-          </el-form-item>
-        </el-form>
-        <div class="step-buttons">
-          <el-button @click="prevStep">上一步</el-button>
-          <el-button type="primary" @click="validateDbConfig">下一步</el-button>
-        </div>
-      </div>
-
       <!-- 管理员设置步骤 -->
-      <div v-if="activeStep === 2" class="step-content">
+      <div v-if="activeStep === 1" class="step-content">
         <el-form
           ref="adminFormRef"
           :model="adminForm"
@@ -110,7 +71,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { checkSystemInit, initializeSystem, validateDbConfig as testDbConnection } from '@/api/system'
+import { checkSystemInit, initializeSystem, validateDbConfig as testDbConnection, checkAndCreateDatabase } from '@/api/system'
 
 const router = useRouter()
 
@@ -119,33 +80,6 @@ const activeStep = ref(0)
 const checking = ref(true)
 const checkError = ref('')
 const checkErrorMessage = ref('')
-
-// 数据库配置表单
-const dbFormRef = ref(null)
-const dbForm = ref({
-  type: 'mysql',
-  host: 'localhost',
-  port: '3306',
-  username: '',
-  password: ''
-})
-const dbRules = {
-  type: [
-    { required: true, message: '请选择数据库类型', trigger: 'change' }
-  ],
-  host: [
-    { required: true, message: '请输入数据库主机', trigger: 'blur' }
-  ],
-  port: [
-    { required: true, message: '请输入端口号', trigger: 'blur' }
-  ],
-  username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' }
-  ],
-  password: [
-    { required: true, message: '请输入密码', trigger: 'blur' }
-  ]
-}
 
 // 管理员设置表单
 const adminFormRef = ref(null)
@@ -190,6 +124,17 @@ const checkEnvironment = async () => {
       // 系统已初始化，跳转到登录页
       router.push('/login')
     } else {
+      // 3. 检查 zyt_sys 数据库是否存在
+      const initialized = await checkInitialized()
+      if (initialized) {
+        // 4. 数据库存在，继续进行后续步骤
+        router.push('/next-step')
+      } else {
+        // 调用检查并创建数据库的函数
+        await checkAndCreateDatabase()
+        ElMessage.success('数据库初始化成功！')
+        router.push('/next-step')
+      }
       checking.value = false
     }
   } catch (error) {
@@ -199,31 +144,12 @@ const checkEnvironment = async () => {
   }
 }
 
-// 验证数据库配置
-const validateDbConfig = async () => {
-  try {
-    await dbFormRef.value?.validate()
-    
-    // 验证数据库配置
-    const res = await testDbConnection(dbForm.value)
-    if (res.success) {
-      ElMessage.success('数据库连接成功')
-      nextStep()
-    } else {
-      ElMessage.error(res.message || '数据库连接失败')
-    }
-  } catch (error) {
-    ElMessage.error(error.message || '验证失败')
-  }
-}
-
 // 初始化系统
 const handleInitialize = async () => {
   try {
     await adminFormRef.value?.validate()
     
     const data = {
-      dbConfig: dbForm.value,
       adminUser: {
         username: adminForm.value.username,
         password: adminForm.value.password
