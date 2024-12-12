@@ -1,9 +1,11 @@
 <template>
   <div class="initialize-container">
     <el-card class="init-card">
-      <el-button type="default" @click="goBack" style="position: absolute; right: 20px; top: 20px;">返回</el-button>
       <template #header>
-        <h2>系统初始化</h2>
+        <div class="card-header">
+          <h2>系统初始化</h2>
+          <el-button type="default" @click="goBack">返回</el-button>
+        </div>
       </template>
       
       <!-- 检查结果显示 -->
@@ -146,6 +148,16 @@ checkEnvironment();
 .init-card {
   width: 100%;
   max-width: 600px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-header h2 {
+  margin: 0;
 }
 
 .check-status,
