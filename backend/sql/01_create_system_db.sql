@@ -467,3 +467,8 @@ VALUES
 
 -- 民间非营利组织会计制度科目模板
 -- TODO: 添加民间非营利组织的科目模板
+-- 初始化管理员用户
+INSERT INTO sys_user 
+(username, password, real_name, is_admin, status, created_at, created_by) 
+VALUES 
+('admin', '123456', '系统管理员', 1, 1, NOW(), 1);
