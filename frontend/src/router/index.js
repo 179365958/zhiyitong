@@ -24,8 +24,10 @@ const loadView = (view) => {
       'ledger/General': () => import('@/views/ledger/General.vue'),
       'ledger/Subsidiary': () => import('@/views/ledger/Subsidiary.vue'),
       'ledger/Balance': () => import('@/views/ledger/Balance.vue'),
-      'account-book/Initialize': () => import('@/views/account-book/Initialize.vue'),
       
+      // 账套管理
+      'account-book/Initialize': () => import('@/views/account-book/Initialize.vue'),
+      'account-book/Login': () => import('@/views/account-book/Login.vue'),
       // 财务报表
       'report/BalanceSheet': () => import('@/views/report/BalanceSheet.vue'),
       'report/Income': () => import('@/views/report/Income.vue'),

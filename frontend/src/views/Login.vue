@@ -90,7 +90,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { getCompanyList, login } from '@/api/system'
+import { getCompanies, login } from '@/api/system'
 
 const router = useRouter()
 const loginFormRef = ref(null)
@@ -134,31 +134,18 @@ const disabledDate = (time) => {
 // 获取企业账套列表
 const fetchCompanyList = async () => {
   try {
-    loading.value = true
-    const response = await getCompanyList()
-    
-    // 检查响应数据
-    if (response.success && response.data && response.data.length > 0) {
+    const response = await getCompanies()
+    if (response.success) {
       companyList.value = response.data
     } else {
-      ElMessage.warning('未找到可用的企业账套')
-      companyList.value = [{
-        id: 0,
-        code: 'TEST001',
-        name: '智易通测试企业'
-      }]
+      // 如果获取失败，可能是系统未初始化
+      ElMessage.warning('未检测到企业账套，请先进行系统初始化')
+      router.push('/init')
     }
   } catch (error) {
+    console.error('获取企业账套列表失败:', error)
     ElMessage.error(error.message || '获取企业账套列表失败')
-    
-    // 设置默认企业账套
-    companyList.value = [{
-      id: 0,
-      code: 'TEST001',
-      name: '智易通测试企业'
-    }]
-  } finally {
-    loading.value = false
+    router.push('/init')
   }
 }
 

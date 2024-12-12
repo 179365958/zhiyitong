@@ -8,36 +8,27 @@ export function checkSystemInit() {
   })
 }
 
-// 验证数据库配置
-export function validateDbConfig(data) {
+// 初始化系统
+export function initializeDatabase() {
   return request({
-    url: '/api/system/validate-db',
-    method: 'post',
-    data
+    url: '/api/system/initialize',
+    method: 'post'
   })
 }
 
-// 初始化系统
-export function initializeSystem(data) {
+// 获取系统状态
+export function getSystemStatus() {
   return request({
-    url: '/api/system/initialize',
-    method: 'post',
-    data
+    url: '/api/system/status',
+    method: 'get'
   })
 }
 
 // 获取企业账套列表
-export function getCompanyList() {
+export function getCompanies() {
   return request({
     url: '/api/system/companies',
     method: 'get'
-  }).then(response => {
-    // 确保返回的数据符合前端预期
-    if (response.success && response.data) {
-      return response
-    } else {
-      throw new Error(response.message || '获取企业账套列表失败')
-    }
   })
 }
 
@@ -47,19 +38,5 @@ export function login(data) {
     url: '/api/system/login',
     method: 'post',
     data
-  }).then(response => {
-    // 确保返回的数据符合前端预期
-    if (response.success && response.data) {
-      return response
-    } else {
-      throw new Error(response.message || '登录失败')
-    }
   })
-}
-// 检查和创建数据库
-export function checkAndCreateDatabase() {
-  return request({
-    url: '/api/system/check-and-create-database',
-    method: 'get'
-  });
 }
