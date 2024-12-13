@@ -87,7 +87,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { checkSystemInit, initializeDatabase } from '@/api/system';
 
 const currentStep = ref(0);
@@ -95,6 +95,7 @@ const checking = ref(false);
 const success = ref(false);
 const successMessage = ref('');
 const adminFormRef = ref(null);
+const isInitialized = ref(false);
 
 // 数据库连接状态
 const connectionStatus = reactive({
@@ -150,10 +151,12 @@ const testConnection = async () => {
     connectionStatus.success = result.success;
     connectionStatus.message = result.success ? '连接成功' : '连接失败';
     connectionStatus.details = result.message;
+    isInitialized.value = result.initialized;
   } catch (error) {
     connectionStatus.success = false;
     connectionStatus.message = '连接失败';
     connectionStatus.details = error.message;
+    isInitialized.value = false;
   } finally {
     checking.value = false;
   }
@@ -162,7 +165,34 @@ const testConnection = async () => {
 // 下一步
 const nextStep = () => {
   if (connectionStatus.success) {
-    currentStep.value = 1;
+    if (isInitialized.value) {
+      ElMessageBox.confirm(
+        `系统已经初始化，重新初始化将完全删除现有数据库并重新创建。
+        请确保已经备份了重要数据！
+        
+        建议的备份步骤：
+        1. 使用数据库管理工具导出现有数据库
+        2. 将导出的文件保存到安全位置
+        3. 确认备份文件完整可用
+        
+        是否继续重新初始化？`,
+        '警告',
+        {
+          confirmButtonText: '已备份，继续初始化',
+          cancelButtonText: '取消',
+          type: 'warning',
+          dangerouslyUseHTMLString: true
+        }
+      )
+        .then(() => {
+          currentStep.value = 1;
+        })
+        .catch(() => {
+          // 用户取消操作
+        });
+    } else {
+      currentStep.value = 1;
+    }
   }
 };
 
@@ -172,14 +202,35 @@ const submitForm = async () => {
   
   await adminFormRef.value.validate(async (valid) => {
     if (valid) {
+      if (isInitialized.value) {
+        try {
+          await ElMessageBox.confirm(
+            `确定要重新初始化系统吗？
+            
+            这将：
+            1. 完全删除现有数据库
+            2. 重新创建所有数据表
+            3. 重置管理员账号
+            
+            请再次确认已经备份了所有重要数据！`,
+            '最后确认',
+            {
+              confirmButtonText: '确定重新初始化',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }
+          );
+        } catch (e) {
+          return; // 用户取消操作
+        }
+      }
+
       try {
         checking.value = true;
-        console.log('Submitting form with:', adminForm); // Debug: log adminForm
         const result = await initializeDatabase({
           username: adminForm.username,
           password: adminForm.password
         });
-        console.log('Initialization result:', result); // Debug: log result
         if (result.success) {
           ElMessage.success('系统初始化成功！');
           success.value = true;

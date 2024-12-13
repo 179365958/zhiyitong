@@ -72,6 +72,13 @@ exports.validateDbConfig = async (dbConfig) => {
 exports.initializeSystem = async (username, password) => {
     let connection;
     try {
+        const config = {
+            host: process.env.DB_HOST,
+            port: parseInt(process.env.DB_PORT),
+            user: process.env.DB_USER,
+            password: process.env.DB_PASS,
+            database: process.env.DB_SYS_NAME
+        };
         // 创建数据库连接
         connection = await mysql.createConnection({
             host: config.host,
@@ -79,6 +86,15 @@ exports.initializeSystem = async (username, password) => {
             user: config.user,
             password: config.password
         });
+
+        // 检查数据库是否存在
+        const [rows] = await connection.query(`SHOW DATABASES LIKE '${config.database}'`);
+        const dbExists = rows.length > 0;
+
+        if (dbExists) {
+            // 删除现有数据库
+            await connection.query(`DROP DATABASE ${config.database}`);
+        }
 
         // 读取 SQL 文件
         const sqlFilePath = path.join(__dirname, '../../sql/01_create_system_db.sql');
@@ -92,7 +108,9 @@ exports.initializeSystem = async (username, password) => {
 
         // 执行每个 SQL 语句
         for (const statement of sqlStatements) {
-            await connection.query(statement);
+            if (statement) {
+                await connection.query(statement);
+            }
         }
 
         // 插入管理员用户
