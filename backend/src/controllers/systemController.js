@@ -29,7 +29,14 @@ exports.validateDbConfig = async (req, res) => {
 // 初始化系统
 exports.initializeSystem = async (req, res) => {
     try {
-        const result = await systemService.initializeSystem();
+        const { username, password } = req.body;
+        if (!username || !password) {
+            return res.status(400).json({
+                success: false,
+                message: '用户名和密码不能为空'
+            });
+        }
+        const result = await systemService.initializeSystem(username, password);
         res.json(result);
     } catch (error) {
         res.status(500).json({

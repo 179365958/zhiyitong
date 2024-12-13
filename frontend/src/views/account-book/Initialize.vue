@@ -1,180 +1,276 @@
 <template>
   <div class="initialize-container">
-    <el-card class="init-card">
-      <template #header>
-        <div class="card-header">
-          <h2>系统初始化</h2>
-          <el-button type="default" @click="goBack">返回</el-button>
+    <el-card class="box-card">
+      <el-steps :active="currentStep" finish-status="success">
+        <el-step title="数据库连接" />
+        <el-step title="管理员设置" />
+        <el-step title="完成初始化" />
+      </el-steps>
+
+      <!-- 步骤1：数据库连接信息 -->
+      <div v-if="currentStep === 0" class="step-content">
+        <h3>数据库连接信息</h3>
+        <div class="info-item">
+          <span class="label">主机：</span>
+          <span>{{ dbConfig.host }}</span>
         </div>
-      </template>
-      
-      <!-- 检查结果显示 -->
-      <div v-if="checking" class="check-status">
-        <el-icon class="is-loading"><Loading /></el-icon>
-        <span>正在检查系统环境...</span>
+        <div class="info-item">
+          <span class="label">端口：</span>
+          <span>{{ dbConfig.port }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">数据库：</span>
+          <span>{{ dbConfig.database }}</span>
+        </div>
+        <div class="connection-status">
+          <div class="status-item">
+            <span class="label">连接状态：</span>
+            <el-tag :type="connectionStatus.success ? 'success' : 'danger'">
+              {{ connectionStatus.message }}
+            </el-tag>
+          </div>
+          <div class="status-details">{{ connectionStatus.details }}</div>
+        </div>
+        <div class="actions">
+          <el-button type="primary" @click="testConnection" :loading="checking">
+            测试连接
+          </el-button>
+          <el-button type="success" @click="nextStep" :disabled="!connectionStatus.success">
+            下一步
+          </el-button>
+        </div>
       </div>
 
-      <div v-else-if="checkError" class="check-error">
-        <el-result
-          icon="error"
-          :title="checkError"
-          :sub-title="checkErrorMessage"
+      <!-- 步骤2：管理员设置 -->
+      <div v-if="currentStep === 1" class="step-content">
+        <h3>管理员信息设置</h3>
+        <el-form
+          ref="adminFormRef"
+          :model="adminForm"
+          :rules="adminRules"
+          label-width="100px"
+          class="admin-form"
         >
-          <template #extra>
-            <el-button type="primary" @click="checkEnvironment">重新检查</el-button>
-          </template>
-        </el-result>
+          <el-form-item label="用户名" prop="username">
+            <el-input v-model="adminForm.username" />
+          </el-form-item>
+          <el-form-item label="密码" prop="password">
+            <el-input v-model="adminForm.password" type="password" show-password />
+          </el-form-item>
+          <el-form-item label="确认密码" prop="confirmPassword">
+            <el-input v-model="adminForm.confirmPassword" type="password" show-password />
+          </el-form-item>
+          <el-form-item>
+            <el-button @click="currentStep = 0">上一步</el-button>
+            <el-button type="primary" @click="submitForm">确认</el-button>
+          </el-form-item>
+        </el-form>
       </div>
 
-      <div v-else-if="success" class="check-success">
-        <el-result
-          icon="success"
-          :title="successMessage"
-        >
-          <template #extra>
-            <el-button type="primary" @click="goBack">返回登录</el-button>
-          </template>
-        </el-result>
+      <!-- 步骤3：初始化完成 -->
+      <div v-if="currentStep === 2" class="step-content">
+        <div class="result-message">
+          <el-result
+            :icon="success ? 'success' : 'error'"
+            :title="successMessage"
+            :sub-title="success ? '系统初始化完成，请返回登录页面' : '初始化失败，请检查配置后重试'"
+          >
+            <template #extra>
+              <el-button type="primary" @click="goBack">返回登录页</el-button>
+            </template>
+          </el-result>
+        </div>
       </div>
-
-      <!-- 初始化确认对话框 -->
-      <el-dialog
-        v-model="showDbInitConfirm"
-        title="系统初始化确认"
-        width="400px"
-      >
-        <p>系统检测到数据库尚未初始化，是否现在初始化系统？</p>
-        <template #footer>
-          <span class="dialog-footer">
-            <el-button @click="showDbInitConfirm = false">取消</el-button>
-            <el-button type="primary" @click="initializeDatabase">确认初始化</el-button>
-          </span>
-        </template>
-      </el-dialog>
     </el-card>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, reactive } from 'vue';
 import { ElMessage } from 'element-plus';
-import { checkSystemInit, initializeDatabase as initDb } from '@/api/system';
+import { checkSystemInit, initializeDatabase } from '@/api/system';
 
-const router = useRouter();
-
-// 状态变量
-const checking = ref(true);
-const checkError = ref('');
-const checkErrorMessage = ref('');
+const currentStep = ref(0);
+const checking = ref(false);
 const success = ref(false);
 const successMessage = ref('');
-const showDbInitConfirm = ref(false);
+const adminFormRef = ref(null);
 
-// 返回登录页
-const goBack = () => {
-  router.push('/login');
+// 数据库连接状态
+const connectionStatus = reactive({
+  success: false,
+  message: '等待连接',
+  details: '请点击"测试连接"按钮测试数据库连接'
+});
+
+// 数据库配置信息
+const dbConfig = reactive({
+  host: import.meta.env.VITE_DB_HOST || 'localhost',
+  port: import.meta.env.VITE_DB_PORT || 3306,
+  database: import.meta.env.VITE_DB_NAME || 'zyt_sys'
+});
+
+// 管理员表单
+const adminForm = reactive({
+  username: 'admin',
+  password: '',
+  confirmPassword: ''
+});
+
+// 表单验证规则
+const adminRules = {
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' }
+  ],
+  confirmPassword: [
+    { required: true, message: '请确认密码', trigger: 'blur' },
+    {
+      validator: (rule, value, callback) => {
+        if (value !== adminForm.password) {
+          callback(new Error('两次输入的密码不一致'));
+        } else {
+          callback();
+        }
+      },
+      trigger: 'blur'
+    }
+  ]
 };
 
-// 检查环境
-const checkEnvironment = async () => {
-  checking.value = true;
-  checkError.value = '';
-  checkErrorMessage.value = '';
-  success.value = false;
-  showDbInitConfirm.value = false;
-  successMessage.value = '';
-
-  try {
-    const result = await checkSystemInit();
-    if (!result.success) {
-      throw new Error(result.message);
-    }
-
-    if (!result.initialized) {
-      checking.value = false;
-      showDbInitConfirm.value = true;
-      return;
-    }
-
-    checking.value = false;
-    success.value = true;
-    successMessage.value = '系统检查完成，可以登录系统';
-  } catch (error) {
-    checking.value = false;
-    checkError.value = '环境检查失败';
-    checkErrorMessage.value = error.message || '请检查系统配置';
-  }
-};
-
-// 初始化数据库
-const initializeDatabase = async () => {
+// 测试数据库连接
+const testConnection = async () => {
   try {
     checking.value = true;
-    showDbInitConfirm.value = false;
-    const result = await initDb();
-    if (result.success) {
-      ElMessage.success('系统初始化成功！');
-      success.value = true;
-      successMessage.value = '系统初始化完成，可以登录系统';
-      setTimeout(() => {
-        router.push('/login');
-      }, 2000);
-    } else {
-      throw new Error(result.message);
-    }
+    const result = await checkSystemInit();
+    connectionStatus.success = result.success;
+    connectionStatus.message = result.success ? '连接成功' : '连接失败';
+    connectionStatus.details = result.message;
   } catch (error) {
-    checkError.value = '系统初始化失败';
-    checkErrorMessage.value = error.message || '请检查系统配置';
+    connectionStatus.success = false;
+    connectionStatus.message = '连接失败';
+    connectionStatus.details = error.message;
   } finally {
     checking.value = false;
   }
 };
 
-// 组件挂载时自动检查环境
-checkEnvironment();
+// 下一步
+const nextStep = () => {
+  if (connectionStatus.success) {
+    currentStep.value = 1;
+  }
+};
+
+// 提交表单
+const submitForm = async () => {
+  if (!adminFormRef.value) return;
+  
+  await adminFormRef.value.validate(async (valid) => {
+    if (valid) {
+      try {
+        checking.value = true;
+        console.log('Submitting form with:', adminForm); // Debug: log adminForm
+        const result = await initializeDatabase({
+          username: adminForm.username,
+          password: adminForm.password
+        });
+        console.log('Initialization result:', result); // Debug: log result
+        if (result.success) {
+          ElMessage.success('系统初始化成功！');
+          success.value = true;
+          successMessage.value = '系统初始化成功';
+          currentStep.value = 2;
+        } else {
+          ElMessage.error(result.message);
+          success.value = false;
+          successMessage.value = result.message;
+        }
+      } catch (error) {
+        console.error('初始化失败:', error);
+        ElMessage.error(error.message || '系统初始化失败');
+        success.value = false;
+        successMessage.value = '系统初始化失败';
+      } finally {
+        checking.value = false;
+      }
+    }
+  });
+};
+
+// 返回登录页
+const goBack = () => {
+  window.location.href = '/login';
+};
+
+// 组件加载时自动测试连接
+testConnection();
 </script>
 
 <style scoped>
 .initialize-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: #f0f2f5;
+  max-width: 600px;  /* 减小最大宽度 */
+  margin: 100px auto;
+  padding: 0 20px;
+}
+
+.box-card {
+  margin-bottom: 20px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.step-content {
+  margin-top: 30px;
   padding: 20px;
 }
 
-.init-card {
-  width: 100%;
-  max-width: 600px;
-}
-
-.card-header {
+.info-item {
+  margin: 10px 0;
   display: flex;
-  justify-content: space-between;
   align-items: center;
 }
 
-.card-header h2 {
-  margin: 0;
+.label {
+  font-weight: bold;
+  margin-right: 10px;
+  min-width: 80px;
 }
 
-.check-status,
-.check-error,
-.check-success {
-  text-align: center;
-  padding: 20px;
+.connection-status {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
 }
 
-.check-status .el-icon {
-  margin-right: 8px;
-  font-size: 20px;
+.status-item {
+  margin-bottom: 10px;
 }
 
-.dialog-footer {
+.status-details {
+  color: #666;
+  font-size: 14px;
+  margin-left: 90px;
+}
+
+.actions {
+  margin-top: 20px;
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 10px;
+}
+
+.admin-form {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.result-message {
+  text-align: center;
+  margin: 30px 0;
 }
 </style>

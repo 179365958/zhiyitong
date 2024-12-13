@@ -9,10 +9,11 @@ export function checkSystemInit() {
 }
 
 // 初始化系统
-export function initializeDatabase() {
+export function initializeDatabase(data) {
   return request({
     url: '/api/system/initialize',
-    method: 'post'
+    method: 'post',
+    data
   })
 }
 

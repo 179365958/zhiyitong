@@ -1,4 +1,7 @@
 const mysql = require('mysql2/promise');
+const bcrypt = require('bcrypt'); // 注意：需要安装 bcrypt 包
+const fs = require('fs').promises;
+const path = require('path');
 const config = {
     host: process.env.DB_HOST,
     port: parseInt(process.env.DB_PORT),
@@ -66,50 +69,54 @@ exports.validateDbConfig = async (dbConfig) => {
 };
 
 // 初始化系统
-exports.initializeSystem = async () => {
+exports.initializeSystem = async (username, password) => {
+    let connection;
     try {
         // 创建数据库连接
-        const connection = await mysql.createConnection({
+        connection = await mysql.createConnection({
             host: config.host,
             port: config.port,
             user: config.user,
             password: config.password
         });
 
-        // 创建数据库
-        await connection.query(`CREATE DATABASE IF NOT EXISTS ${config.database}`);
-        await connection.query(`USE ${config.database}`);
+        // 读取 SQL 文件
+        const sqlFilePath = path.join(__dirname, '../../sql/01_create_system_db.sql');
+        const sqlContent = await fs.readFile(sqlFilePath, 'utf8');
 
-        // 创建必要的表
+        // 分割 SQL 语句
+        const sqlStatements = sqlContent
+            .split(';')
+            .map(statement => statement.trim())
+            .filter(statement => statement.length > 0);
+
+        // 执行每个 SQL 语句
+        for (const statement of sqlStatements) {
+            await connection.query(statement);
+        }
+
+        // 插入管理员用户
+        const hashedPassword = await bcrypt.hash(password, 10);
         await connection.query(`
-            CREATE TABLE IF NOT EXISTS users (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                username VARCHAR(50) NOT NULL UNIQUE,
-                password VARCHAR(255) NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-
-        await connection.query(`
-            CREATE TABLE IF NOT EXISTS companies (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                name VARCHAR(100) NOT NULL,
-                code VARCHAR(50) NOT NULL UNIQUE,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-
-        await connection.end();
+            INSERT INTO sys_user (username, password, real_name, email, mobile, is_admin, status, created_at, created_by)
+            VALUES (?, ?, '管理员', NULL, NULL, 1, 1, NOW(), 1)
+            ON DUPLICATE KEY UPDATE password = VALUES(password)
+        `, [username, hashedPassword]);
 
         return {
             success: true,
             message: '系统初始化成功'
         };
     } catch (error) {
+        console.error('初始化系统失败:', error);
         return {
             success: false,
             message: '系统初始化失败：' + error.message
         };
+    } finally {
+        if (connection) {
+            await connection.end();
+        }
     }
 };
 
@@ -198,8 +205,8 @@ exports.login = async (username, password) => {
         }
 
         const user = users[0];
-        // 这里应该添加密码验证逻辑
-        if (password !== user.password) { // 注意：实际应用中应该使用加密后的密码比较
+        const isValidPassword = await bcrypt.compare(password, user.password);
+        if (!isValidPassword) {
             return {
                 success: false,
                 message: '密码错误'
