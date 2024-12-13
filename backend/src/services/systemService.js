@@ -1,5 +1,15 @@
 const mysql = require('mysql2/promise');
-const config = require('../config/database');
+const config = {
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT),
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_SYS_NAME,
+    sslmode: process.env.DB_SSLMODE,
+    timezone: process.env.DB_TIMEZONE,
+    connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT),
+    multipleStatements: process.env.DB_MULTIPLE_STATEMENTS === 'true'
+};
 
 // 检查系统初始化状态
 exports.checkSystemInit = async () => {
