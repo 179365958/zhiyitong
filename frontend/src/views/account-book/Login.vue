@@ -3,9 +3,6 @@
     <el-button type="default" @click="() => $router.push('/login')" style="position: absolute; right: 20px; top: 20px;">返回</el-button>
     <el-form :model="loginForm" ref="loginFormRef" label-width="100px">
       <h2 class="login-title" style="color: #2196F3;">账套管理</h2>
-      <el-form-item label="服务器地址" style="margin-top: 10px;">
-        <el-input v-model="loginForm.serverAddress" placeholder="请输入服务器地址" :value="loginForm.serverAddress || '.'" />
-      </el-form-item>
       <el-form-item label="用户名" style="margin-top: 10px;">
         <el-input v-model="loginForm.username" placeholder="请输入用户名" />
       </el-form-item>
@@ -27,7 +24,6 @@ import { checkSystemInit } from '@/api/system'
 import request from '@/utils/request'
 
 const loginForm = ref({
-  serverAddress: '',
   username: 'admin',  // 直接设置默认值
   password: ''
 })
