@@ -22,6 +22,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { checkSystemInit } from '@/api/system'
 import request from '@/utils/request'
+import { setToken, setUserInfo } from '@/utils/auth'
 
 const loginForm = ref({
   username: 'admin',  // 直接设置默认值
@@ -53,9 +54,11 @@ const handleLogin = async () => {
       })
 
       if (response.success) {
+        // 使用 setToken 和 setUserInfo 方法
+        setToken(response.data.token)
+        setUserInfo(response.data)
+        
         ElMessage.success(response.message || '登录成功')
-        // 存储用户信息
-        localStorage.setItem('accountBookUser', JSON.stringify(response.data))
         router.push('/account-book')
       } else {
         ElMessage.error(response.message || '登录失败')

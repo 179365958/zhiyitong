@@ -133,12 +133,22 @@ router.beforeEach((to, from, next) => {
   const token = getToken()
   
   // 不需要登录就可以访问的页面
-  const publicPages = ['/login', '/init', '/account-book', '/account-book/login']
+  const publicPages = ['/login', '/init', '/account-book/login']
   const isPublicPage = publicPages.includes(to.path)
 
   if (isPublicPage) {
-    if (token && to.path === '/login') {
-      next('/') // 已登录用户访问登录页，重定向到首页
+    if (token) {
+      // 如果是从账套管理登录页登录
+      if (to.path === '/account-book/login') {
+        next('/account-book')
+      } 
+      // 如果是从主系统登录页登录
+      else if (to.path === '/login') {
+        next('/')
+      } 
+      else {
+        next()
+      }
     } else {
       next() // 允许访问公共页面
     }
@@ -146,7 +156,12 @@ router.beforeEach((to, from, next) => {
     if (token) {
       next() // 已登录用户可以访问其他页面
     } else {
-      next('/login') // 未登录用户重定向到登录页
+      // 未登录用户重定向到对应的登录页
+      if (to.path.startsWith('/account-book')) {
+        next('/account-book/login')
+      } else {
+        next('/login')
+      }
     }
   }
 })
