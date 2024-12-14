@@ -203,8 +203,9 @@ exports.getCompanies = async () => {
 
 // 用户登录
 exports.login = async (username, password) => {
+    let connection;
     try {
-        const connection = await mysql.createConnection({
+        connection = await mysql.createConnection({
             host: config.host,
             port: config.port,
             user: config.user,
@@ -212,13 +213,12 @@ exports.login = async (username, password) => {
             database: config.database
         });
 
-        const [users] = await connection.query('SELECT * FROM users WHERE username = ?', [username]);
-        await connection.end();
+        const [users] = await connection.query('SELECT * FROM sys_user WHERE username = ? AND status = 1', [username]);
 
         if (users.length === 0) {
             return {
                 success: false,
-                message: '用户不存在'
+                message: '用户不存在或已被禁用'
             };
         }
 
@@ -233,15 +233,24 @@ exports.login = async (username, password) => {
 
         return {
             success: true,
+            message: '登录成功',
             data: {
                 id: user.id,
-                username: user.username
+                username: user.username,
+                realName: user.real_name,
+                isAdmin: user.is_admin === 1,
+                status: user.status
             }
         };
     } catch (error) {
+        console.error('登录失败:', error);
         return {
             success: false,
             message: '登录失败：' + error.message
         };
+    } finally {
+        if (connection) {
+            await connection.end();
+        }
     }
 };

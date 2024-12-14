@@ -50,17 +50,9 @@ request.interceptors.response.use(
       return res
     }
 
-    // 处理标准响应格式
-    if (res.success) {
-      return res.data
-    }
+    // 直接返回响应，让业务代码处理成功/失败
+    return res
 
-    // 处理错误响应
-    ElMessage({
-      message: res.message || '请求失败',
-      type: 'error',
-    })
-    return Promise.reject(new Error(res.message || '请求失败'))
   },
   error => {
     console.error('Response error:', error)

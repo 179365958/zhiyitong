@@ -7,7 +7,7 @@
         <el-input v-model="loginForm.serverAddress" placeholder="请输入服务器地址" :value="loginForm.serverAddress || '.'" />
       </el-form-item>
       <el-form-item label="用户名" style="margin-top: 10px;">
-        <el-input v-model="loginForm.username" placeholder="请输入用户名" :value="loginForm.username || 'admin'" />
+        <el-input v-model="loginForm.username" placeholder="请输入用户名" />
       </el-form-item>
       <el-form-item label="密码" style="margin-top: 10px;">
         <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" />
@@ -23,11 +23,12 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import axios from 'axios' // 引入axios
+import { checkSystemInit } from '@/api/system'
+import request from '@/utils/request'
 
 const loginForm = ref({
   serverAddress: '',
-  username: '',
+  username: 'admin',  // 直接设置默认值
   password: ''
 })
 
@@ -35,26 +36,42 @@ const router = useRouter()
 
 const handleLogin = async () => {
   try {
-    const response = await axios.post('/api/connect', {
-      serverAddress: loginForm.serverAddress,
-      username: loginForm.username,
-      password: loginForm.password
-    });
+    // 先检查系统初始化状态
+    const initResponse = await checkSystemInit()
+    
+    if (!initResponse.initialized) {
+      // 如果系统未初始化，跳转到初始化页面
+      router.push('/init')
+      return
+    }
 
-    if (response.data.success) {
-      // 连接成功，执行登录逻辑
-      ElMessage.success('登录成功');
-      router.push('/account-book'); // 跳转到账套管理
-    } else {
-      // 连接失败，跳转到初始化页面
-      router.push('/init');
+    // 尝试登录
+    try {
+      const response = await request({
+        url: '/api/system/login',
+        method: 'post',
+        data: {
+          username: loginForm.value.username,
+          password: loginForm.value.password
+        }
+      })
+
+      if (response.success) {
+        ElMessage.success(response.message || '登录成功')
+        // 存储用户信息
+        localStorage.setItem('accountBookUser', JSON.stringify(response.data))
+        router.push('/account-book')
+      } else {
+        ElMessage.error(response.message || '登录失败')
+      }
+    } catch (loginError) {
+      ElMessage.error('登录失败：' + loginError.message)
     }
   } catch (error) {
-    console.error('连接数据库失败:', error);
-    // 连接失败，跳转到初始化页面
-    router.push('/init');
+    console.error('系统检查失败:', error)
+    ElMessage.error('系统检查失败')
   }
-};
+}
 </script>
 
 <style scoped>
