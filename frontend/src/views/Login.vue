@@ -43,6 +43,10 @@
       </el-form-item>
 
       <el-form-item>
+        <el-checkbox v-model="loginForm.rememberMe">记住密码</el-checkbox>
+      </el-form-item>
+
+      <el-form-item>
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <el-button type="primary" @click="() => $router.push('/account-book/login')" style="width: 49%">账套管理</el-button>
           <el-button 
@@ -65,7 +69,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { login } from '@/api/user'
 import { getCompanyList } from '@/api/system'
-import { setToken, setUserInfo, clearAuth, getToken } from '@/utils/auth'
+import { setToken, setUserInfo, clearAuth, getToken, setCurrentCompany } from '@/utils/auth'
 
 const router = useRouter()
 const loginFormRef = ref(null)
@@ -75,7 +79,8 @@ const companyList = ref([])
 const loginForm = reactive({
   username: '',
   password: '',
-  companyId: null
+  companyId: null,
+  rememberMe: false
 })
 
 const loginRules = {
@@ -132,7 +137,17 @@ const submitLogin = async () => {
         // 存储用户信息和 Token
         setToken(response.data.token)
         setUserInfo(response.data.user)
-        localStorage.setItem('currentCompany', JSON.stringify(response.data.company))
+        setCurrentCompany(response.data.company)
+        
+        // 如果选择了记住密码，保存登录信息
+        if (loginForm.rememberMe) {
+          localStorage.setItem('loginInfo', JSON.stringify({
+            username: loginForm.username,
+            password: btoa(loginForm.password) // 简单加密密码
+          }))
+        } else {
+          localStorage.removeItem('loginInfo')
+        }
         
         ElMessage.success('登录成功')
         router.push('/dashboard')
@@ -148,7 +163,7 @@ const submitLogin = async () => {
 // 退出登录
 const logout = () => {
   clearAuth()  // 清除所有认证信息
-  localStorage.removeItem('currentCompany')
+  sessionStorage.removeItem('currentCompany')
   router.push('/login')
 }
 
@@ -156,6 +171,15 @@ onMounted(() => {
   // 检查是否已登录，如果已登录则退出
   if (getToken()) {
     logout()
+  }
+  
+  // 获取记住的登录信息
+  const savedLoginInfo = localStorage.getItem('loginInfo')
+  if (savedLoginInfo) {
+    const { username, password } = JSON.parse(savedLoginInfo)
+    loginForm.username = username
+    loginForm.password = atob(password) // 解密密码
+    loginForm.rememberMe = true
   }
   
   fetchCompanyList()
