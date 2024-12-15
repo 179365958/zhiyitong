@@ -18,7 +18,7 @@
           <el-option 
             v-for="company in companyList" 
             :key="company.id" 
-            :label="company.name" 
+            :label="`[${company.company_code}] ${company.company_name}`"
             :value="company.id"
           />
         </el-select>
@@ -115,14 +115,12 @@ const fetchCompanyList = async () => {
     if (response.success) {
       companyList.value = response.data
     } else {
-      // 如果获取失败，可能是系统未初始化
-      ElMessage.warning('未检测到企业账套，请先进行系统初始化')
-      router.push('/init')
+      // 如果获取失败，只显示提示信息，不跳转
+      ElMessage.warning('未检测到企业账套，请先在账套管理中添加企业账套')
     }
   } catch (error) {
     console.error('获取企业账套列表失败:', error)
     ElMessage.error(error.message || '获取企业账套列表失败')
-    router.push('/init')
   }
 }
 
@@ -136,7 +134,8 @@ const submitLogin = async () => {
       try {
         const loginData = {
           username: loginForm.username,
-          password: loginForm.password
+          password: loginForm.password,
+          companyId: loginForm.companyId
         }
         
         // 调用登录接口
@@ -145,9 +144,9 @@ const submitLogin = async () => {
         // 存储用户信息和 Token
         localStorage.setItem('user', JSON.stringify(response.data.user))
         localStorage.setItem('token', response.data.token)
+        localStorage.setItem('currentCompany', JSON.stringify(response.data.company))
         
         ElMessage.success('登录成功')
-        await fetchCompanyList(); // 登录成功后获取公司列表
         router.push('/dashboard')
       } catch (error) {
         ElMessage.error(error.message || '登录失败')
@@ -159,7 +158,7 @@ const submitLogin = async () => {
 }
 
 onMounted(() => {
-  // 移除 onMounted 中的 fetchCompanyList 调用
+  fetchCompanyList()
 })
 </script>
 

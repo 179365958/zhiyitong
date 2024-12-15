@@ -186,7 +186,7 @@ exports.getCompanies = async () => {
             database: config.database
         });
 
-        const [companies] = await connection.query('SELECT * FROM companies');
+        const [companies] = await connection.query('SELECT * FROM sys_company');
         await connection.end();
 
         return {
