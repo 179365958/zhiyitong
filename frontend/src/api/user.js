@@ -67,3 +67,37 @@ export function getUserRoles() {
     method: 'get'
   })
 }
+
+// 用户登录
+export const login = (data) => {
+  return request({
+    url: '/api/system/login',
+    method: 'post',
+    data
+  })
+}
+
+// 获取用户信息
+export const getUserInfo = () => {
+  return request({
+    url: '/api/system/userinfo',
+    method: 'get'
+  })
+}
+
+// 退出登录
+export const logout = () => {
+  return request({
+    url: '/api/system/logout',
+    method: 'post'
+  })
+}
+
+// 修改密码
+export const changePassword = (data) => {
+  return request({
+    url: '/api/system/change-password',
+    method: 'post',
+    data
+  })
+}

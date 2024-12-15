@@ -41,3 +41,54 @@ export function login(data) {
     data
   })
 }
+
+// 获取企业账套列表
+export const getCompanyList = (params) => {
+  return request({
+    url: '/api/system/companies',
+    method: 'get',
+    params
+  })
+}
+
+// 创建账套
+export const createCompany = (data) => {
+  return request({
+    url: '/api/system/companies',
+    method: 'post',
+    data
+  })
+}
+
+// 更新账套
+export const updateCompany = (id, data) => {
+  return request({
+    url: `/api/system/companies/${id}`,
+    method: 'put',
+    data
+  })
+}
+
+// 删除账套
+export const deleteCompany = (id) => {
+  return request({
+    url: `/api/system/companies/${id}`,
+    method: 'delete'
+  })
+}
+
+// 备份账套
+export const backupCompany = (id) => {
+  return request({
+    url: `/api/system/companies/${id}/backup`,
+    method: 'post'
+  })
+}
+
+// 恢复账套
+export const restoreCompany = (id) => {
+  return request({
+    url: `/api/system/companies/${id}/restore`,
+    method: 'post'
+  })
+}

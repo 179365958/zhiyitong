@@ -24,15 +24,6 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="登录日期" prop="loginDate">
-        <el-date-picker
-          v-model="loginForm.loginDate"
-          type="date"
-          placeholder="选择登录日期"
-          :disabled-date="disabledDate"
-        />
-      </el-form-item>
-
       <el-form-item label="用户名" prop="username">
         <el-input 
           v-model="loginForm.username" 
@@ -70,42 +61,33 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { getCompanies, login } from '@/api/system'
+import { ElMessage } from 'element-plus'
+import { login } from '@/api/user'
+import { getCompanies } from '@/api/system'
+import { setToken, setUserInfo, clearAuth, getToken } from '@/utils/auth'
 
 const router = useRouter()
 const loginFormRef = ref(null)
 const loading = ref(false)
-
-const loginForm = reactive({
-  companyId: null,
-  loginDate: new Date(),
-  username: '',
-  password: ''
-})
-
 const companyList = ref([])
 
+const loginForm = reactive({
+  username: '',
+  password: '',
+  companyId: null
+})
+
 const loginRules = {
-  companyId: [
-    { required: true, message: '请选择企业账套', trigger: 'change' }
-  ],
-  loginDate: [
-    { required: true, message: '请选择登录日期', trigger: 'change' }
-  ],
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' }
   ],
   password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, message: '密码长度不能小于6位', trigger: 'blur' }
+    { required: true, message: '请输入密码', trigger: 'blur' }
+  ],
+  companyId: [
+    { required: true, message: '请选择企业账套', trigger: 'change' }
   ]
-}
-
-// 禁用未来日期
-const disabledDate = (time) => {
-  return time.getTime() > Date.now()
 }
 
 // 获取企业账套列表
@@ -115,7 +97,6 @@ const fetchCompanyList = async () => {
     if (response.success) {
       companyList.value = response.data
     } else {
-      // 如果获取失败，只显示提示信息，不跳转
       ElMessage.warning('未检测到企业账套，请先在账套管理中添加企业账套')
     }
   } catch (error) {
@@ -142,8 +123,8 @@ const submitLogin = async () => {
         const response = await login(loginData)
         
         // 存储用户信息和 Token
-        localStorage.setItem('user', JSON.stringify(response.data.user))
-        localStorage.setItem('token', response.data.token)
+        setToken(response.data.token)
+        setUserInfo(response.data.user)
         localStorage.setItem('currentCompany', JSON.stringify(response.data.company))
         
         ElMessage.success('登录成功')
@@ -157,7 +138,19 @@ const submitLogin = async () => {
   })
 }
 
+// 退出登录
+const logout = () => {
+  clearAuth()  // 清除所有认证信息
+  localStorage.removeItem('currentCompany')
+  router.push('/login')
+}
+
 onMounted(() => {
+  // 检查是否已登录，如果已登录则退出
+  if (getToken()) {
+    logout()
+  }
+  
   fetchCompanyList()
 })
 </script>
