@@ -9,24 +9,6 @@
     >
       <h2 class="login-title">智易通 - 财务管理系统</h2>
       
-      <el-form-item label="服务器地址" prop="serverAddress">
-        <el-input 
-          v-model="loginForm.serverAddress" 
-          placeholder="请输入服务器地址"
-          prefix-icon="Connection"
-        >
-          <template #prepend>
-            <el-select 
-              v-model="loginForm.protocol" 
-              style="width: 100px"
-            >
-              <el-option label="HTTP" value="http://" />
-              <el-option label="HTTPS" value="https://" />
-            </el-select>
-          </template>
-        </el-input>
-      </el-form-item>
-
       <el-form-item label="账套选择" prop="companyId">
         <el-select 
           v-model="loginForm.companyId" 
@@ -97,8 +79,6 @@ const loginFormRef = ref(null)
 const loading = ref(false)
 
 const loginForm = reactive({
-  serverAddress: 'localhost',
-  protocol: 'http://',
   companyId: null,
   loginDate: new Date(),
   username: '',
@@ -108,9 +88,6 @@ const loginForm = reactive({
 const companyList = ref([])
 
 const loginRules = {
-  serverAddress: [
-    { required: true, message: '请输入服务器地址', trigger: 'blur' }
-  ],
   companyId: [
     { required: true, message: '请选择企业账套', trigger: 'change' }
   ],
@@ -157,13 +134,9 @@ const submitLogin = async () => {
     if (valid) {
       loading.value = true
       try {
-        const fullServerAddress = `${loginForm.protocol}${loginForm.serverAddress}`
         const loginData = {
-          serverAddress: fullServerAddress,
-          companyId: loginForm.companyId,
           username: loginForm.username,
-          password: loginForm.password,
-          loginDate: loginForm.loginDate
+          password: loginForm.password
         }
         
         // 调用登录接口
