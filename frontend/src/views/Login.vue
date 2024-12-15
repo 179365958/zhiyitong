@@ -64,7 +64,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { login } from '@/api/user'
-import { getCompanies } from '@/api/system'
+import { getCompanyList } from '@/api/system'
 import { setToken, setUserInfo, clearAuth, getToken } from '@/utils/auth'
 
 const router = useRouter()
@@ -93,9 +93,16 @@ const loginRules = {
 // 获取企业账套列表
 const fetchCompanyList = async () => {
   try {
-    const response = await getCompanies()
-    if (response.success) {
-      companyList.value = response.data
+    const response = await getCompanyList({
+      page: 1,
+      pageSize: 1000  // 获取所有账套
+    })
+    
+    const data = response.data || response
+    const { list = [] } = data
+    
+    if (list && list.length > 0) {
+      companyList.value = list
     } else {
       ElMessage.warning('未检测到企业账套，请先在账套管理中添加企业账套')
     }

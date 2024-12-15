@@ -187,17 +187,28 @@ const formRules = {
 const fetchCompanyList = async () => {
   loading.value = true
   try {
-    const params = {
+    const response = await getCompanyList({
       page: currentPage.value,
       pageSize: pageSize.value,
       companyName: searchForm.companyName,
       status: searchForm.status
-    }
-    const response = await getCompanyList(params)
-    tableData.value = response.data.list || []
-    total.value = response.data.total || 0
+    })
+    
+    // 兼容不同的响应结构
+    const data = response.data || response
+    const { list = [], total: totalCount = 0, page, pageSize: fetchedPageSize } = data
+    
+    tableData.value = list
+    total.value = totalCount  // 使用不同的变量名避免冲突
+    currentPage.value = page || currentPage.value
+    pageSize.value = fetchedPageSize || pageSize.value
+
+    console.log('获取账套列表成功:', tableData.value)
   } catch (error) {
-    ElMessage.error('获取账套列表失败：' + (error.message || '未知错误'))
+    console.error('获取账套列表失败:', error)
+    ElMessage.error(error.message || '获取账套列表失败')
+    tableData.value = []
+    total.value = 0
   } finally {
     loading.value = false
   }

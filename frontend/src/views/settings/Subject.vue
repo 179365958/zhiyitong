@@ -80,8 +80,8 @@
         </el-form-item>
         <el-form-item label="余额方向" prop="direction">
           <el-radio-group v-model="form.direction">
-            <el-radio label="debit">借</el-radio>
-            <el-radio label="credit">贷</el-radio>
+            <el-radio value="debit">借</el-radio>
+            <el-radio value="credit">贷</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>

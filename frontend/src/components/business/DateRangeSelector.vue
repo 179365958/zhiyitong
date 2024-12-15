@@ -29,9 +29,9 @@
         <!-- 快捷选项 -->
         <div class="shortcuts">
           <el-radio-group v-model="shortcutType" size="small">
-            <el-radio-button label="month">月</el-radio-button>
-            <el-radio-button label="quarter">季度</el-radio-button>
-            <el-radio-button label="year">年</el-radio-button>
+            <el-radio-button value="month">月</el-radio-button>
+            <el-radio-button value="quarter">季度</el-radio-button>
+            <el-radio-button value="year">年</el-radio-button>
           </el-radio-group>
         </div>
 

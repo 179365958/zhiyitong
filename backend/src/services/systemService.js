@@ -176,9 +176,10 @@ exports.getSystemStatus = async () => {
 };
 
 // 获取企业账套列表
-exports.getCompanies = async () => {
+exports.getCompanies = async (params = {}) => {
+    let connection;
     try {
-        const connection = await mysql.createConnection({
+        connection = await mysql.createConnection({
             host: config.host,
             port: config.port,
             user: config.user,
@@ -186,18 +187,168 @@ exports.getCompanies = async () => {
             database: config.database
         });
 
-        const [companies] = await connection.query('SELECT * FROM sys_company');
-        await connection.end();
+        // 构建查询条件
+        const queryConditions = [];
+        const queryParams = [];
+        const countParams = [];
+
+        if (params.companyName) {
+            queryConditions.push('company_name LIKE ?');
+            queryParams.push(`%${params.companyName}%`);
+            countParams.push(`%${params.companyName}%`);
+        }
+
+        if (params.status !== undefined && params.status !== null) {
+            queryConditions.push('status = ?');
+            queryParams.push(params.status);
+            countParams.push(params.status);
+        }
+
+        // 分页参数
+        const page = parseInt(params.page) || 1;
+        const pageSize = parseInt(params.pageSize) || 10;
+        const offset = (page - 1) * pageSize;
+
+        // 构建完整查询
+        const whereClause = queryConditions.length > 0 
+            ? `WHERE ${queryConditions.join(' AND ')}` 
+            : '';
+
+        // 查询列表
+        const listQuery = `
+            SELECT * FROM sys_company 
+            ${whereClause}
+            LIMIT ? OFFSET ?
+        `;
+        const fullListParams = [...queryParams, pageSize, offset];
+
+        // 查询总数
+        const countQuery = `
+            SELECT COUNT(*) as total FROM sys_company 
+            ${whereClause}
+        `;
+
+        // 执行查询
+        const [companies] = await connection.query(listQuery, fullListParams);
+        const [countResult] = await connection.query(countQuery, queryParams);
+        const total = countResult[0].total;
 
         return {
             success: true,
-            data: companies
+            data: {
+                list: companies,
+                total: total,
+                page: page,
+                pageSize: pageSize
+            }
         };
     } catch (error) {
+        console.error('获取企业账套列表错误:', error);
         return {
             success: false,
             message: '获取企业账套列表失败：' + error.message
         };
+    } finally {
+        if (connection) {
+            await connection.end();
+        }
+    }
+};
+
+// 创建企业账套
+exports.createCompany = async (companyData) => {
+    let connection;
+    try {
+        connection = await mysql.createConnection({
+            host: config.host,
+            port: config.port,
+            user: config.user,
+            password: config.password,
+            database: config.database
+        });
+
+        const { company_code, company_name, db_name, status = 1 } = companyData;
+
+        const [result] = await connection.query(`
+            INSERT INTO sys_company (company_code, company_name, db_name, status, created_at)
+            VALUES (?, ?, ?, ?, NOW())
+        `, [company_code, company_name, db_name, status]);
+
+        return {
+            id: result.insertId,
+            ...companyData
+        };
+    } catch (error) {
+        console.error('创建企业账套失败:', error);
+        throw error;
+    } finally {
+        if (connection) {
+            await connection.end();
+        }
+    }
+};
+
+// 更新企业账套
+exports.updateCompany = async (id, companyData) => {
+    let connection;
+    try {
+        connection = await mysql.createConnection({
+            host: config.host,
+            port: config.port,
+            user: config.user,
+            password: config.password,
+            database: config.database
+        });
+
+        const { company_code, company_name, db_name, status } = companyData;
+
+        const [result] = await connection.query(`
+            UPDATE sys_company 
+            SET company_code = ?, company_name = ?, db_name = ?, status = ?, updated_at = NOW()
+            WHERE id = ?
+        `, [company_code, company_name, db_name, status, id]);
+
+        if (result.affectedRows === 0) {
+            throw new Error('企业账套不存在');
+        }
+
+        return { id, ...companyData };
+    } catch (error) {
+        console.error('更新企业账套失败:', error);
+        throw error;
+    } finally {
+        if (connection) {
+            await connection.end();
+        }
+    }
+};
+
+// 删除企业账套
+exports.deleteCompany = async (id) => {
+    let connection;
+    try {
+        connection = await mysql.createConnection({
+            host: config.host,
+            port: config.port,
+            user: config.user,
+            password: config.password,
+            database: config.database
+        });
+
+        const [result] = await connection.query('DELETE FROM sys_company WHERE id = ?', [id]);
+
+        if (result.affectedRows === 0) {
+            throw new Error('企业账套不存在');
+        }
+
+        return true;
+    } catch (error) {
+        console.error('删除企业账套失败:', error);
+        throw error;
+    } finally {
+        if (connection) {
+            await connection.end();
+        }
     }
 };
 

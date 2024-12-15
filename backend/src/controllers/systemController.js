@@ -62,12 +62,78 @@ exports.getSystemStatus = async (req, res) => {
 // 获取企业账套列表
 exports.getCompanies = async (req, res) => {
     try {
-        const companies = await systemService.getCompanies();
-        res.json(companies);
+        const params = req.query;
+        const result = await systemService.getCompanies(params);
+        
+        // 如果查询失败，返回错误
+        if (!result.success) {
+            return res.status(500).json(result);
+        }
+
+        // 确保返回的数据结构符合前端预期
+        res.json({
+            code: 200,
+            data: result.data,
+            message: 'success'
+        });
+    } catch (error) {
+        console.error('获取企业账套列表错误:', error);
+        res.status(500).json({
+            code: 500,
+            success: false,
+            message: error.message || '获取企业账套列表失败'
+        });
+    }
+};
+
+// 创建企业账套
+exports.createCompany = async (req, res) => {
+    try {
+        const companyData = req.body;
+        const result = await systemService.createCompany(companyData);
+        res.status(201).json({
+            success: true,
+            data: result
+        });
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: error.message || '获取企业账套列表失败'
+            message: error.message || '创建企业账套失败'
+        });
+    }
+};
+
+// 更新企业账套
+exports.updateCompany = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const companyData = req.body;
+        const result = await systemService.updateCompany(id, companyData);
+        res.json({
+            success: true,
+            data: result
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message || '更新企业账套失败'
+        });
+    }
+};
+
+// 删除企业账套
+exports.deleteCompany = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await systemService.deleteCompany(id);
+        res.json({
+            success: true,
+            message: '删除成功'
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message || '删除企业账套失败'
         });
     }
 };

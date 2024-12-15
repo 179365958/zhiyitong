@@ -88,7 +88,7 @@
         <template #default="{ row }">
           <el-radio
             v-model="currentRow"
-            :label="row[rowKey]"
+            :value="row[rowKey]"
             @change="() => handleRadioChange(row)"
           >
             <span></span>
