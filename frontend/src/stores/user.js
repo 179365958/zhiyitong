@@ -1,16 +1,22 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { login as loginApi } from '@/api/auth'
-import { setToken, clearAuth } from '@/utils/auth'
+import { setToken, clearAuth, getUserInfo, setUserInfo } from '@/utils/auth'
 
 export const useUserStore = defineStore('user', () => {
-  const userInfo = ref({
+  const userInfo = ref(getUserInfo() || {
     id: '',
+    username: '',  
     name: '',
     avatar: '',
     roles: [],
     permissions: []
   })
+
+  // 监听 userInfo 变化，同步到 sessionStorage
+  watch(userInfo, (newValue) => {
+    setUserInfo(newValue)
+  }, { deep: true })
 
   // 登录
   async function login(loginForm) {
@@ -29,6 +35,7 @@ export const useUserStore = defineStore('user', () => {
     clearAuth()
     userInfo.value = {
       id: '',
+      username: '',
       name: '',
       avatar: '',
       roles: [],

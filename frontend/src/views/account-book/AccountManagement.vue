@@ -17,7 +17,7 @@
           <div class="header-right">
             <div class="user-info">
               <el-avatar :src="userInfo?.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642ab9b686a4768png.png'" />
-              <span class="username">{{ userInfo?.username || '未登录' }}</span>
+              <span class="username">{{ userInfo?.username || userInfo?.name || '未登录' }}</span>
             </div>
           </div>
         </div>
