@@ -14,6 +14,12 @@
             />
             <span class="header-title">账套管理</span>
           </div>
+          <div class="header-right">
+            <div class="user-info">
+              <el-avatar :src="userInfo?.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642ab9b686a4768png.png'" />
+              <span class="username">{{ userInfo?.username || '未登录' }}</span>
+            </div>
+          </div>
         </div>
       </template>
 
@@ -35,17 +41,6 @@
               clearable 
               style="width: 200px;"
             />
-          </el-form-item>
-          <el-form-item label="状态">
-            <el-select 
-              v-model="searchForm.status" 
-              placeholder="选择状态" 
-              clearable
-              style="width: 150px;"
-            >
-              <el-option label="启用" :value="1" />
-              <el-option label="停用" :value="0" />
-            </el-select>
           </el-form-item>
           <el-form-item>
             <el-button-group>
@@ -137,9 +132,11 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { storeToRefs } from 'pinia'
+import { useUserStore } from '@/stores/user'
 import { 
   getCompanyList, 
   createCompany, 
@@ -148,6 +145,9 @@ import {
   backupCompany,
   restoreCompany 
 } from '@/api/system'
+
+const userStore = useUserStore()
+const { userInfo } = storeToRefs(userStore)
 
 const router = useRouter()
 const loading = ref(false)
@@ -160,8 +160,7 @@ const tableData = ref([])
 const formRef = ref(null)
 
 const searchForm = reactive({
-  companyName: '',
-  status: null
+  companyName: ''
 })
 
 const form = reactive({
@@ -192,8 +191,7 @@ const fetchCompanyList = async () => {
     const response = await getCompanyList({
       page: currentPage.value,
       pageSize: pageSize.value,
-      companyName: searchForm.companyName,
-      status: searchForm.status
+      companyName: searchForm.companyName
     })
     
     // 兼容不同的响应结构
@@ -225,7 +223,6 @@ const handleSearch = () => {
 // 重置查询
 const resetSearch = () => {
   searchForm.companyName = ''
-  searchForm.status = null
   currentPage.value = 1
   fetchCompanyList()
 }
@@ -349,9 +346,27 @@ onMounted(() => {
   gap: 15px;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
 .header-title {
   margin-left: 15px;
   font-size: 18px;
+  font-weight: bold;
+  color: #303133;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.username {
+  font-size: 16px;
   font-weight: bold;
   color: #303133;
 }
