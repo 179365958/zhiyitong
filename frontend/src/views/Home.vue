@@ -46,10 +46,18 @@
         </div>
         <div class="user-info">
           <el-dropdown @command="handleCommand">
-            <span class="el-dropdown-link">
-              {{ userInfo.name }}
+            <div class="user-dropdown-link">
+              <el-avatar 
+                :src="userInfo?.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642ab9b686a4768png.png'" 
+                :size="40" 
+                class="user-avatar"
+              />
+              <div class="user-name-wrapper">
+                <span class="user-name">{{ userInfo?.name || userInfo?.username || '未登录' }}</span>
+                <span class="user-role">{{ userInfo?.roles?.[0] || '普通用户' }}</span>
+              </div>
               <el-icon class="el-icon--right"><arrow-down /></el-icon>
-            </span>
+            </div>
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item command="profile">个人设置</el-dropdown-item>
@@ -184,8 +192,13 @@ const handleCommand = (command) => {
 
 // 监听路由变化，添加标签页
 onMounted(() => {
-  if (route.name) {
-    tabsStore.addTab(route)
+  try {
+    if (route.name) {
+      tabsStore.addTab(route)
+    }
+  } catch (error) {
+    console.error('初始化标签页时出错:', error)
+    router.push('/login')
   }
 })
 </script>
@@ -278,15 +291,35 @@ onMounted(() => {
   align-items: center;
 }
 
-.el-dropdown-link {
+.user-dropdown-link {
   display: flex;
   align-items: center;
   color: #666;
   cursor: pointer;
 }
 
-.el-dropdown-link:hover {
+.user-dropdown-link:hover {
   color: #409EFF;
+}
+
+.user-avatar {
+  margin-right: 12px;
+}
+
+.user-name-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.user-name {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.user-role {
+  font-size: 12px;
+  color: #999;
 }
 
 .main-container {

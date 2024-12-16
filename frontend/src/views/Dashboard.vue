@@ -180,7 +180,12 @@
 
 <script setup>
 import { ref } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useUserStore } from '@/stores/user'
 import { ArrowUp, ArrowDown, Plus, Wallet } from '@element-plus/icons-vue'
+
+const userStore = useUserStore()
+const { userInfo } = storeToRefs(userStore)
 
 // 图表时间范围
 const chartTimeRange = ref('month')

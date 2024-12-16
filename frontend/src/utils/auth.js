@@ -20,8 +20,27 @@ export function removeToken() {
 
 // 获取用户信息
 export function getUserInfo() {
-  const userInfo = sessionStorage.getItem(USER_INFO_KEY)
-  return userInfo ? JSON.parse(userInfo) : null
+  try {
+    const userInfo = sessionStorage.getItem(USER_INFO_KEY)
+    return userInfo && userInfo !== 'undefined' ? JSON.parse(userInfo) : {
+      id: '',
+      username: '',
+      name: '',
+      avatar: '',
+      roles: [],
+      permissions: []
+    }
+  } catch (error) {
+    console.error('获取用户信息失败:', error)
+    return {
+      id: '',
+      username: '',
+      name: '',
+      avatar: '',
+      roles: [],
+      permissions: []
+    }
+  }
 }
 
 // 设置用户信息
