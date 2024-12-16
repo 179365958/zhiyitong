@@ -15,10 +15,26 @@
             <span class="header-title">账套管理</span>
           </div>
           <div class="header-right">
-            <div class="user-info">
-              <el-avatar :src="userInfo?.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642ab9b686a4768png.png'" />
-              <span class="username">{{ userInfo?.username || userInfo?.name || '未登录' }}</span>
-            </div>
+            <el-dropdown @command="handleCommand" class="user-dropdown">
+              <div class="user-dropdown-link">
+                <el-avatar 
+                  :src="userInfo?.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642ab9b686a4768png.png'" 
+                  :size="40" 
+                  class="user-avatar"
+                />
+                <div class="user-name-wrapper">
+                  <span class="user-name">{{ userInfo?.username || userInfo?.name || '未登录' }}</span>
+                  <span class="user-role">{{ userInfo?.roles?.[0] || '普通用户' }}</span>
+                </div>
+                <el-icon class="el-icon--right"><arrow-down /></el-icon>
+              </div>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="profile">个人信息</el-dropdown-item>
+                  <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </div>
         </div>
       </template>
@@ -312,6 +328,16 @@ const handleSubmit = () => {
   })
 }
 
+// 处理用户下拉菜单操作
+const handleCommand = (command) => {
+  if (command === 'logout') {
+    userStore.logout()
+    router.push('/login')
+  } else if (command === 'profile') {
+    router.push('/settings/profile')
+  }
+}
+
 // 返回登录页
 const goBack = () => {
   router.push('/login')
@@ -362,16 +388,35 @@ onMounted(async () => {
   color: #303133;
 }
 
-.user-info {
+.user-dropdown {
+  cursor: pointer;
+}
+
+.user-dropdown-link {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.username {
+.user-avatar {
+  margin-right: 10px;
+}
+
+.user-name-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.user-name {
   font-size: 16px;
   font-weight: bold;
   color: #303133;
+}
+
+.user-role {
+  font-size: 14px;
+  color: #606266;
 }
 
 .search-bar {
