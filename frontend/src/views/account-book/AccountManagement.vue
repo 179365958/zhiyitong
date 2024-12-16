@@ -14,18 +14,20 @@
             />
             <span class="header-title">账套管理</span>
           </div>
-          <el-button 
-            type="primary" 
-            @click="handleCreate" 
-            icon="Plus"
-          >
-            新建账套
-          </el-button>
         </div>
       </template>
 
       <div class="search-bar">
         <el-form :inline="true" class="demo-form-inline">
+          <el-form-item>
+            <el-button 
+              type="primary" 
+              @click="handleCreate" 
+              icon="Plus"
+            >
+              新建账套
+            </el-button>
+          </el-form-item>
           <el-form-item label="账套名称">
             <el-input 
               v-model="searchForm.companyName" 
@@ -344,6 +346,7 @@ onMounted(() => {
 .header-left {
   display: flex;
   align-items: center;
+  gap: 15px;
 }
 
 .header-title {
