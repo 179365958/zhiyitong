@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
-import { login as loginApi } from '@/api/auth'
+import { login as loginApi, getCurrentUser } from '@/api/auth'
 import { setToken, clearAuth, getUserInfo, setUserInfo } from '@/utils/auth'
 
 export const useUserStore = defineStore('user', () => {
@@ -14,10 +14,32 @@ export const useUserStore = defineStore('user', () => {
   })
 
   // 安全地获取用户信息
-  function safeGetUserInfo() {
+  async function safeGetUserInfo() {
     try {
+      console.log('safeGetUserInfo: 开始获取用户信息')
+      
+      // 先尝试从本地存储获取
       const storedUserInfo = getUserInfo()
-      userInfo.value = storedUserInfo
+      console.log('safeGetUserInfo: 本地存储用户信息', storedUserInfo)
+      
+      // 如果本地存储没有，则调用接口获取
+      if (!storedUserInfo || !storedUserInfo.username) {
+        console.log('safeGetUserInfo: 本地存储用户信息不完整，尝试调用接口')
+        const response = await getCurrentUser()
+        const fetchedUserInfo = response.data || response
+        console.log('safeGetUserInfo: 接口获取用户信息', fetchedUserInfo)
+        
+        if (fetchedUserInfo && fetchedUserInfo.username) {
+          userInfo.value = fetchedUserInfo
+          setUserInfo(fetchedUserInfo)
+          console.log('safeGetUserInfo: 更新用户信息成功')
+        }
+      } else {
+        userInfo.value = storedUserInfo
+        console.log('safeGetUserInfo: 使用本地存储用户信息')
+      }
+      
+      console.log('safeGetUserInfo: 获取用户信息完成', userInfo.value)
     } catch (error) {
       console.error('获取用户信息时出错:', error)
       // 重置为默认值
@@ -50,6 +72,7 @@ export const useUserStore = defineStore('user', () => {
       const { token, user } = await loginApi(loginForm)
       setToken(token)
       userInfo.value = user
+      setUserInfo(user)
       return true
     } catch (error) {
       return false
@@ -93,6 +116,8 @@ export const useUserStore = defineStore('user', () => {
     logout,
     updateUserInfo,
     hasPermission,
-    hasRole
+    hasRole,
+    // 暴露 safeGetUserInfo 方法，以便在需要时手动刷新用户信息
+    safeGetUserInfo
   }
 })

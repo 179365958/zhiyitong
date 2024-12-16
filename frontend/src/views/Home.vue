@@ -191,8 +191,17 @@ const handleCommand = (command) => {
 }
 
 // 监听路由变化，添加标签页
-onMounted(() => {
+onMounted(async () => {
   try {
+    console.log('Home onMounted: 开始获取用户信息')
+    console.log('当前用户信息:', userStore.userInfo)
+    
+    // 检查并更新用户信息
+    await userStore.safeGetUserInfo()
+    
+    console.log('Home onMounted: 获取用户信息完成')
+    console.log('更新后用户信息:', userStore.userInfo)
+
     if (route.name) {
       tabsStore.addTab(route)
     }

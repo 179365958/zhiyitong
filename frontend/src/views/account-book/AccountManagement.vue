@@ -317,7 +317,10 @@ const goBack = () => {
   router.push('/login')
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // 检查并更新用户信息
+  await userStore.safeGetUserInfo()
+  
   fetchCompanyList()
 })
 </script>
