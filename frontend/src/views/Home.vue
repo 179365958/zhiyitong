@@ -45,7 +45,7 @@
           </el-icon>
         </div>
         <div class="user-info">
-          <el-dropdown @command="handleCommand">
+          <el-dropdown @command="handleCommand" class="user-dropdown">
             <div class="user-dropdown-link">
               <el-avatar 
                 :src="userInfo?.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642ab9b686a4768png.png'" 
@@ -53,14 +53,14 @@
                 class="user-avatar"
               />
               <div class="user-name-wrapper">
-                <span class="user-name">{{ userInfo?.name || userInfo?.username || '未登录' }}</span>
+                <span class="user-name">{{ userInfo?.username || userInfo?.name || '未登录' }}</span>
                 <span class="user-role">{{ userInfo?.roles?.[0] || '普通用户' }}</span>
               </div>
               <el-icon class="el-icon--right"><arrow-down /></el-icon>
             </div>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item command="profile">个人设置</el-dropdown-item>
+                <el-dropdown-item command="profile">个人信息</el-dropdown-item>
                 <el-dropdown-item command="logout">退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -327,6 +327,31 @@ onMounted(async () => {
 }
 
 .user-role {
+  font-size: 12px;
+  color: #999;
+}
+
+.user-info .user-dropdown-link {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.user-info .user-avatar {
+  margin-right: 10px;
+}
+
+.user-info .user-name-wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-right: 10px;
+}
+
+.user-info .user-name {
+  font-size: 14px;
+}
+
+.user-info .user-role {
   font-size: 12px;
   color: #999;
 }
