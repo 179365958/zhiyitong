@@ -134,10 +134,17 @@ const submitLogin = async () => {
         // 调用登录接口
         const response = await login(loginData)
         
+        // 统一用户信息设置
+        const userInfo = response.data.user || response.data
+        
         // 存储用户信息和 Token
         setToken(response.data.token)
-        setUserInfo(response.data.user)
-        setCurrentCompany(response.data.company)
+        setUserInfo(userInfo)
+        
+        // 如果有企业账套信息，设置当前企业
+        if (response.data.company) {
+          setCurrentCompany(response.data.company)
+        }
         
         // 如果选择了记住密码，保存登录信息
         if (loginForm.rememberMe) {
