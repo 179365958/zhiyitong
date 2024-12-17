@@ -134,30 +134,36 @@ const submitLogin = async () => {
         // 调用登录接口
         const response = await login(loginData)
         
-        // 统一用户信息设置
-        const userInfo = response.data.user || response.data
-        
-        // 存储用户信息和 Token
-        setToken(response.data.token)
-        setUserInfo(userInfo)
-        
-        // 如果有企业账套信息，设置当前企业
-        if (response.data.company) {
-          setCurrentCompany(response.data.company)
-        }
-        
-        // 如果选择了记住密码，保存登录信息
-        if (loginForm.rememberMe) {
-          localStorage.setItem('loginInfo', JSON.stringify({
-            username: loginForm.username,
-            password: btoa(loginForm.password) // 简单加密密码
-          }))
+        // 检查登录是否成功
+        if (response && response.success) {
+          // 安全地获取用户信息
+          const userInfo = response.data?.user || response.data || {}
+          
+          // 存储用户信息和 Token
+          setToken(response.data.token)
+          setUserInfo(userInfo)
+          
+          // 如果有企业账套信息，设置当前企业
+          if (response.data.company) {
+            setCurrentCompany(response.data.company)
+          }
+          
+          // 如果选择了记住密码，保存登录信息
+          if (loginForm.rememberMe) {
+            localStorage.setItem('loginInfo', JSON.stringify({
+              username: loginForm.username,
+              password: btoa(loginForm.password) // 简单加密密码
+            }))
+          } else {
+            localStorage.removeItem('loginInfo')
+          }
+          
+          ElMessage.success('登录成功')
+          router.push('/dashboard')
         } else {
-          localStorage.removeItem('loginInfo')
+          // 处理登录失败的情况
+          ElMessage.error(response?.message || '登录失败，请检查用户名和密码')
         }
-        
-        ElMessage.success('登录成功')
-        router.push('/dashboard')
       } catch (error) {
         ElMessage.error(error.message || '登录失败')
       } finally {
