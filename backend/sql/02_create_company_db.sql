@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS account_subject (
     id          INT PRIMARY KEY AUTO_INCREMENT,
     code        VARCHAR(50) NOT NULL,            -- 科目编码
     name        VARCHAR(100) NOT NULL,           -- 科目名称
-    parent_id   INT,                             -- 父级科目ID
+    parent_code VARCHAR(50),                     -- 父级科目编码
     level       INT NOT NULL,                    -- 科目级次
     category    VARCHAR(20) NOT NULL,            -- 科目类别(资产,负债,权益,成本,损益)
     direction   TINYINT NOT NULL,                -- 余额方向(1:借方 2:贷方)
