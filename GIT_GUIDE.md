@@ -235,3 +235,5 @@ git merge --abort
 # 如果已经合并，想要回退
 git reset --hard HEAD^
 ```
+git fetch origin
+git reset --hard origin/dev
