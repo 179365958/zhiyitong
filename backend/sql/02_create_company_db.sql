@@ -466,6 +466,8 @@ CREATE TABLE IF NOT EXISTS sys_user (
     email           VARCHAR(100),                -- 邮箱
     mobile          VARCHAR(20),                 -- 手机
     is_admin        BIT NOT NULL DEFAULT 0,      -- 是否管理员
+    status          TINYINT NOT NULL DEFAULT 1,  -- 状态(1:正常 0:禁用)
+    last_login      DATETIME,                    -- 最后登录时间
     created_at      DATETIME NOT NULL,           -- 创建时间
     created_by      INT NOT NULL,                -- 创建人
     updated_at      DATETIME,                    -- 更新时间
@@ -527,8 +529,8 @@ CREATE TABLE IF NOT EXISTS sys_role_permission (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色权限关系表';
 
 INSERT INTO sys_user (username, password, real_name, email, mobile, is_admin, created_at, created_by)
-VALUES ('admin', '加密后的密码', '管理员', 'admin@example.com', '1234567890', 1, NOW(), 1);
+VALUES ('admin', '$2b$10$uYYuRZqOZ3jBGp0rrMV7n./9VkGccPN/zLO/e/MmoqmJbLKtCNmVO', '管理员', 'admin@example.com', '1234567890', 1, NOW(), 1);
 
 -- 插入普通用户数据
 INSERT INTO sys_user (username, password, real_name, email, mobile, is_admin, status, created_at, created_by)
-VALUES ('user', 'hashed_password_here', 'User', 'user@example.com', '1234567890', 0, 1, NOW(), 1);
+VALUES ('user', '$2b$10$uYYuRZqOZ3jBGp0rrMV7n./9VkGccPN/zLO/e/MmoqmJbLKtCNmVO', 'User', 'user@example.com', '1234567890', 0, 1, NOW(), 1);
