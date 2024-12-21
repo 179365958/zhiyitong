@@ -456,3 +456,79 @@ CREATE TABLE IF NOT EXISTS voucher_entry_auxiliary (
     created_by      INT NOT NULL,                 -- 创建人
     KEY idx_entry (entry_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='凭证分录辅助核算表';
+
+-- 用户表
+CREATE TABLE IF NOT EXISTS sys_user (
+    id              INT PRIMARY KEY AUTO_INCREMENT,
+    username        VARCHAR(50) NOT NULL,        -- 用户名
+    password        VARCHAR(255) NOT NULL,       -- 密码(加密)，增加长度以支持bcrypt加密
+    real_name       VARCHAR(50) NOT NULL,        -- 真实姓名
+    email           VARCHAR(100),                -- 邮箱
+    mobile          VARCHAR(20),                 -- 手机
+    is_admin        BIT NOT NULL DEFAULT 0,      -- 是否管理员
+    created_at      DATETIME NOT NULL,           -- 创建时间
+    created_by      INT NOT NULL,                -- 创建人
+    updated_at      DATETIME,                    -- 更新时间
+    updated_by      INT,                         -- 更新人
+    UNIQUE KEY uk_username (username)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
+
+-- 角色表
+CREATE TABLE IF NOT EXISTS sys_role (
+    id              INT PRIMARY KEY AUTO_INCREMENT,
+    role_code       VARCHAR(50) NOT NULL,        -- 角色编码
+    role_name       VARCHAR(100) NOT NULL,       -- 角色名称
+    description     VARCHAR(200),                -- 描述
+    status          TINYINT NOT NULL DEFAULT 1,  -- 状态(1:正常 0:禁用)
+    created_at      DATETIME NOT NULL,           -- 创建时间
+    created_by      INT NOT NULL,                -- 创建人
+    updated_at      DATETIME,                    -- 更新时间
+    updated_by      INT,                         -- 更新人
+    UNIQUE KEY uk_role_code (role_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色表';
+
+-- 权限表
+CREATE TABLE IF NOT EXISTS sys_permission (
+    id              INT PRIMARY KEY AUTO_INCREMENT,
+    parent_id       INT,                         -- 父级权限ID
+    perm_code       VARCHAR(50) NOT NULL,        -- 权限编码
+    perm_name       VARCHAR(100) NOT NULL,       -- 权限名称
+    perm_type       VARCHAR(20) NOT NULL,        -- 权限类型(menu:菜单 button:按钮)
+    path            VARCHAR(200),                -- 菜单路径
+    component       VARCHAR(200),                -- 前端组件
+    icon            VARCHAR(50),                 -- 图标
+    sort_no         INT NOT NULL DEFAULT 0,      -- 排序号
+    status          TINYINT NOT NULL DEFAULT 1,  -- 状态(1:正常 0:禁用)
+    created_at      DATETIME NOT NULL,           -- 创建时间
+    created_by      INT NOT NULL,                -- 创建人
+    updated_at      DATETIME,                    -- 更新时间
+    updated_by      INT,                         -- 更新人
+    UNIQUE KEY uk_perm_code (perm_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='权限表';
+
+-- 用户角色关系表
+CREATE TABLE IF NOT EXISTS sys_user_role (
+    id              INT PRIMARY KEY AUTO_INCREMENT,
+    user_id         INT NOT NULL,                -- 用户ID
+    role_id         INT NOT NULL,                -- 角色ID
+    created_at      DATETIME NOT NULL,           -- 创建时间
+    created_by      INT NOT NULL,                -- 创建人
+    UNIQUE KEY uk_user_role (user_id, role_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户角色关系表';
+
+-- 角色权限关系表
+CREATE TABLE IF NOT EXISTS sys_role_permission (
+    id              INT PRIMARY KEY AUTO_INCREMENT,
+    role_id         INT NOT NULL,                -- 角色ID
+    permission_id   INT NOT NULL,                -- 权限ID
+    created_at      DATETIME NOT NULL,           -- 创建时间
+    created_by      INT NOT NULL,                -- 创建人
+    UNIQUE KEY uk_role_perm (role_id, permission_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色权限关系表';
+
+INSERT INTO sys_user (username, password, real_name, email, mobile, is_admin, created_at, created_by)
+VALUES ('admin', '加密后的密码', '管理员', 'admin@example.com', '1234567890', 1, NOW(), 1);
+
+-- 插入普通用户数据
+INSERT INTO sys_user (username, password, real_name, email, mobile, is_admin, status, created_at, created_by)
+VALUES ('user', 'hashed_password_here', 'User', 'user@example.com', '1234567890', 0, 1, NOW(), 1);
