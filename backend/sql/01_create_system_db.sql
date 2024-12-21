@@ -144,7 +144,7 @@ CREATE TABLE IF NOT EXISTS sys_login_log (
     status          TINYINT NOT NULL,            -- 状态(1:成功 0:失败)
     msg             VARCHAR(200),                -- 提示信息
     login_time      DATETIME NOT NULL            -- 登录时间
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='登录日志表();
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='登录日志表';
 
 -- AI模型配置表
 CREATE TABLE IF NOT EXISTS sys_ai_model (
@@ -163,7 +163,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_model (
     updated_at      DATETIME ON UPDATE CURRENT_TIMESTAMP,
     updated_by      INT,
     UNIQUE KEY uk_code_version (model_code, version)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI模型配置表;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI模型配置表';
 
 -- AI知识库表
 CREATE TABLE IF NOT EXISTS sys_ai_knowledge (
@@ -179,7 +179,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_knowledge (
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      DATETIME ON UPDATE CURRENT_TIMESTAMP,
     KEY idx_domain_topic (domain, topic)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI知识库表;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI知识库表';
 
 -- AI业务规则表
 CREATE TABLE IF NOT EXISTS sys_ai_business_rule (
@@ -196,7 +196,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_business_rule (
     updated_at      DATETIME ON UPDATE CURRENT_TIMESTAMP,
     updated_by      INT,
     UNIQUE KEY uk_rule_code (rule_code)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI业务规则表;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI业务规则表';
 
 -- AI分析模型表
 CREATE TABLE IF NOT EXISTS sys_ai_analysis_model (
@@ -214,7 +214,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_analysis_model (
     updated_at      DATETIME ON UPDATE CURRENT_TIMESTAMP,
     updated_by      INT,
     UNIQUE KEY uk_model_code (model_code)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI分析模型表;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI分析模型表';
 
 -- AI训练数据集表
 CREATE TABLE IF NOT EXISTS sys_ai_training_data (
@@ -232,7 +232,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_training_data (
     updated_at      DATETIME ON UPDATE CURRENT_TIMESTAMP,
     updated_by      INT,
     UNIQUE KEY uk_dataset_code (dataset_code)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI训练数据集表;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI训练数据集表';
 
 -- AI使用记录表
 CREATE TABLE IF NOT EXISTS sys_ai_usage_log (
@@ -249,7 +249,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_usage_log (
     created_by      INT NOT NULL,
     KEY idx_company_model (company_id, model_code),
     KEY idx_created_at (created_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI使用记录表;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI使用记录表';
 
 -- AI模型配置表
 CREATE TABLE IF NOT EXISTS sys_ai_config (
@@ -267,7 +267,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_config (
     updated_at      DATETIME,
     updated_by      INT,
     UNIQUE KEY uk_provider_model (provider, model_name)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI模型配置表;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI模型配置表';
 
 -- AI对话历史表
 CREATE TABLE IF NOT EXISTS sys_ai_conversation (
@@ -288,7 +288,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_conversation (
     created_at      DATETIME NOT NULL,
     KEY idx_user_session (user_id, session_id),
     KEY idx_business (business_type, business_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI对话历史表;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI对话历史表';
 
 -- AI知识库表
 CREATE TABLE IF NOT EXISTS sys_ai_knowledge_base (
@@ -306,7 +306,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_knowledge_base (
     updated_at      DATETIME,
     updated_by      INT,
     KEY idx_category (category)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI知识库表;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI知识库表';
 
 -- AI使用统计表
 CREATE TABLE IF NOT EXISTS sys_ai_usage_stats (
@@ -325,7 +325,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_usage_stats (
     created_at      DATETIME NOT NULL,
     KEY idx_company_date (company_id, stat_date),
     KEY idx_user_date (user_id, stat_date)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI使用统计表;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI使用统计表';
 
 -- 系统配置表
 CREATE TABLE IF NOT EXISTS sys_config (
@@ -341,7 +341,7 @@ CREATE TABLE IF NOT EXISTS sys_config (
     updated_at      DATETIME,                    -- 更新时间
     updated_by      INT,                         -- 更新人
     UNIQUE KEY uk_config_key (config_key)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统配置表;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统配置表';
 
 -- 会计科目模板表
 CREATE TABLE IF NOT EXISTS sys_subject_template (
@@ -363,7 +363,7 @@ CREATE TABLE IF NOT EXISTS sys_subject_template (
     updated_at      DATETIME,
     updated_by      INT,
     UNIQUE KEY uk_system_code (system_id, code)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会计科目模板表;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会计科目模板表';
 
 -- 会计制度切换记录表
 CREATE TABLE IF NOT EXISTS sys_accounting_system_change (
@@ -379,7 +379,7 @@ CREATE TABLE IF NOT EXISTS sys_accounting_system_change (
     created_at          DATETIME NOT NULL,
     created_by          INT NOT NULL,
     KEY idx_company_date (company_id, change_date)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会计制度切换记录表;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会计制度切换记录表';
 
 -- 会计制度版本更新日志表
 CREATE TABLE IF NOT EXISTS sys_accounting_system_version_log (
@@ -393,7 +393,7 @@ CREATE TABLE IF NOT EXISTS sys_accounting_system_version_log (
     created_at          DATETIME NOT NULL,
     created_by          INT NOT NULL,
     KEY idx_system_version (system_id, new_version)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会计制度版本更新日志表;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会计制度版本更新日志表';
 
 -- 科目对照映射表
 CREATE TABLE IF NOT EXISTS sys_subject_mapping (
@@ -409,7 +409,7 @@ CREATE TABLE IF NOT EXISTS sys_subject_mapping (
     updated_at          DATETIME,
     updated_by          INT,
     UNIQUE KEY uk_mapping (from_system_id, to_system_id, from_subject_code, to_subject_code)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='科目对照映射表;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='科目对照映射表';
 
 -- 初始化会计制度数据
 INSERT IGNORE INTO sys_accounting_system 
@@ -510,7 +510,6 @@ VALUES
 -- 2. 确保 sys_subject_template 表存在，并且字段与此脚本兼容。
 -- 3. `NOW()` 函数生成当前时间，如果需要固定时间可替换为具体的时间值。
 
-
 -- 企业会计准则科目模板
 -- TODO: 添加企业会计准则的科目模板
 
@@ -524,3 +523,35 @@ VALUES ('admin', '加密后的密码', '管理员', 'admin@example.com', '123456
 -- 插入普通用户数据
 INSERT INTO sys_user (username, password, real_name, email, mobile, is_admin, status, created_at, created_by)
 VALUES ('user', 'hashed_password_here', 'User', 'user@example.com', '1234567890', 0, 1, NOW(), 1);
+
+-- 插入角色数据
+INSERT INTO sys_role (role_code, role_name, description, status, created_at, created_by)
+VALUES
+('admin', '管理员', '具有所有权限的管理员角色', 1, NOW(), 1),
+('normal_user', '普通用户', '普通用户角色，权限有限', 1, NOW(), 1);
+
+-- 插入权限数据
+INSERT INTO sys_permission (perm_code, perm_name, perm_type, path, component, icon, sort_no, status, created_at, created_by)
+VALUES
+('view_dashboard', '查看仪表盘', 'menu', '/dashboard', 'Dashboard', 'dashboard-icon', 1, 1, NOW(), 1),
+('edit_settings', '编辑设置', 'button', NULL, NULL, 'settings-icon', 2, 1, NOW(), 1),
+('view_reports', '查看报告', 'menu', '/reports', 'Reports', 'reports-icon', 3, 1, NOW(), 1);
+
+-- 为管理员角色分配所有权限
+INSERT INTO sys_role_permission (role_id, permission_id, created_at, created_by)
+VALUES
+(1, 1, NOW(), 1),  -- admin 角色查看仪表盘权限
+(1, 2, NOW(), 1),  -- admin 角色编辑设置权限
+(1, 3, NOW(), 1);  -- admin 角色查看报告权限
+
+-- 为普通用户角色分配有限权限
+INSERT INTO sys_role_permission (role_id, permission_id, created_at, created_by)
+VALUES
+(2, 1, NOW(), 1),  -- normal_user 角色查看仪表盘权限
+(2, 3, NOW(), 1);  -- normal_user 角色查看报告权限
+
+-- 将用户与角色关联
+INSERT INTO sys_user_role (user_id, role_id, created_at, created_by)
+VALUES
+(1, 1, NOW(), 1),  -- 将 admin 用户与 admin 角色关联
+(2, 2, NOW(), 1);  -- 将 user 用户与 normal_user 角色关联
