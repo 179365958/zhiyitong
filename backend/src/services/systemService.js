@@ -357,7 +357,7 @@ exports.deleteCompany = async (id) => {
 };
 
 // 用户登录
-exports.login = async (username, password, companyId = null) => {
+exports.login = async (username, password, companyId=null ) => {
     let connection;
     try {
         // 创建数据库连接
@@ -370,9 +370,10 @@ exports.login = async (username, password, companyId = null) => {
         });
 
         // console.log('Database Connection:', connection);
-        console.log('Company ID:', companyId);
+        
         if (!companyId) {
             // 账套登录：使用 zyt_sys 数据库
+            console.log('Company ID:', companyId);
             await connection.query('USE zyt_sys');
             
             // 验证用户
@@ -417,6 +418,7 @@ exports.login = async (username, password, companyId = null) => {
                 'SELECT * FROM sys_company WHERE id = ? AND status = 1',
                 [companyId]
             );
+            console.log('Company ID2:', companyId); 
 
             if (companies.length === 0) {
                 return {

@@ -141,8 +141,8 @@ exports.deleteCompany = async (req, res) => {
 // 用户登录
 exports.login = async (req, res) => {
     try {
-        const { username, password } = req.body;
-        const result = await systemService.login(username, password);
+        const { username, password, companyId } = req.body; // 获取 companyId
+        const result = await systemService.login(username, password, companyId); // 传递 companyId
         res.json(result);
     } catch (error) {
         res.status(500).json({
