@@ -18,7 +18,7 @@ exports.checkSystemInit = async () => {
             port: dbConfig.mysql.port,
         });
 
-        console.log('Database Connection:', connection);
+        // console.log('Database Connection:', connection);
 
         // 检查数据库是否存在
         const [rows] = await connection.query(`SHOW DATABASES LIKE '${dbConfig.mysql.database}'`);
@@ -51,7 +51,7 @@ exports.validateDbConfig = async (dbConfig) => {
             port: dbConfig.mysql.port,
         });
 
-        console.log('Database Connection:', connection);
+        // console.log('Database Connection:', connection);
 
         await connection.end();
         return {
@@ -79,7 +79,7 @@ exports.initializeSystem = async (username, password) => {
             port: dbConfig.mysql.port,
         });
 
-        console.log('Database Connection:', connection);
+        // console.log('Database Connection:', connection);
 
         // 检查数据库是否存在
         const [rows] = await connection.query(`SHOW DATABASES LIKE '${dbConfig.mysql.database}'`);
@@ -143,7 +143,7 @@ exports.getSystemStatus = async () => {
             port: dbConfig.mysql.port,
         });
 
-        console.log('Database Connection:', connection);
+        // console.log('Database Connection:', connection);
 
         const [dbSize] = await connection.query(`
             SELECT table_schema AS 'database',
@@ -183,7 +183,7 @@ exports.getCompanies = async (params = {}) => {
             port: dbConfig.mysql.port,
         });
 
-        console.log('Database Connection:', connection);
+        // console.log('Database Connection:', connection);
 
         // 构建查询条件
         const queryConditions = [];
@@ -369,8 +369,8 @@ exports.login = async (username, password, companyId = null) => {
             port: dbConfig.mysql.port,
         });
 
-      //  console.log('Database Connection:', connection);
-
+        // console.log('Database Connection:', connection);
+        console.log('Company ID:', companyId);
         if (!companyId) {
             // 账套登录：使用 zyt_sys 数据库
             await connection.query('USE zyt_sys');
@@ -404,7 +404,7 @@ exports.login = async (username, password, companyId = null) => {
                     id: user.id,
                     username: user.username,
                     realName: user.real_name,
-                    isAdmin: user.is_admin === 1,
+                    isAdmin: user.is_admin[0] === 1, // 访问 Buffer 中的值
                     status: user.status
                 }
             };
@@ -459,7 +459,7 @@ exports.login = async (username, password, companyId = null) => {
                     id: user.id,
                     username: user.username,
                     realName: user.real_name,
-                    isAdmin: user.is_admin === 1,
+                    isAdmin: user.is_admin[0] === 1, // 访问 Buffer 中的值
                     status: user.status,
                     companyId: companyInfo.id,
                     companyName: companyInfo.company_name,
