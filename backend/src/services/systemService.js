@@ -2,31 +2,26 @@ const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt'); // 注意：需要安装 bcrypt 包
 const fs = require('fs').promises;
 const path = require('path');
-const config = {
-    host: process.env.DB_HOST,
-    port: parseInt(process.env.DB_PORT),
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_SYS_NAME,
-    sslmode: process.env.DB_SSLMODE,
-    timezone: process.env.DB_TIMEZONE,
-    connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT),
-    multipleStatements: process.env.DB_MULTIPLE_STATEMENTS === 'true'
-};
+const dbConfig = require('../config/database'); // 引入数据库配置
+
+
 
 // 检查系统初始化状态
 exports.checkSystemInit = async () => {
     try {
         // 检查数据库连接
         const connection = await mysql.createConnection({
-            host: config.host,
-            port: config.port,
-            user: config.user,
-            password: config.password
+            host: dbConfig.mysql.host,
+            user: dbConfig.mysql.username,
+            password: dbConfig.mysql.password,
+            database: dbConfig.mysql.database,
+            port: dbConfig.mysql.port,
         });
 
+        console.log('Database Connection:', connection);
+
         // 检查数据库是否存在
-        const [rows] = await connection.query(`SHOW DATABASES LIKE '${config.database}'`);
+        const [rows] = await connection.query(`SHOW DATABASES LIKE '${dbConfig.mysql.database}'`);
         const dbExists = rows.length > 0;
 
         await connection.end();
@@ -49,11 +44,14 @@ exports.checkSystemInit = async () => {
 exports.validateDbConfig = async (dbConfig) => {
     try {
         const connection = await mysql.createConnection({
-            host: dbConfig.host,
-            port: dbConfig.port,
-            user: dbConfig.user,
-            password: dbConfig.password
+            host: dbConfig.mysql.host,
+            user: dbConfig.mysql.username,
+            password: dbConfig.mysql.password,
+            database: dbConfig.mysql.database,
+            port: dbConfig.mysql.port,
         });
+
+        console.log('Database Connection:', connection);
 
         await connection.end();
         return {
@@ -72,28 +70,24 @@ exports.validateDbConfig = async (dbConfig) => {
 exports.initializeSystem = async (username, password) => {
     let connection;
     try {
-        const config = {
-            host: process.env.DB_HOST,
-            port: parseInt(process.env.DB_PORT),
-            user: process.env.DB_USER,
-            password: process.env.DB_PASS,
-            database: process.env.DB_SYS_NAME
-        };
         // 创建数据库连接
         connection = await mysql.createConnection({
-            host: config.host,
-            port: config.port,
-            user: config.user,
-            password: config.password
+            host: dbConfig.mysql.host,
+            user: dbConfig.mysql.username,
+            password: dbConfig.mysql.password,
+            database: dbConfig.mysql.database,
+            port: dbConfig.mysql.port,
         });
 
+        console.log('Database Connection:', connection);
+
         // 检查数据库是否存在
-        const [rows] = await connection.query(`SHOW DATABASES LIKE '${config.database}'`);
+        const [rows] = await connection.query(`SHOW DATABASES LIKE '${dbConfig.mysql.database}'`);
         const dbExists = rows.length > 0;
 
         if (dbExists) {
             // 删除现有数据库
-            await connection.query(`DROP DATABASE ${config.database}`);
+            await connection.query(`DROP DATABASE ${dbConfig.mysql.database}`);
         }
 
         // 读取 SQL 文件
@@ -142,12 +136,14 @@ exports.initializeSystem = async (username, password) => {
 exports.getSystemStatus = async () => {
     try {
         const connection = await mysql.createConnection({
-            host: config.host,
-            port: config.port,
-            user: config.user,
-            password: config.password,
-            database: config.database
+            host: dbConfig.mysql.host,
+            user: dbConfig.mysql.username,
+            password: dbConfig.mysql.password,
+            database: dbConfig.mysql.database,
+            port: dbConfig.mysql.port,
         });
+
+        console.log('Database Connection:', connection);
 
         const [dbSize] = await connection.query(`
             SELECT table_schema AS 'database',
@@ -155,14 +151,14 @@ exports.getSystemStatus = async () => {
             FROM information_schema.tables
             WHERE table_schema = ?
             GROUP BY table_schema
-        `, [config.database]);
+        `, [dbConfig.mysql.database]);
 
         await connection.end();
 
         return {
             success: true,
             status: {
-                database: config.database,
+                database: dbConfig.mysql.database,
                 size: dbSize[0]?.size_mb || 0,
                 uptime: process.uptime()
             }
@@ -180,12 +176,14 @@ exports.getCompanies = async (params = {}) => {
     let connection;
     try {
         connection = await mysql.createConnection({
-            host: config.host,
-            port: config.port,
-            user: config.user,
-            password: config.password,
-            database: config.database
+            host: dbConfig.mysql.host,
+            user: dbConfig.mysql.username,
+            password: dbConfig.mysql.password,
+            database: dbConfig.mysql.database,
+            port: dbConfig.mysql.port,
         });
+
+        console.log('Database Connection:', connection);
 
         // 构建查询条件
         const queryConditions = [];
@@ -260,12 +258,14 @@ exports.createCompany = async (companyData) => {
     let connection;
     try {
         connection = await mysql.createConnection({
-            host: config.host,
-            port: config.port,
-            user: config.user,
-            password: config.password,
-            database: config.database
+            host: dbConfig.mysql.host,
+            user: dbConfig.mysql.username,
+            password: dbConfig.mysql.password,
+            database: dbConfig.mysql.database,
+            port: dbConfig.mysql.port,
         });
+
+        console.log('Database Connection:', connection);
 
         const { company_code, company_name, db_name, status = 1 } = companyData;
 
@@ -293,12 +293,14 @@ exports.updateCompany = async (id, companyData) => {
     let connection;
     try {
         connection = await mysql.createConnection({
-            host: config.host,
-            port: config.port,
-            user: config.user,
-            password: config.password,
-            database: config.database
+            host: dbConfig.mysql.host,
+            user: dbConfig.mysql.username,
+            password: dbConfig.mysql.password,
+            database: dbConfig.mysql.database,
+            port: dbConfig.mysql.port,
         });
+
+        console.log('Database Connection:', connection);
 
         const { company_code, company_name, db_name, status } = companyData;
 
@@ -328,12 +330,14 @@ exports.deleteCompany = async (id) => {
     let connection;
     try {
         connection = await mysql.createConnection({
-            host: config.host,
-            port: config.port,
-            user: config.user,
-            password: config.password,
-            database: config.database
+            host: dbConfig.mysql.host,
+            user: dbConfig.mysql.username,
+            password: dbConfig.mysql.password,
+            database: dbConfig.mysql.database,
+            port: dbConfig.mysql.port,
         });
+
+        console.log('Database Connection:', connection);
 
         const [result] = await connection.query('DELETE FROM sys_company WHERE id = ?', [id]);
 
@@ -353,46 +357,117 @@ exports.deleteCompany = async (id) => {
 };
 
 // 用户登录
-exports.login = async (username, password) => {
+exports.login = async (username, password, companyId = null) => {
     let connection;
     try {
+        // 创建数据库连接
         connection = await mysql.createConnection({
-            host: config.host,
-            port: config.port,
-            user: config.user,
-            password: config.password,
-            database: config.database
+            host: dbConfig.mysql.host,
+            user: dbConfig.mysql.username,
+            password: dbConfig.mysql.password,
+            database: dbConfig.mysql.database,
+            port: dbConfig.mysql.port,
         });
 
-        const [users] = await connection.query('SELECT * FROM sys_user WHERE username = ? AND status = 1', [username]);
+      //  console.log('Database Connection:', connection);
 
-        if (users.length === 0) {
-            return {
-                success: false,
-                message: '用户不存在或已被禁用'
-            };
-        }
+        if (!companyId) {
+            // 账套登录：使用 zyt_sys 数据库
+            await connection.query('USE zyt_sys');
+            
+            // 验证用户
+            const [users] = await connection.query(
+                'SELECT * FROM sys_user WHERE username = ? AND status = 1',
+                [username]
+            );
 
-        const user = users[0];
-        const isValidPassword = await bcrypt.compare(password, user.password);
-        if (!isValidPassword) {
-            return {
-                success: false,
-                message: '密码错误'
-            };
-        }
-
-        return {
-            success: true,
-            message: '登录成功',
-            data: {
-                id: user.id,
-                username: user.username,
-                realName: user.real_name,
-                isAdmin: user.is_admin === 1,
-                status: user.status
+            if (users.length === 0) {
+                return {
+                    success: false,
+                    message: '用户不存在或已被禁用'
+                };
             }
-        };
+
+            const user = users[0];
+            const isValidPassword = await bcrypt.compare(password, user.password);
+            if (!isValidPassword) {
+                return {
+                    success: false,
+                    message: '密码错误'
+                };
+            }
+
+            return {
+                success: true,
+                message: '登录成功',
+                data: {
+                    id: user.id,
+                    username: user.username,
+                    realName: user.real_name,
+                    isAdmin: user.is_admin === 1,
+                    status: user.status
+                }
+            };
+        } else {
+            // 普通登录：先在 zyt_sys 中获取公司信息
+            await connection.query('USE zyt_sys');
+            
+            // 获取公司信息
+            const [companies] = await connection.query(
+                'SELECT * FROM sys_company WHERE id = ? AND status = 1',
+                [companyId]
+            );
+
+            if (companies.length === 0) {
+                return {
+                    success: false,
+                    message: '未找到对应的公司信息或公司已禁用'
+                };
+            }
+
+            const companyInfo = companies[0];
+            
+            // 切换到公司数据库
+            await connection.query(`USE ${companyInfo.db_name}`);
+
+            // 在公司数据库中验证用户
+            const [users] = await connection.query(
+                'SELECT * FROM sys_user WHERE username = ? AND status = 1',
+                [username]
+            );
+
+            if (users.length === 0) {
+                return {
+                    success: false,
+                    message: '用户不存在或已被禁用'
+                };
+            }
+
+            const user = users[0];
+            const isValidPassword = await bcrypt.compare(password, user.password);
+            if (!isValidPassword) {
+                return {
+                    success: false,
+                    message: '密码错误'
+                };
+            }
+
+            return {
+                success: true,
+                message: '登录成功',
+                data: {
+                    id: user.id,
+                    username: user.username,
+                    realName: user.real_name,
+                    isAdmin: user.is_admin === 1,
+                    status: user.status,
+                    companyId: companyInfo.id,
+                    companyName: companyInfo.company_name,
+                    companyCode: companyInfo.company_code,
+                    databaseName: companyInfo.db_name
+                }
+            };
+        }
     } catch (error) {
         console.error('登录失败:', error);
         return {

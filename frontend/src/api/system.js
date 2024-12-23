@@ -46,7 +46,7 @@ export function login(data) {
 // 获取企业账套列表
 export const getCompanyList = (params) => {
   return request({
-    url: '/system/companies',
+    url: 'api/system/companies',
     method: 'get',
     params
   }).then(response => {
