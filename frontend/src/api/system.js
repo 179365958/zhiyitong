@@ -26,12 +26,13 @@ export function getSystemStatus() {
 }
 
 // 获取企业账套列表
+/*
 export function getCompanies() {
   return request({
     url: '/api/system/companies',
     method: 'get'
   })
-}
+}  */
 
 // 用户登录
 export function login(data) {
@@ -45,7 +46,7 @@ export function login(data) {
 // 获取企业账套列表
 export const getCompanyList = (params) => {
   return request({
-    url: '/api/system/companies',
+    url: '/system/companies',
     method: 'get',
     params
   }).then(response => {
