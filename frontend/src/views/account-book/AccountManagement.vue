@@ -4,14 +4,14 @@
       <template #header>
         <div class="card-header">
           <div class="header-left">
-            <el-button 
+            <!-- <el-button 
               type="info" 
               icon="Back" 
               @click="goBack" 
               circle 
               plain
               title="返回登录"
-            />
+            /> -->
             <span class="header-title">账套管理</span>
           </div>
           <div class="header-right">
@@ -332,17 +332,18 @@ const handleSubmit = () => {
 const handleCommand = (command) => {
   if (command === 'logout') {
     userStore.logout()
-    router.push('/login')
+    router.push('account-book/login')
   } else if (command === 'profile') {
     router.push('/settings/profile')
   }
 }
 
 // 返回登录页
+/*
 const goBack = () => {
   router.push('/login')
 }
-
+*/
 onMounted(async () => {
   // 检查并更新用户信息
   await userStore.safeGetUserInfo()
