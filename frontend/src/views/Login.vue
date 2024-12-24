@@ -48,7 +48,15 @@
 
       <el-form-item>
         <div style="display: flex; justify-content: space-between; align-items: center;">
-          <el-button type="primary" @click="() => $router.push('/account-book/login')" style="width: 49%">账套管理</el-button>
+          <el-button 
+            type="primary" 
+            icon="Bank" 
+            @click="openAccountManagement" 
+            target="_blank"
+            style="width: 49%"
+          >
+            账套管理
+          </el-button>
           <el-button 
             type="primary" 
             @click="submitLogin" 
@@ -171,6 +179,11 @@ const submitLogin = async () => {
       }
     }
   })
+}
+
+// 打开账套管理页面
+const openAccountManagement = () => {
+  window.open('/account-book/login', '_blank')
 }
 
 // 退出登录
