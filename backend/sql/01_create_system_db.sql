@@ -411,6 +411,15 @@ CREATE TABLE IF NOT EXISTS sys_subject_mapping (
     UNIQUE KEY uk_mapping (from_system_id, to_system_id, from_subject_code, to_subject_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='科目对照映射表';
 
+-- 用户账套权限表
+CREATE TABLE IF NOT EXISTS sys_user_company (
+    user_id INT NOT NULL,                  -- 用户ID
+    company_id INT NOT NULL,               -- 账套ID
+    PRIMARY KEY (user_id, company_id),     -- 主键：用户ID和账套ID的组合
+    FOREIGN KEY (user_id) REFERENCES sys_user(id) ON DELETE CASCADE,  -- 外键：用户ID引用用户表
+    FOREIGN KEY (company_id) REFERENCES sys_company(id) ON DELETE CASCADE  -- 外键：账套ID引用企业账套表
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户账套权限表';
+
 -- 初始化会计制度数据
 INSERT IGNORE INTO sys_accounting_system 
 (code, name, description, version, effective_date, status, created_at, created_by) 
@@ -520,11 +529,11 @@ VALUES
 
 -- 插入管理员用户
 INSERT INTO sys_user (username, password, real_name, email, mobile, is_admin, created_at, created_by)
-VALUES ('admin', '加密后的密码', '管理员', 'admin@example.com', '1234567890', 1, NOW(), 1);
+VALUES ('admin', '$2b$10$uYYuRZqOZ3jBGp0rrMV7n./9VkGccPN/zLO/e/MmoqmJbLKtCNmVO', '管理员', 'admin@example.com', '1234567890', 1, NOW(), 1);
 
 -- 插入普通用户数据
 INSERT INTO sys_user (username, password, real_name, email, mobile, is_admin, status, created_at, created_by)
-VALUES ('user', 'hashed_password_here', 'User', 'user@example.com', '1234567890', 0, 1, NOW(), 1);
+VALUES ('user', '$2b$10$uYYuRZqOZ3jBGp0rrMV7n./9VkGccPN/zLO/e/MmoqmJbLKtCNmVO', 'User', 'user@example.com', '1234567890', 0, 1, NOW(), 1);
 
 -- 插入角色数据
 INSERT INTO sys_role (role_code, role_name, description, status, created_at, created_by)
@@ -557,3 +566,5 @@ INSERT INTO sys_user_role (user_id, role_id, created_at, created_by)
 VALUES
 (1, 1, NOW(), 1),  -- 将 admin 用户与 admin 角色关联
 (2, 2, NOW(), 1);  -- 将 user 用户与 normal_user 角色关联
+
+
