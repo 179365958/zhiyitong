@@ -104,8 +104,8 @@ const baseRoutes = [
     meta: { title: '账套管理登录' }
   },
   {
-    path: '/init',
-    name: 'Initialize',
+    path: '/install',
+    name: 'Install',
     component: Initialize,
     meta: { title: '账套初始化' }
   },
@@ -133,7 +133,7 @@ router.beforeEach((to, from, next) => {
   const token = getToken()
   
   // 不需要登录就可以访问的页面
-  const publicPages = ['/login', '/init', '/account-book/login']
+  const publicPages = ['/login', '/install', '/account-book/login']
   const isPublicPage = publicPages.includes(to.path)
 
   if (isPublicPage) {
