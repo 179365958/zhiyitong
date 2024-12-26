@@ -14,6 +14,7 @@
           v-model="loginForm.companyId" 
           placeholder="请选择企业账套"
           filterable
+          @click="fetchCompanyList"
         >
           <el-option 
             v-for="company in companyList" 
@@ -207,8 +208,6 @@ onMounted(() => {
     loginForm.password = atob(password) // 解密密码
     loginForm.rememberMe = true
   }
-  
-  fetchCompanyList()
 })
 </script>
 
