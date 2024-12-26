@@ -4,7 +4,7 @@ import { getToken } from '@/utils/auth'
 import Home from '@/views/Home.vue'
 import Login from '@/views/account-book/Login.vue'
 import { checkSystemInit } from '@/api/system'
-import Initialize from '@/views/account-book/Initialize.vue'
+//import Initialize from '@/views/account-book/Initialize.vue'
 
 // 动态导入组件的函数
 const loadView = (view) => {
@@ -26,7 +26,7 @@ const loadView = (view) => {
       'ledger/Balance': () => import('@/views/ledger/Balance.vue'),
       
       // 账套管理
-      'account-book/Initialize': () => import('@/views/account-book/Initialize.vue'),
+      //'account-book/Initialize': () => import('@/views/account-book/Initialize.vue'),
       'account-book/Login': () => import('@/views/account-book/Login.vue'),
       // 财务报表
       'report/BalanceSheet': () => import('@/views/report/BalanceSheet.vue'),
@@ -106,7 +106,7 @@ const baseRoutes = [
   {
     path: '/install',
     name: 'Install',
-    component: Initialize,
+    component: () => import('@/views/install/Install.vue'),
     meta: { title: '账套初始化' }
   },
   {
