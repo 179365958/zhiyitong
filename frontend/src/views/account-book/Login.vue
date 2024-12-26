@@ -45,8 +45,8 @@ const handleLogin = async () => {
     // 先检查系统初始化状态
     const initResponse = await checkSystemInit()
     
-    if (!initResponse.initialized) {
-      router.push('/init')
+    if (!initResponse.install) {
+      router.push('/install')
       return
     }
 
