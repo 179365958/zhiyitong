@@ -2,47 +2,50 @@
   <div class="install-container">
     <el-card class="box-card">
       <el-steps :active="currentStep" finish-status="success">
-        <el-step title="数据库连接" />
+        <el-step title="用户协议" />
+        <el-step title="检测环境" />
         <el-step title="管理员设置" />
         <el-step title="完成初始化" />
       </el-steps>
 
-      <!-- 步骤1：数据库连接信息 -->
+      <!-- 步骤1：用户协议 -->
       <div v-if="currentStep === 0" class="step-content">
-        <h3>数据库连接信息</h3>
-        <div class="info-item">
-          <span class="label">主机：</span>
-          <span>{{ dbConfig.host }}</span>
-        </div>
-        <div class="info-item">
-          <span class="label">端口：</span>
-          <span>{{ dbConfig.port }}</span>
-        </div>
-        <div class="info-item">
-          <span class="label">数据库：</span>
-          <span>{{ dbConfig.database }}</span>
-        </div>
-        <div class="connection-status">
-          <div class="status-item">
-            <span class="label">连接状态：</span>
-            <el-tag :type="connectionStatus.success ? 'success' : 'danger'">
-              {{ connectionStatus.message }}
-            </el-tag>
-          </div>
-          <div class="status-details">{{ connectionStatus.details }}</div>
-        </div>
-        <div class="actions">
-          <el-button type="primary" @click="testConnection" :loading="checking">
-            测试连接
+        <h3>用户协议</h3>
+        <p>请仔细阅读以下用户协议内容...</p>
+        <el-checkbox v-model="agreement">我同意用户协议</el-checkbox>
+        <div class="actions" style="display: flex; justify-content: center;">
+          <el-button type="default" @click="currentStep = 0">
+            不同意
           </el-button>
-          <el-button type="success" @click="nextStep" :disabled="!connectionStatus.success">
+          <el-button type="success" @click="nextStep">
+            同意
+          </el-button>
+        </div>
+      </div>
+
+      <!-- 步骤2：检测环境 -->
+      <div v-if="currentStep === 1" class="step-content">
+        <h3>检测环境</h3>
+        <div class="info-item">
+          <span class="label">数据库类型：</span>
+          <span>{{ dbType }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">数据版本：</span>
+          <span>{{ dbVersion }}</span>
+        </div>
+        <div class="actions" style="display: flex; justify-content: center; margin: 0 auto; text-align: center;">
+          <el-button type="default" @click="currentStep = 0">
+            上一步
+          </el-button>
+          <el-button type="success" @click="nextStep">
             下一步
           </el-button>
         </div>
       </div>
 
-      <!-- 步骤2：管理员设置 -->
-      <div v-if="currentStep === 1" class="step-content">
+      <!-- 步骤3：管理员设置 -->
+      <div v-if="currentStep === 2" class="step-content">
         <h3>管理员信息设置</h3>
         <el-form ref="adminFormRef" :model="adminForm" :rules="adminRules" label-width="100px" class="admin-form">
           <el-form-item label="用户名" prop="username">
@@ -55,14 +58,14 @@
             <el-input v-model="adminForm.confirmPassword" type="password" show-password />
           </el-form-item>
           <el-form-item>
-            <el-button @click="currentStep = 0">上一步</el-button>
+            <el-button @click="currentStep = 1">上一步</el-button>
             <el-button type="primary" @click="submitForm">确认</el-button>
           </el-form-item>
         </el-form>
       </div>
 
-      <!-- 步骤3：初始化完成 -->
-      <div v-if="currentStep === 2" class="step-content">
+      <!-- 步骤4：初始化完成 -->
+      <div v-if="currentStep === 3" class="step-content">
         <div class="result-message">
           <el-result
             :icon="success ? 'success' : 'error'"
@@ -82,15 +85,17 @@
 <script setup>
 import { ref, reactive } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { checkSystemInit } from '@/api/system'; // 更新 import 路径
+import { checkSystemInit } from '@/api/system';
 
 const currentStep = ref(0);
 const checking = ref(false);
 const success = ref(false);
 const successMessage = ref('');
 const adminFormRef = ref(null);
+const agreement = ref(false);
 
 // 数据库连接状态
+
 const connectionStatus = reactive({
   success: false,
   message: '',
@@ -98,11 +103,16 @@ const connectionStatus = reactive({
 });
 
 // 数据库配置信息
+/*
 const dbConfig = reactive({
   host: 'localhost',
   port: 3306,
   database: 'zyt_sys'
 });
+*/
+// 数据库类型和版本
+const dbType = ref('');
+const dbVersion = ref('');
 
 // 管理员表单
 const adminForm = reactive({
@@ -133,24 +143,37 @@ const adminRules = {
 // 测试数据库连接
 const testConnection = async () => {
   try {
-    checking.value = true;
-    const result = await checkSystemInit();
+    checking.value = true; // 开始检查状态
+    const result = await checkSystemInit(); // 从后端获取数据库信息
+
+    // 更新连接状态
     connectionStatus.success = result.success;
-    connectionStatus.message = result.success ? '连接成功' : '连接失败';
-    connectionStatus.details = result.message;
+    connectionStatus.message = result.message || (result.success ? '连接成功' : '连接失败');
+
+    // 更新数据库类型和版本
+    if (result.success) {
+      dbType.value = result.dbType; // 获取数据库类型
+      dbVersion.value = result.dbVersion; // 获取数据库版本
+      currentStep.value = 2; // 连接成功后跳转到下一步
+    }
   } catch (error) {
     connectionStatus.success = false;
-    connectionStatus.message = '连接失败';
-    connectionStatus.details = error.message;
+    connectionStatus.message = '连接失败：' + error.message; // 提供详细错误信息
   } finally {
-    checking.value = false;
+    checking.value = false; // 结束检查状态
   }
 };
 
 // 下一步
 const nextStep = () => {
-  if (connectionStatus.success) {
-    currentStep.value = 1;
+  if (currentStep.value === 0 && agreement.value) {
+    currentStep.value = 1; // 用户同意后跳转到第二步
+    testConnection(); // 在跳转后立即尝试连接
+  } else if (currentStep.value === 1) {
+    currentStep.value = 2; // 只有在检测成功后才切换到下一步
+  } else if (currentStep.value === 2) {
+    // 处理管理员设置的逻辑
+    currentStep.value = 3;
   }
 };
 
@@ -162,7 +185,7 @@ const submitForm = async () => {
       // 提交逻辑
       success.value = true;
       successMessage.value = '系统初始化成功';
-      currentStep.value = 2;
+      currentStep.value = 3;
     }
   });
 };
@@ -173,7 +196,7 @@ const goBack = () => {
 };
 
 // 组件加载时自动测试连接
-await testConnection();
+// testConnection();
 </script>
 
 <style scoped>
