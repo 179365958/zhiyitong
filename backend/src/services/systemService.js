@@ -18,24 +18,22 @@ exports.checkSystemInit = async () => {
             port: dbConfig.mysql.port,
         });
 
-        // console.log('Database Connection:', connection);
-
-        // 检查数据库是否存在
-        const [rows] = await connection.query(`SHOW DATABASES LIKE '${dbConfig.mysql.database}'`);
-        const dbExists = rows.length > 0;
+        // 获取数据库类型和版本
+        const [versionRows] = await connection.query('SELECT VERSION() AS version');
+        const dbVersion = versionRows[0].version;
+        const dbType = 'MySQL'; // 假设使用 MySQL
 
         await connection.end();
 
         return {
             success: true,
-            initialized: dbExists,
-            message: dbExists ? '系统已初始化' : '系统未初始化'
+            dbType: dbType,
+            dbVersion: dbVersion
         };
     } catch (error) {
         return {
             success: false,
-            initialized: false,
-            message: '数据库连接失败：' + error.message
+            message: '数据库连接失败!：' + error.message
         };
     }
 };
