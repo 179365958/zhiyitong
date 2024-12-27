@@ -43,13 +43,13 @@
         <h3>管理员信息设置</h3>
         <el-form ref="adminFormRef" :model="adminForm" :rules="adminRules" label-width="100px" class="admin-form">
           <el-form-item label="用户名" prop="username">
-            <el-input v-model="adminForm.username" />
+            <el-input v-model="adminForm.username" placeholder="请输入管理员用户名" />
           </el-form-item>
           <el-form-item label="密码" prop="password">
-            <el-input v-model="adminForm.password" type="password" show-password />
+            <el-input v-model="adminForm.password" type="password" show-password placeholder="请输入管理员密码" />
           </el-form-item>
           <el-form-item label="确认密码" prop="confirmPassword">
-            <el-input v-model="adminForm.confirmPassword" type="password" show-password />
+            <el-input v-model="adminForm.confirmPassword" type="password" show-password placeholder="请再次输入密码" />
           </el-form-item>
           <el-form-item>
             <el-button @click="prevStep">上一步</el-button>
@@ -80,7 +80,7 @@
 <script setup>
 import { ref, reactive, watch } from 'vue';
 import { ElMessage } from 'element-plus';
-import { checkSystemInit } from '@/api/system';
+import { checkSystemInit} from '@/api/system';
 
 const currentStep = ref(0);
 const checking = ref(false);
@@ -107,8 +107,14 @@ const adminForm = reactive({
 
 // 表单验证规则
 const adminRules = {
-  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { min: 3, max: 20, message: '用户名长度应为 3 到 20 个字符', trigger: 'blur' },
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 6, max: 20, message: '密码长度应为 6 到 20 个字符', trigger: 'blur' },
+  ],
   confirmPassword: [
     { required: true, message: '请确认密码', trigger: 'blur' },
     {
@@ -132,7 +138,7 @@ const testConnection = async () => {
     const result = await checkSystemInit();
 
     if (result.success) {
-      dbVersion.value = result.dbVersion || '未知'; // 更新数据库版本
+      dbVersion.value = result.dbVersion || '未知';
       connectionStatus.success = true;
       connectionStatus.message = '连接成功';
       ElMessage.success('数据库连接成功');
@@ -193,7 +199,7 @@ const submitForm = async () => {
         if (response.success) {
           success.value = true;
           successMessage.value = '系统初始化成功';
-          currentStep.value = 3;
+          currentStep.value = 3; // 跳转到完成初始化步骤
         } else {
           success.value = false;
           successMessage.value = '初始化失败：' + response.message;
@@ -213,8 +219,10 @@ const goBack = () => {
 
 // 重试
 const retry = () => {
-  currentStep.value = 1;
-  testConnection();
+  currentStep.value = 2; // 返回到管理员设置步骤
+  adminForm.username = 'admin'; // 重置表单
+  adminForm.password = '';
+  adminForm.confirmPassword = '';
 };
 </script>
 
