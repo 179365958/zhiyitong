@@ -13,13 +13,9 @@
         <h3>用户协议</h3>
         <p>请仔细阅读以下用户协议内容...</p>
         <el-checkbox v-model="agreement">我同意用户协议</el-checkbox>
-        <div class="actions" style="display: flex; justify-content: center;">
-          <el-button type="default" @click="currentStep = 0">
-            不同意
-          </el-button>
-          <el-button type="success" @click="nextStep">
-            同意
-          </el-button>
+        <div class="actions">
+          <el-button type="default" @click="resetSteps">不同意</el-button>
+          <el-button type="success" @click="nextStep" :disabled="!agreement">同意</el-button>
         </div>
       </div>
 
@@ -27,20 +23,18 @@
       <div v-if="currentStep === 1" class="step-content">
         <h3>检测环境</h3>
         <div class="info-item">
-          <span class="label">数据库类型：</span>
-          <span>{{ dbType }}</span>
+          <span class="label">数据库版本：</span>
+          <span>{{ dbVersion || '未知' }}</span>
         </div>
-        <div class="info-item">
-          <span class="label">数据版本：</span>
-          <span>{{ dbVersion }}</span>
+        <div class="connection-status">
+          <span class="label">连接状态：</span>
+          <el-tag :type="connectionStatus.success ? 'success' : 'danger'">
+            {{ connectionStatus.message }}
+          </el-tag>
         </div>
-        <div class="actions" style="display: flex; justify-content: center; margin: 0 auto; text-align: center;">
-          <el-button type="default" @click="currentStep = 0">
-            上一步
-          </el-button>
-          <el-button type="success" @click="nextStep">
-            下一步
-          </el-button>
+        <div class="actions">
+          <el-button type="default" @click="prevStep">上一步</el-button>
+          <el-button type="success" @click="nextStep" :disabled="!connectionStatus.success">下一步</el-button>
         </div>
       </div>
 
@@ -58,7 +52,7 @@
             <el-input v-model="adminForm.confirmPassword" type="password" show-password />
           </el-form-item>
           <el-form-item>
-            <el-button @click="currentStep = 1">上一步</el-button>
+            <el-button @click="prevStep">上一步</el-button>
             <el-button type="primary" @click="submitForm">确认</el-button>
           </el-form-item>
         </el-form>
@@ -74,6 +68,7 @@
           >
             <template #extra>
               <el-button type="primary" @click="goBack">返回登录页</el-button>
+              <el-button v-if="!success" type="warning" @click="retry">重试</el-button>
             </template>
           </el-result>
         </div>
@@ -83,8 +78,8 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ref, reactive, watch } from 'vue';
+import { ElMessage } from 'element-plus';
 import { checkSystemInit } from '@/api/system';
 
 const currentStep = ref(0);
@@ -95,30 +90,19 @@ const adminFormRef = ref(null);
 const agreement = ref(false);
 
 // 数据库连接状态
-
 const connectionStatus = reactive({
   success: false,
-  message: '',
-  details: ''
+  message: '未检测',
 });
 
-// 数据库配置信息
-/*
-const dbConfig = reactive({
-  host: 'localhost',
-  port: 3306,
-  database: 'zyt_sys'
-});
-*/
-// 数据库类型和版本
-const dbType = ref('');
+// 数据库版本
 const dbVersion = ref('');
 
 // 管理员表单
 const adminForm = reactive({
   username: 'admin',
   password: '',
-  confirmPassword: ''
+  confirmPassword: '',
 });
 
 // 表单验证规则
@@ -135,46 +119,68 @@ const adminRules = {
           callback();
         }
       },
-      trigger: 'blur'
-    }
-  ]
+      trigger: 'blur',
+    },
+  ],
 };
 
 // 测试数据库连接
 const testConnection = async () => {
   try {
-    checking.value = true; // 开始检查状态
-    const result = await checkSystemInit(); // 从后端获取数据库信息
+    checking.value = true;
+    connectionStatus.message = '检测中...';
+    const result = await checkSystemInit();
 
-    // 更新连接状态
-    connectionStatus.success = result.success;
-    connectionStatus.message = result.message || (result.success ? '连接成功' : '连接失败');
-
-    // 更新数据库类型和版本
     if (result.success) {
-      dbType.value = result.dbType; // 获取数据库类型
-      dbVersion.value = result.dbVersion; // 获取数据库版本
-      currentStep.value = 2; // 连接成功后跳转到下一步
+      dbVersion.value = result.dbVersion || '未知'; // 更新数据库版本
+      connectionStatus.success = true;
+      connectionStatus.message = '连接成功';
+      ElMessage.success('数据库连接成功');
+    } else {
+      dbVersion.value = '未知';
+      connectionStatus.success = false;
+      connectionStatus.message = '连接失败';
+      ElMessage.error('数据库连接失败：' + result.message);
     }
   } catch (error) {
+    dbVersion.value = '未知';
     connectionStatus.success = false;
-    connectionStatus.message = '连接失败：' + error.message; // 提供详细错误信息
+    connectionStatus.message = '连接失败';
+    ElMessage.error('数据库连接失败：' + error.message);
   } finally {
-    checking.value = false; // 结束检查状态
+    checking.value = false;
   }
 };
 
+// 监听步骤变化，自动检测数据库连接
+watch(currentStep, (newStep) => {
+  if (newStep === 1) {
+    testConnection(); // 进入步骤2时自动检测数据库连接
+  }
+});
+
 // 下一步
 const nextStep = () => {
-  if (currentStep.value === 0 && agreement.value) {
-    currentStep.value = 1; // 用户同意后跳转到第二步
-    testConnection(); // 在跳转后立即尝试连接
-  } else if (currentStep.value === 1) {
-    currentStep.value = 2; // 只有在检测成功后才切换到下一步
-  } else if (currentStep.value === 2) {
-    // 处理管理员设置的逻辑
-    currentStep.value = 3;
+  if (currentStep.value === 0 && !agreement.value) {
+    ElMessage.warning('请先同意用户协议');
+    return;
   }
+  if (currentStep.value === 1 && !connectionStatus.success) {
+    ElMessage.warning('请先完成数据库连接测试');
+    return;
+  }
+  currentStep.value++;
+};
+
+// 上一步
+const prevStep = () => {
+  currentStep.value--;
+};
+
+// 重置步骤
+const resetSteps = () => {
+  currentStep.value = 0;
+  agreement.value = false;
 };
 
 // 提交表单
@@ -182,10 +188,20 @@ const submitForm = async () => {
   if (!adminFormRef.value) return;
   await adminFormRef.value.validate(async (valid) => {
     if (valid) {
-      // 提交逻辑
-      success.value = true;
-      successMessage.value = '系统初始化成功';
-      currentStep.value = 3;
+      try {
+        const response = await initializeSystem(adminForm.username, adminForm.password);
+        if (response.success) {
+          success.value = true;
+          successMessage.value = '系统初始化成功';
+          currentStep.value = 3;
+        } else {
+          success.value = false;
+          successMessage.value = '初始化失败：' + response.message;
+        }
+      } catch (error) {
+        success.value = false;
+        successMessage.value = '初始化失败：' + error.message;
+      }
     }
   });
 };
@@ -195,8 +211,11 @@ const goBack = () => {
   window.location.href = '/login';
 };
 
-// 组件加载时自动测试连接
-// testConnection();
+// 重试
+const retry = () => {
+  currentStep.value = 1;
+  testConnection();
+};
 </script>
 
 <style scoped>
@@ -225,22 +244,13 @@ const goBack = () => {
 }
 .connection-status {
   margin: 20px 0;
-  padding: 15px;
-  background-color: #f8f9fa;
-  border-radius: 4px;
-}
-.status-item {
-  margin-bottom: 10px;
-}
-.status-details {
-  color: #666;
-  font-size: 14px;
-  margin-left: 90px;
+  display: flex;
+  align-items: center;
 }
 .actions {
   margin-top: 20px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 10px;
 }
 .admin-form {

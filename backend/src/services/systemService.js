@@ -11,29 +11,33 @@ const dbConfig = require('../config/database'); // 引入数据库配置
 exports.checkSystemInit = async () => {
     let connection;
     try {
-        connection = await mysql.createConnection({
-            host: dbConfig.mysql.host,
-            user: dbConfig.mysql.username,
-            password: dbConfig.mysql.password,
-            port: dbConfig.mysql.port,
-        });
-
-        // 如果连接成功，返回成功状态
-        return {
-            success: true,
-            message: '数据库连接成功'
-        };
+      connection = await mysql.createConnection({
+        host: dbConfig.mysql.host,
+        user: dbConfig.mysql.username,
+        password: dbConfig.mysql.password,
+        port: dbConfig.mysql.port,
+      });
+  
+      // 获取数据库版本
+      const [rows] = await connection.query('SELECT version() AS version');
+      const dbVersion = rows[0].version;
+  
+      return {
+        success: true,
+        message: '数据库连接成功',
+        dbVersion,
+      };
     } catch (error) {
-        return {
-            success: false,
-            message: '数据库连接失败：' + error.message // 提供详细错误信息
-        };
+      return {
+        success: false,
+        message: '数据库连接失败：' + error.message,
+      };
     } finally {
-        if (connection) {
-            await connection.end(); // 结束数据库连接
-        }
+      if (connection) {
+        await connection.end();
+      }
     }
-};
+  };
 
 // 验证数据库配置
 exports.validateDbConfig = async (dbConfig) => {
