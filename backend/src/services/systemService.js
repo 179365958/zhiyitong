@@ -6,35 +6,32 @@ const dbConfig = require('../config/database'); // 引入数据库配置
 
 
 
-// 检查系统初始化状态
+// 检查 MySQL 连接状态
+// 检查 MySQL 是否可以连接
 exports.checkSystemInit = async () => {
+    let connection;
     try {
-        // 检查数据库连接
-        const connection = await mysql.createConnection({
+        connection = await mysql.createConnection({
             host: dbConfig.mysql.host,
             user: dbConfig.mysql.username,
             password: dbConfig.mysql.password,
-            database: dbConfig.mysql.database,
             port: dbConfig.mysql.port,
         });
 
-        // 获取数据库类型和版本
-        const [versionRows] = await connection.query('SELECT VERSION() AS version');
-        const dbVersion = versionRows[0].version;
-        const dbType = 'MySQL'; // 假设使用 MySQL
-
-        await connection.end();
-
+        // 如果连接成功，返回成功状态
         return {
             success: true,
-            dbType: dbType,
-            dbVersion: dbVersion
+            message: '数据库连接成功'
         };
     } catch (error) {
         return {
             success: false,
-            message: '数据库连接失败!：' + error.message
+            message: '数据库连接失败：' + error.message // 提供详细错误信息
         };
+    } finally {
+        if (connection) {
+            await connection.end(); // 结束数据库连接
+        }
     }
 };
 
