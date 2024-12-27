@@ -5,25 +5,38 @@ const logger = require('./utils/logger');
 const systemRoutes = require('./routes/system');
 const path = require('path');
 
-// 记录服务器启动时间
-global.serverStartTime = new Date();
-
 const app = express();
 
 // 配置 CORS
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',')
+  : ['http://localhost:5173'];
+
 app.use(cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
-    credentials: true
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
 }));
 
 // 解析 JSON 请求体
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
-// 静态文件服务
-app.use(express.static(path.join(__dirname, '../public')));
+// 请求日志
+app.use((req, res, next) => {
+    logger.info(`${req.method} ${req.url}`);
+    next();
+});
 
 // API 路由配置
 app.use('/api/system', systemRoutes);
+
+// 静态文件服务
+app.use(express.static(path.join(__dirname, '../public')));
 
 // 所有其他路由返回 index.html
 app.get('*', (req, res) => {
@@ -33,11 +46,11 @@ app.get('*', (req, res) => {
 // 错误处理中间件
 app.use((err, req, res, next) => {
     logger.error('应用错误:', err);
+    const isDevelopment = process.env.NODE_ENV === 'development';
     res.status(500).json({
         success: false,
-        message: process.env.NODE_ENV === 'development' 
-            ? err.message 
-            : '服务器内部错误'
+        message: isDevelopment ? err.message : '服务器内部错误',
+        stack: isDevelopment ? err.stack : undefined
     });
 });
 
@@ -45,6 +58,4 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     logger.info(`服务器已启动，监听端口 ${PORT}`);
-    logger.info(`环境: ${process.env.NODE_ENV}`);
-    logger.info(`数据库类型: ${process.env.DB_TYPE}`);
 });
