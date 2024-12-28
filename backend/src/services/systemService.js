@@ -48,7 +48,7 @@ exports.initializeDatabase  = async (username, password) => {
             host: dbConfig.mysql.host,
             user: dbConfig.mysql.username,
             password: dbConfig.mysql.password,
-            database: dbConfig.mysql.database,
+        //    database: dbConfig.mysql.database,
             port: dbConfig.mysql.port,
         });
 
