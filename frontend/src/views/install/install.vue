@@ -148,20 +148,20 @@ const testConnection = async () => {
 
     if (result.success) {
       dbVersion.value = result.dbVersion ? result.dbVersion.replace(/-log$/, '') : '未知';
-      zytSysStatus.value = result.zytSysStatus || '未知';
+      zytSysStatus.value = result.zytSysStatus; // 更新 zytSysStatus 的值
       connectionStatus.success = true;
       connectionStatus.message = '连接成功';
       ElMessage.success('数据库连接成功');
     } else {
       dbVersion.value = '未知';
-      zytSysStatus.value = '未知';
+      zytSysStatus.value = '未建立';
       connectionStatus.success = false;
       connectionStatus.message = '连接失败';
       ElMessage.error('数据库连接失败：' + result.message);
     }
   } catch (error) {
     dbVersion.value = '未知';
-    zytSysStatus.value = '未知';
+    zytSysStatus.value = '未建立';
     connectionStatus.success = false;
     connectionStatus.message = '连接失败';
     ElMessage.error('数据库连接失败：' + error.message);

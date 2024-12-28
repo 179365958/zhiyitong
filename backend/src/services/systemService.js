@@ -22,10 +22,29 @@ exports.checkSystemInit = async () => {
       const [rows] = await connection.query('SELECT version() AS version');
       const dbVersion = rows[0].version;
   
+      // 检查 zyt_sys 数据库是否存在
+      const [dbRows] = await connection.query(`SHOW DATABASES LIKE 'zyt_sys'`);
+      const dbExists = dbRows.length > 0;
+
+      // 检查 zyt_sys 数据库是否建立
+      let zytSysStatus = '';
+      if (dbExists) {
+        await connection.query('USE zyt_sys');
+        const [tables] = await connection.query('SHOW TABLES');
+        if (tables.length > 0) {
+          zytSysStatus = '已建立';
+        } else {
+          zytSysStatus = '未建立';
+        }
+      } else {
+        zytSysStatus = '未建立';
+      }
+
       return {
         success: true,
         message: '数据库连接成功',
         dbVersion,
+        zytSysStatus: zytSysStatus // 返回 zyt_sys 数据库的状态
       };
     } catch (error) {
       return {
