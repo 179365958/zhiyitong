@@ -22,14 +22,20 @@
       <!-- 步骤2：检测环境 -->
       <div v-if="currentStep === 1" class="step-content">
         <h3>检测环境</h3>
+        <div class="connection-status">
+          <span class="label">数据库状态：</span>
+          <el-tag :type="connectionStatus.success ? 'success' : 'danger'">
+            {{ connectionStatus.message }}
+          </el-tag>
+        </div>
         <div class="info-item">
           <span class="label">数据库版本：</span>
           <span>{{ dbVersion || '未知' }}</span>
         </div>
-        <div class="connection-status">
-          <span class="label">连接状态：</span>
-          <el-tag :type="connectionStatus.success ? 'success' : 'danger'">
-            {{ connectionStatus.message }}
+        <div class="info-item">
+          <span class="label">初始化状态：</span>
+          <el-tag :type="zytSysStatus === '已建立' || zytSysStatus === '已初始化' ? 'success' : 'danger'">
+            {{ zytSysStatus === '已建立' || zytSysStatus === '已初始化' ? '已初始化' : '未初始化' }}
           </el-tag>
         </div>
         <div class="actions">
@@ -98,6 +104,9 @@ const connectionStatus = reactive({
 // 数据库版本
 const dbVersion = ref('');
 
+// 账套管理状态
+const zytSysStatus = ref('');
+
 // 管理员表单
 const adminForm = reactive({
   username: 'admin',
@@ -138,18 +147,21 @@ const testConnection = async () => {
     const result = await checkSystemInit();
 
     if (result.success) {
-      dbVersion.value = result.dbVersion || '未知';
+      dbVersion.value = result.dbVersion ? result.dbVersion.replace(/-log$/, '') : '未知';
+      zytSysStatus.value = result.zytSysStatus || '未知';
       connectionStatus.success = true;
       connectionStatus.message = '连接成功';
       ElMessage.success('数据库连接成功');
     } else {
       dbVersion.value = '未知';
+      zytSysStatus.value = '未知';
       connectionStatus.success = false;
       connectionStatus.message = '连接失败';
       ElMessage.error('数据库连接失败：' + result.message);
     }
   } catch (error) {
     dbVersion.value = '未知';
+    zytSysStatus.value = '未知';
     connectionStatus.success = false;
     connectionStatus.message = '连接失败';
     ElMessage.error('数据库连接失败：' + error.message);
