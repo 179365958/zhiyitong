@@ -33,7 +33,7 @@ exports.initializeDatabase = async (req, res) => {
         if (!username || !password) {
             return res.status(400).json({
                 success: false,
-                message: '用户名和密码不能为空'
+                message: '用户名和密码不能为空!'
             });
         }
         const result = await systemService.initializeDatabase(username, password);
