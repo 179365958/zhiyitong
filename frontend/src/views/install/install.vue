@@ -85,7 +85,7 @@
 
 <script setup>
 import { ref, reactive, watch } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { checkSystemInit, initializeDatabase } from '@/api/system';
 
 const currentStep = ref(0);
@@ -183,11 +183,23 @@ const nextStep = () => {
     ElMessage.warning('请先同意用户协议');
     return;
   }
-  if (currentStep.value === 1 && !connectionStatus.success) {
+  
+  if (currentStep.value === 1 && (zytSysStatus.value === '已建立' || zytSysStatus.value === '已初始化')) {
+    ElMessageBox.confirm('数据库已经初始化，重新初始化将覆盖当前已有的数据，您确定要继续吗？', '警告', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }).then(() => {
+      currentStep.value++; // 跳转到管理员设置步骤
+    }).catch(() => {
+      return;
+    });
+  } else if (currentStep.value === 1 && !connectionStatus.success) {
     ElMessage.warning('请先完成数据库连接测试');
     return;
+  } else {
+    currentStep.value++;
   }
-  currentStep.value++;
 };
 
 // 上一步
