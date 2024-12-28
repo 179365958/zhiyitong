@@ -39,32 +39,6 @@ exports.checkSystemInit = async () => {
     }
   };
 
-// 验证数据库配置
-exports.validateDbConfig = async (dbConfig) => {
-    try {
-        const connection = await mysql.createConnection({
-            host: dbConfig.mysql.host,
-            user: dbConfig.mysql.username,
-            password: dbConfig.mysql.password,
-            database: dbConfig.mysql.database,
-            port: dbConfig.mysql.port,
-        });
-
-        // console.log('Database Connection:', connection);
-
-        await connection.end();
-        return {
-            success: true,
-            message: '数据库配置有效'
-        };
-    } catch (error) {
-        return {
-            success: false,
-            message: '数据库配置无效：' + error.message
-        };
-    }
-};
-
 // 初始化系统
 exports.initializeDatabase  = async (username, password) => {
     let connection;
@@ -130,6 +104,33 @@ exports.initializeDatabase  = async (username, password) => {
         }
     }
 };
+
+// 验证数据库配置
+exports.validateDbConfig = async (dbConfig) => {
+    try {
+        const connection = await mysql.createConnection({
+            host: dbConfig.mysql.host,
+            user: dbConfig.mysql.username,
+            password: dbConfig.mysql.password,
+            database: dbConfig.mysql.database,
+            port: dbConfig.mysql.port,
+        });
+
+        // console.log('Database Connection:', connection);
+
+        await connection.end();
+        return {
+            success: true,
+            message: '数据库配置有效'
+        };
+    } catch (error) {
+        return {
+            success: false,
+            message: '数据库配置无效：' + error.message
+        };
+    }
+};
+
 
 // 获取系统状态
 exports.getSystemStatus = async () => {
