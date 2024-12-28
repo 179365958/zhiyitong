@@ -193,9 +193,13 @@ const resetSteps = () => {
 const submitForm = async () => {
   if (!adminFormRef.value) return;
   await adminFormRef.value.validate(async (valid) => {
+    console.log('Admin Form:', adminForm); // 添加日志输出
     if (valid) {
       try {
-        const response = await initializeDatabase(adminForm.username, adminForm.password);
+        const response = await initializeDatabase({
+          username: adminForm.username,
+          password: adminForm.password,
+        });
         if (response.success) {
           success.value = true;
           successMessage.value = '系统初始化成功';
