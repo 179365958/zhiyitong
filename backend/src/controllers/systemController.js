@@ -26,8 +26,8 @@ exports.validateDbConfig = async (req, res) => {
     }
 };
 
-// 初始化系统
-exports.initializeSystem = async (req, res) => {
+// 初始化数据库
+exports.initializeDatabase = async (req, res) => {
     try {
         const { username, password } = req.body;
         if (!username || !password) {
@@ -36,7 +36,7 @@ exports.initializeSystem = async (req, res) => {
                 message: '用户名和密码不能为空'
             });
         }
-        const result = await systemService.initializeSystem(username, password);
+        const result = await systemService.initializeDatabase(username, password);
         res.json(result);
     } catch (error) {
         res.status(500).json({

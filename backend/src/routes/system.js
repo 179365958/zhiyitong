@@ -9,7 +9,7 @@ router.get('/check-init', systemController.checkSystemInit);
 router.post('/validate-db', systemController.validateDbConfig);
 
 // 初始化系统
-router.post('/initialize', systemController.initializeSystem);
+router.post('/initialize', systemController.initializeDatabase);
 
 // 获取系统状态
 router.get('/status', systemController.getSystemStatus);

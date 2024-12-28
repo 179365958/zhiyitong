@@ -80,7 +80,7 @@
 <script setup>
 import { ref, reactive, watch } from 'vue';
 import { ElMessage } from 'element-plus';
-import { checkSystemInit} from '@/api/system';
+import { checkSystemInit, initializeDatabase } from '@/api/system';
 
 const currentStep = ref(0);
 const checking = ref(false);
@@ -195,7 +195,7 @@ const submitForm = async () => {
   await adminFormRef.value.validate(async (valid) => {
     if (valid) {
       try {
-        const response = await initializeSystem(adminForm.username, adminForm.password);
+        const response = await initializeDatabase(adminForm.username, adminForm.password);
         if (response.success) {
           success.value = true;
           successMessage.value = '系统初始化成功';
