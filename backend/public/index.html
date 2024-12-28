@@ -49,12 +49,6 @@
             margin-top: 2rem;
             padding-top: 1rem;
             border-top: 1px solid #ebeef5;
-            text-align: left;
-        }
-        .status h2 {
-            color: #409eff;
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
         }
         .status-item {
             display: flex;
@@ -111,18 +105,11 @@
                 系统状态
                 <button onclick="refreshStatus()" class="refresh-button" id="refreshButton">⟳</button>
             </h2>
-            <div id="statusContent">
-                <div class="status-item">
-                    <span class="status-label">状态检查中...</span>
-                    <span class="status-value">-</span>
-                </div>
-            </div>
+            <div id="statusMessage"></div>
         </div>
     </div>
 
     <script>
-        let refreshing = false;
-
         function formatUptime(seconds) {
             const days = Math.floor(seconds / 86400);
             const hours = Math.floor((seconds % 86400) / 3600);
@@ -138,79 +125,26 @@
             return parts.join(' ');
         }
 
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleString('zh-CN', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
-            });
-        }
-
-        async function refreshStatus() {
-            if (refreshing) return;
-            
-            refreshing = true;
-            const refreshButton = document.getElementById('refreshButton');
-            refreshButton.classList.add('loading');
-
-            try {
-                const response = await fetch('/api/system/status');
-                const result = await response.json();
-                
-                if (result.success) {
-                    const { server, database } = result.data;
-                    const statusContent = document.getElementById('statusContent');
-                    
-                    statusContent.innerHTML = `
-                        <div class="status-item">
-                            <span class="status-label">服务器状态</span>
-                            <span class="status-value">${server.status === 'running' ? '运行中' : '异常'}</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="status-label">启动时间</span>
-                            <span class="status-value">${formatDate(server.startTime)}</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="status-label">运行时长</span>
-                            <span class="status-value">${formatUptime(server.uptime)}</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="status-label">运行环境</span>
-                            <span class="status-value">${server.environment}</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="status-label">Node.js版本</span>
-                            <span class="status-value">${server.nodeVersion}</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="status-label">数据库类型</span>
-                            <span class="status-value">${database.type}</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="status-label">数据库状态</span>
-                            <span class="status-value ${database.initialized ? '' : 'warning'}">${database.message || '正常'}</span>
-                        </div>
-                    `;
-                } else {
-                    throw new Error(result.message);
-                }
-            } catch (error) {
-                const statusContent = document.getElementById('statusContent');
-                statusContent.innerHTML = `
-                    <div class="status-item">
-                        <span class="status-label">状态检查失败</span>
-                        <span class="status-value error">${error.message}</span>
-                    </div>
-                `;
-            } finally {
-                refreshing = false;
-                refreshButton.classList.remove('loading');
-            }
+        function refreshStatus() {
+            fetch('/api/system/status')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('网络响应不正常');
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    if (result.success) {
+                        const status = result.status;
+                        document.getElementById('statusMessage').innerText = `数据库: ${status.database}, 大小: ${status.size}MB, 在线时间: ${formatUptime(status.uptime)}`;
+                    } else {
+                        document.getElementById('statusMessage').innerText = '状态未知';
+                    }
+                })
+                .catch(error => {
+                    console.error('请求失败:', error);
+                    document.getElementById('statusMessage').innerText = '无法获取状态';
+                });
         }
 
         // 初始加载
