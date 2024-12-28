@@ -66,7 +66,7 @@ exports.validateDbConfig = async (dbConfig) => {
 };
 
 // 初始化系统
-exports.initializeSystem = async (username, password) => {
+exports.initializeDatabase  = async (username, password) => {
     let connection;
     try {
         // 创建数据库连接
