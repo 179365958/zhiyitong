@@ -22,7 +22,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { checkSystemInit } from '@/api/system'
 import request from '@/utils/request'
 import { setToken, setUserInfo } from '@/utils/auth'
@@ -42,14 +42,6 @@ const handleLogin = async () => {
   
   loading.value = true
   try {
-    // 先检查系统初始化状态
-    const initResponse = await checkSystemInit()
-    
-    if (!initResponse.install) {
-      router.push('/install')
-      return
-    }
-
     // 尝试登录
     const response = await request({
       url: '/api/system/login',  
@@ -79,6 +71,19 @@ const handleLogin = async () => {
       router.push({ name: 'AccountBook' })  
     } else {
       ElMessage.error(response.message || '登录失败')
+      // 提示用户转到安装页面
+      const initResponse = await checkSystemInit()
+      if (!initResponse.install) {
+        ElMessageBox.confirm('登录失败，系统未初始化，是否转到安装页面？', '警告', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          router.push('/install')
+        }).catch(() => {
+          return
+        })
+      }
     }
   } catch (error) {
     console.error('登录失败:', error)
