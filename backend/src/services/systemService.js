@@ -376,7 +376,7 @@ exports.deleteCompany = async (id) => {
 };
 
 // 用户登录
-exports.login = async (username, password, companyId=null ) => {
+exports.login = async (username, password, logintype) => {
     let connection;
     try {
         // 创建数据库连接
@@ -388,14 +388,11 @@ exports.login = async (username, password, companyId=null ) => {
             port: dbConfig.mysql.port,
         });
 
-        // console.log('Database Connection:', connection);
-        
-        if (!companyId) {
-            // 账套登录：使用 zyt_sys 数据库
-            console.log('Company ID:', companyId);
+        console.log(username, password, logintype);
+
+        if (logintype === 'admin') {
+            // 管理员登录逻辑
             await connection.query('USE zyt_sys');
-            
-            // 验证用户
             const [users] = await connection.query(
                 'SELECT * FROM sys_user WHERE username = ? AND status = 1',
                 [username]
@@ -424,32 +421,60 @@ exports.login = async (username, password, companyId=null ) => {
                     id: user.id,
                     username: user.username,
                     realName: user.real_name,
-                    isAdmin: user.is_admin[0] === 1, // 访问 Buffer 中的值
+                    isAdmin: user.is_admin[0] === 1,
                     status: user.status
                 }
             };
-        } else {
-            // 普通登录：先在 zyt_sys 中获取公司信息
+        } else if (logintype === 'user') {
+            // 普通用户登录逻辑
             await connection.query('USE zyt_sys');
-            
-            // 获取公司信息
-            const [companies] = await connection.query(
-                'SELECT * FROM sys_company WHERE id = ? AND status = 1',
-                [companyId]
-            );
-            console.log('Company ID2:', companyId); 
 
-            if (companies.length === 0) {
+            // 根据用户名获取用户 ID
+            const [userRows] = await connection.query(
+                'SELECT id FROM sys_user WHERE username = ? AND status = 1',
+                [username]
+            );
+            console.log(username, userRows);
+            if (userRows.length === 0) {
                 return {
                     success: false,
-                    message: '未找到对应的公司信息或公司已禁用'
+                    message: '用户不存在或已被禁用!'
                 };
             }
 
-            const companyInfo = companies[0];
+            const userId = userRows[0].id; // 获取用户 ID
+
+            // 获取用户的账套权限
+            const [permissions] = await connection.query(
+                'SELECT company_id FROM sys_user_company WHERE user_id = ?',
+                [userId] // 使用用户 ID 查询账套权限
+            );
+
             
-            // 切换到公司数据库
-            await connection.query(`USE ${companyInfo.db_name}`);
+            if (permissions.length === 0) {
+                return {
+                    success: false,
+                    message: '该用户没有权限访问任何账套'
+                };
+            }
+
+            const companyId = permissions[0].company_id; // 选择第一个账套
+
+            // 获取公司信息，包括数据库名
+            const [companyInfo] = await connection.query(
+                'SELECT db_name FROM sys_company WHERE id = ?',
+                [companyId]
+            );
+
+            if (companyInfo.length === 0) {
+                return {
+                    success: false,
+                    message: '未找到对应的公司信息'
+                };
+            }
+
+            // 切换到用户的账套数据库
+            await connection.query(`USE ${companyInfo[0].db_name}`);
 
             // 在公司数据库中验证用户
             const [users] = await connection.query(
@@ -460,7 +485,7 @@ exports.login = async (username, password, companyId=null ) => {
             if (users.length === 0) {
                 return {
                     success: false,
-                    message: '用户不存在或已被禁用'
+                    message: '用户不存在或已被禁用.'
                 };
             }
 
@@ -480,14 +505,14 @@ exports.login = async (username, password, companyId=null ) => {
                     id: user.id,
                     username: user.username,
                     realName: user.real_name,
-                    isAdmin: user.is_admin[0] === 1, // 访问 Buffer 中的值
+                    isAdmin: user.is_admin[0] === 1,
                     status: user.status,
-                    companyId: companyInfo.id,
-                    companyName: companyInfo.company_name,
-                    companyCode: companyInfo.company_code,
-                    databaseName: companyInfo.db_name
+                    companyId: companyInfo[0].id,
+                    companyName: companyInfo[0].company_name
                 }
             };
+        } else {
+            throw new Error('无效的登录类型');
         }
     } catch (error) {
         console.error('登录失败:', error);
