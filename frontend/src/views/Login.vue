@@ -138,7 +138,7 @@ const submitLogin = async () => {
         const loginData = {
           username: loginForm.username,
           password: loginForm.password,
-          companyId: loginForm.companyId
+          logintype: 'user'  
         }
         
         // 调用登录接口

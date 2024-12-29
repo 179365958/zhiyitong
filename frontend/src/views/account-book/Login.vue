@@ -49,7 +49,7 @@ const handleLogin = async () => {
       data: {
         username: loginForm.value.username,
         password: loginForm.value.password,
-        type: 'account'  
+        logintype: 'admin'  
       }
     })
 
