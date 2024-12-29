@@ -56,6 +56,8 @@ const handleLogin = async () => {
     if (response.success) {  
       setToken(response.data.token)
       setUserInfo(response.data)
+      // 保存用户角色到本地存储
+      localStorage.setItem('userRole', JSON.stringify(response.data.roles));
       
       // 记住密码功能
       if (loginForm.value.rememberMe) {
