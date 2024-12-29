@@ -8,7 +8,7 @@
       label-width="100px"
     >
       <h2 class="login-title">智易通 - 财务管理系统</h2>
-      
+      <!---
       <el-form-item label="账套选择" prop="companyId">
         <el-select 
           v-model="loginForm.companyId" 
@@ -24,7 +24,7 @@
           />
         </el-select>
       </el-form-item>
-
+       --->
       <el-form-item label="用户名" prop="username">
         <el-input 
           v-model="loginForm.username" 
