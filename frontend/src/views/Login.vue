@@ -105,6 +105,7 @@ const loginRules = {
 }
 
 // 获取企业账套列表
+/*
 const fetchCompanyList = async () => {
   try {
     const response = await getCompanyList({
@@ -125,7 +126,7 @@ const fetchCompanyList = async () => {
     ElMessage.error(error.message || '获取企业账套列表失败')
   }
 }
-
+*/
 // 提交登录
 const submitLogin = async () => {
   if (!loginFormRef.value) return
