@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const systemController = require('../controllers/systemController');
-//const authMiddleware = require('../middleware/auth');
+const authMiddleware = require('../middleware/auth');
 
 /*
 // 检查系统初始化状态
@@ -41,7 +41,8 @@ router.post('/initialize', systemController.initializeDatabase);
 router.get('/status', systemController.getSystemStatus);
 
 // 获取企业账套列表
-router.get('/companies', systemController.getCompanies);
+//router.get('/companies', systemController.getCompanies);
+router.get('/companies', authMiddleware, systemController.getCompanies);
 
 // 用户登录
 router.post('/login', systemController.login);
