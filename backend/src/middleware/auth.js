@@ -1,5 +1,8 @@
+// 引入 dotenv 以读取环境变量
+require('dotenv').config();
 const jwt = require('jsonwebtoken');
 
+// 中间件函数
 const authMiddleware = (req, res, next) => {
     const token = req.headers['authorization'];
 
@@ -7,7 +10,8 @@ const authMiddleware = (req, res, next) => {
         return res.status(401).json({ message: '未授权访问' });
     }
 
-    jwt.verify(token, '你的密钥', (err, decoded) => {
+    // 使用环境变量中的密钥进行验证
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
             return res.status(403).json({ message: '无效的令牌' });
         }
