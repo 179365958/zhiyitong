@@ -20,7 +20,7 @@ router.post('/initialize', authMiddleware, (req, res) => {
 router.get('/status', authMiddleware, systemController.getSystemStatus);
 
 // 获取企业账套列表
-router.get('/companies', systemController.getCompanies);
+router.get('/companies', authMiddleware, systemController.getCompanies);
 
 // 用户登录
 router.post('/login', systemController.login);
