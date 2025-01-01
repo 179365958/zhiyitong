@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt'); // 注意：需要安装 bcrypt 包
 const fs = require('fs').promises;
 const path = require('path');
 const dbConfig = require('../config/database'); // 引入数据库配置
-
+const jwt = require('jsonwebtoken'); // 确保导入jsonwebtoken
 
 
 // 检查 MySQL 连接状态
@@ -388,7 +388,7 @@ exports.login = async (username, password, logintype) => {
             port: dbConfig.mysql.port,
         });
 
-        console.log(username, password, logintype);
+      //  console.log(username, password, logintype);
 
         if (logintype === 'admin') {
             // 管理员登录逻辑
@@ -413,10 +413,15 @@ exports.login = async (username, password, logintype) => {
                     message: '密码错误'
                 };
             }
+             // 生成 JWT
+            const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+                expiresIn: process.env.JWT_EXPIRES_IN,
+            });
 
             return {
                 success: true,
                 message: '登录成功',
+                token: token, // 返回生成的 token
                 data: {
                     id: user.id,
                     username: user.username,
@@ -498,9 +503,15 @@ exports.login = async (username, password, logintype) => {
                 };
             }
 
+            // 生成 JWT
+            const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+                expiresIn: process.env.JWT_EXPIRES_IN,
+            });
+
             return {
                 success: true,
                 message: '登录成功',
+                token: token, // 返回生成的 token
                 data: {
                     id: user.id,
                     username: user.username,

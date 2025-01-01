@@ -45,6 +45,32 @@ export function login(data) {
 
 // 获取企业账套列表
 export const getCompanyList = (params) => {
+  const token = localStorage.getItem('jwtToken'); // 从 localStorage 获取 token
+  return request({
+    url: 'api/system/companies',
+    method: 'get',
+    headers: {
+      Authorization: `Bearer ${token}`, // 设置 Authorization 头
+    },
+    params
+  }).then(response => {
+    // 打印完整响应用于调试
+    console.log('getCompanyList response:', response);
+    
+    // 兼容不同的响应结构
+    if (response.success && response.data) {
+      return response;
+    } else if (response.code === 200 && response.data) {
+      return response;
+    } else {
+      throw new Error('获取账套列表失败');
+    }
+  });
+};
+
+// 获取企业账套列表
+/*
+export const getCompanyList = (params) => {
   return request({
     url: 'api/system/companies',
     method: 'get',
@@ -65,9 +91,7 @@ export const getCompanyList = (params) => {
   }).catch(error => {
     console.error('getCompanyList error:', error);
     throw error;
-  });
-}
-
+*/
 // 创建账套
 export const createCompany = (data) => {
   return request({
