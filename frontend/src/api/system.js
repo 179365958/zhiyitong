@@ -46,6 +46,7 @@ export function login(data) {
 
 // 获取企业账套列表
 export const getCompanyList = (params) => {
+  const token = localStorage.getItem('jwtToken'); // 从 localStorage 获取 token
   return request({
     url: '/api/system/companies', // 确保URL格式正确
     method: 'get',
