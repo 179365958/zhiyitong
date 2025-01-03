@@ -37,12 +37,12 @@ const loginForm = ref({
   rememberMe: false
 })
 
+// Login.vue
 const handleLogin = async () => {
   if (!loginFormRef.value) return
   
-  loading.value = true
+  loading.value = true;
   try {
-    // 尝试登录
     const response = await request({
       url: '/api/system/login',  
       method: 'post',
@@ -51,60 +51,63 @@ const handleLogin = async () => {
         password: loginForm.value.password,
         logintype: 'admin'  
       }
-    })
+    });
+
+    console.log('Login Response:', response); // 添加日志输出
 
     if (response.success) {  
-      setToken(response.data.token)
-      setUserInfo(response.data)
+      setToken(response.data.token);
+      setUserInfo(response.data);
+
       // 保存用户角色到本地存储
-      localStorage.setItem('userRole', JSON.stringify(response.data.roles));
+      sessionStorage.setItem('userRole', JSON.stringify(response.data.roles));
       
       // 记住密码功能
       if (loginForm.value.rememberMe) {
         localStorage.setItem('accountBookLoginInfo', JSON.stringify({
           username: loginForm.value.username,
           password: btoa(loginForm.value.password) // 简单加密
-        }))
+        }));
       } else {
-        localStorage.removeItem('accountBookLoginInfo')
+        localStorage.removeItem('accountBookLoginInfo');
       }
       
-      ElMessage.success('登录成功')
-      router.push({ name: 'AccountBook' })  
+      ElMessage.success('登录成功');
+      router.push({ name: 'AccountBook' });
     } else {
-      ElMessage.error(response.message || '登录失败')
+      ElMessage.error(response.message || '登录失败');
       // 提示用户转到安装页面
-      const initResponse = await checkSystemInit()
+      const initResponse = await checkSystemInit();
       if (!initResponse.install) {
         ElMessageBox.confirm('登录失败，系统未初始化，是否转到安装页面？', '警告', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          router.push('/install')
+          router.push('/install');
         }).catch(() => {
-          return
-        })
+          return;
+        });
       }
     }
   } catch (error) {
-    console.error('登录失败:', error)
-    ElMessage.error(error.response?.data?.message || error.message || '登录失败')
+    console.error('登录失败:', error);
+    ElMessage.error(error.response?.data?.message || error.message || '登录失败');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // 页面加载时检查是否有保存的登录信息
 onMounted(() => {
-  const savedLoginInfo = localStorage.getItem('accountBookLoginInfo')
+  const savedLoginInfo = localStorage.getItem('accountBookLoginInfo');
   if (savedLoginInfo) {
-    const { username, password } = JSON.parse(savedLoginInfo)
-    loginForm.value.username = username
-    loginForm.value.password = atob(password) // 解密
-    loginForm.value.rememberMe = true
+    const { username, password } = JSON.parse(savedLoginInfo);
+    loginForm.value.username = username;
+    loginForm.value.password = atob(password); // 解密
+    loginForm.value.rememberMe = true;
   }
-})
+});
 </script>
 
 <style scoped>

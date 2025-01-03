@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import { getToken } from '@/utils/auth';
 
 // 检查系统初始化状态
 export function checkSystemInit() {
@@ -45,17 +46,15 @@ export function login(data) {
 
 // 获取企业账套列表
 export const getCompanyList = (params) => {
-  const token = localStorage.getItem('jwtToken'); // 从 localStorage 获取 token
   return request({
-    url: 'api/system/companies',
+    url: '/api/system/companies', // 确保URL格式正确
     method: 'get',
     headers: {
-      Authorization: `Bearer ${token}`, // 设置 Authorization 头
+      Authorization: `Bearer ${getToken()}`, // 使用 auth.js 中的 getToken 方法
     },
     params
   }).then(response => {
-    // 打印完整响应用于调试
-    console.log('getCompanyList response:', response);
+    console.log('getCompanyList response:', response); // 添加日志输出
     
     // 兼容不同的响应结构
     if (response.success && response.data) {
