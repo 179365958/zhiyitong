@@ -45,7 +45,7 @@ export function login(data) {
 
 // 获取企业账套列表
 export const getCompanyList = (params) => {
-  const token = localStorage.getItem('jwtToken'); // 从 localStorage 获取 token
+  const token = sessionStorage.getItem('zyt_token'); // 从 sessionStorage 获取 token
   return request({
     url: 'api/system/companies',
     method: 'get',
