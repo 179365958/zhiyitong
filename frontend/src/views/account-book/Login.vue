@@ -53,12 +53,13 @@ const handleLogin = async () => {
       }
     });
 
-    console.log('Login Response:', response); // 添加日志输出
+    console.log('Login Response:', response.token); // 添加日志输出
 
     if (response.success) {  
-      setToken(response.data.token);
+      setToken(response.token);
       setUserInfo(response.data);
 
+     // console.log('Login Response:', response.data.token); // 添加日志输出
       // 保存用户角色到本地存储
       sessionStorage.setItem('userRole', JSON.stringify(response.data.roles));
       
