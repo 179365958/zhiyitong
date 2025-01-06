@@ -78,6 +78,7 @@ const handleLogin = async () => {
     } else {
       ElMessage.error(response.message || '登录失败');
       // 提示用户转到安装页面
+      /*
       const initResponse = await checkSystemInit();
       if (!initResponse.install) {
         ElMessageBox.confirm('登录失败，系统未初始化，是否转到安装页面？', '警告', {
@@ -89,7 +90,7 @@ const handleLogin = async () => {
         }).catch(() => {
           return;
         });
-      }
+      }  */
     }
   } catch (error) {
     console.error('登录失败:', error);
