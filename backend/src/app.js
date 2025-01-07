@@ -10,7 +10,8 @@ const app = express();
 // 配置 CORS
 const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',')
-  : ['http://localhost:5173'];
+  //: ['http://localhost:5173'];
+  : ['http://0.0.0.0'];
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -59,3 +60,12 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     logger.info(`服务器已启动，监听端口 ${PORT}`);
 });
+
+// 根据环境变量设置 CORS 选项
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN || 'http://0.0.0.0:3000', // 默认值为本地开发环境
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
