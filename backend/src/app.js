@@ -62,10 +62,13 @@ app.listen(PORT, () => {
 });
 
 // 根据环境变量设置 CORS 选项
+/*
+
 const corsOptions = {
   origin: process.env.CORS_ORIGIN || 'http://0.0.0.0:3000', // 默认值为本地开发环境
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
 };
 
-app.use(cors(corsOptions));
+app.use(cors(corsOptions));  
+*/
