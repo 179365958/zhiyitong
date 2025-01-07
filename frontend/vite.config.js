@@ -11,7 +11,8 @@ export default defineConfig({
     }
   },
   server: {
-    port: 5173,
+    host: '0.0.0.0',
+    port: 80,
     proxy: {
       '/api': {
         target: 'http://localhost:3000', // 后端服务地址
