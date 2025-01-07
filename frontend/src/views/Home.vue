@@ -4,7 +4,7 @@
       <div class="logo">
         <img src="../assets/logo.svg" alt="logo" />
         <span v-show="!isCollapse">智易通</span>
-      </div>
+      </div>   
       <el-menu
         :default-active="$route.path"
         class="el-menu-vertical"
@@ -44,6 +44,16 @@
             <Expand v-else/>
           </el-icon>
         </div>
+        <div class="account-select">
+         <el-select v-model="selectedAccount" placeholder="请选择账套" @change="handleAccountChange">
+           <el-option
+          v-for="item in accounts"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+           </el-option>
+         </el-select>
+       </div>
         <div class="user-info">
           <el-dropdown @command="handleCommand" class="user-dropdown">
             <div class="user-dropdown-link">
@@ -117,6 +127,28 @@
     </el-container>
   </el-container>
 </template>
+
+<script>
+export default {
+  data() {
+    return {
+      
+      selectedAccount: '',
+      accounts: [
+        { value: 'account1', label: '账套1' },
+        { value: 'account2', label: '账套2' },
+        { value: 'account3', label: '账套3' }
+      ],
+       }
+  },
+  methods: {
+    // >>>>>> 在这里添加方法 <<<<<<
+    handleAccountChange(value) {
+      console.log('Selected account:', value)
+    },
+  }
+}
+</script>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
@@ -388,4 +420,12 @@ onMounted(async () => {
 .aside::-webkit-scrollbar-track {
   background-color: transparent;
 }
+
+
+
+.account-select {
+  width: 150px;
+}
+
 </style>
+
