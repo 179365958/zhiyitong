@@ -433,55 +433,6 @@ exports.login = async (username, password, logintype) => {
         } else if (logintype === 'user') {
             // 普通用户登录逻辑
             await connection.query('USE zyt_sys');
-
-            // 根据用户名获取用户 ID
-            const [userRows] = await connection.query(
-                'SELECT id FROM sys_user WHERE username = ? AND status = 1',
-                [username]
-            );
-            console.log(username, userRows);
-            if (userRows.length === 0) {
-                return {
-                    success: false,
-                    message: '用户不存在或已被禁用!'
-                };
-            }
-
-            const userId = userRows[0].id; // 获取用户 ID
-
-            // 获取用户的账套权限
-            const [permissions] = await connection.query(
-                'SELECT company_id FROM sys_user_company WHERE user_id = ?',
-                [userId] // 使用用户 ID 查询账套权限
-            );
-
-            
-            if (permissions.length === 0) {
-                return {
-                    success: false,
-                    message: '该用户没有权限访问任何账套'
-                };
-            }
-
-            const companyId = permissions[0].company_id; // 选择第一个账套
-
-            // 获取公司信息，包括数据库名
-            const [companyInfo] = await connection.query(
-                'SELECT db_name FROM sys_company WHERE id = ?',
-                [companyId]
-            );
-
-            if (companyInfo.length === 0) {
-                return {
-                    success: false,
-                    message: '未找到对应的公司信息'
-                };
-            }
-
-            // 切换到用户的账套数据库
-            await connection.query(`USE ${companyInfo[0].db_name}`);
-
-            // 在公司数据库中验证用户
             const [users] = await connection.query(
                 'SELECT * FROM sys_user WHERE username = ? AND status = 1',
                 [username]
@@ -490,7 +441,7 @@ exports.login = async (username, password, logintype) => {
             if (users.length === 0) {
                 return {
                     success: false,
-                    message: '用户不存在或已被禁用.'
+                    message: '用户不存在或已被禁用'
                 };
             }
 
@@ -502,8 +453,7 @@ exports.login = async (username, password, logintype) => {
                     message: '密码错误'
                 };
             }
-
-            // 生成 JWT
+             // 生成 JWT
             const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
                 expiresIn: process.env.JWT_EXPIRES_IN,
             });
@@ -517,11 +467,11 @@ exports.login = async (username, password, logintype) => {
                     username: user.username,
                     realName: user.real_name,
                     isAdmin: user.is_admin[0] === 1,
-                    status: user.status,
-                    companyId: companyInfo[0].id,
-                    companyName: companyInfo[0].company_name
+                    status: user.status
                 }
             };
+
+            
         } else {
             throw new Error('无效的登录类型');
         }
