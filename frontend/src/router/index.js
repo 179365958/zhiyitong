@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { menuItems } from './modules/menu'
 import { getToken } from '@/utils/auth'
 import Home from '@/views/Home.vue'
-import Login from '@/views/account-book/Login.vue'
+import Login from '@/views/Admin/Login.vue'
 import { checkSystemInit } from '@/api/system'
 //import Initialize from '@/views/account-book/Initialize.vue'
 
@@ -27,7 +27,7 @@ const loadView = (view) => {
       
       // 账套管理
       //'account-book/Initialize': () => import('@/views/account-book/Initialize.vue'),
-      'account-book/Login': () => import('@/views/account-book/Login.vue'),
+      'account-book/Login': () => import('@/views/Admin/Login.vue'),
       // 财务报表
       'report/BalanceSheet': () => import('@/views/report/BalanceSheet.vue'),
       'report/Income': () => import('@/views/report/Income.vue'),
@@ -92,15 +92,15 @@ const baseRoutes = [
     meta: { title: '用户登录' }
   },
   {
-    path: '/account-book',
+    path: '/Admin',
     name: 'AccountBook',
-    component: () => import('@/views/account-book/AccountManagement.vue'),
+    component: () => import('@/views/Admin/AccountManagement.vue'),
     meta: { title: '账套管理' }
-  },
+  },  
   {
-    path: '/account-book/login',
+    path: '/Admin/login',
     name: 'AccountBookLogin',
-    component: () => import('@/views/account-book/Login.vue'),
+    component: () => import('@/views/Admin/Login.vue'),
     meta: { title: '账套管理登录' }
   },
   {
@@ -133,14 +133,14 @@ router.beforeEach((to, from, next) => {
   const token = getToken()
   
   // 不需要登录就可以访问的页面
-  const publicPages = ['/login', '/install', '/account-book/login']
+  const publicPages = ['/login', '/install', '/Admin/login']
   const isPublicPage = publicPages.includes(to.path)
 
   if (isPublicPage) {
     if (token) {
       // 如果是从账套管理登录页登录
-      if (to.path === '/account-book/login') {
-        next('/account-book')
+      if (to.path === '/Admin/login') {
+        next('/Admin')
       } 
       // 如果是从主系统登录页登录
       else if (to.path === '/login') {
@@ -157,8 +157,8 @@ router.beforeEach((to, from, next) => {
       next() // 已登录用户可以访问其他页面
     } else {
       // 未登录用户重定向到对应的登录页
-      if (to.path.startsWith('/account-book')) {
-        next('/account-book/login')
+      if (to.path.startsWith('/Admin')) {
+        next('/Admin/login')
       } else {
         next('/login')
       }

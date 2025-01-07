@@ -185,7 +185,7 @@ const submitLogin = async () => {
 
 // 打开账套管理页面
 const openAccountManagement = () => {
-  window.open('/account-book/login', '_blank')
+  window.open('/Admin/login', '_blank')
 }
 
 // 退出登录
