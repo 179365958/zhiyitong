@@ -150,8 +150,8 @@ const submitLogin = async () => {
           const userInfo = response.data?.user || response.data || {}
           
           // 存储用户信息和 Token
-          setToken(response.data.token)
-          setUserInfo(userInfo)
+          setToken(response.token);
+          setUserInfo(userInfo);
           
           // 如果有企业账套信息，设置当前企业
           if (response.data.company) {
