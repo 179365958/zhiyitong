@@ -209,6 +209,13 @@ exports.getCompanies = async (params = {}) => {
         const queryParams = [];
         const countParams = [];
 
+        // 添加用户权限过滤
+        if (params.userId) {
+            queryConditions.push('(created_by = ? OR id IN (SELECT company_id FROM sys_user_company WHERE user_id = ?))');
+            queryParams.push(params.userId, params.userId);
+            countParams.push(params.userId, params.userId);
+        }
+
         if (params.companyName) {
             queryConditions.push('company_name LIKE ?');
             queryParams.push(`%${params.companyName}%`);

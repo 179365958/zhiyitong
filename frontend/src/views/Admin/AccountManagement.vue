@@ -161,6 +161,7 @@ import {
   backupCompany,
   restoreCompany 
 } from '@/api/system'
+//import { useStore } from 'vuex' // 引入 Vuex
 
 const userStore = useUserStore()
 const { userInfo } = storeToRefs(userStore)
@@ -178,6 +179,7 @@ const formRef = ref(null)
 const searchForm = reactive({
   companyName: ''
 })
+
 
 const form = reactive({
   id: null,
@@ -203,11 +205,18 @@ const formRules = {
 // 获取账套列表
 const fetchCompanyList = async () => {
   loading.value = true
-  try {
+  try {  
+    if (!userStore.userInfo?.id) {
+      ElMessage.warning('用户信息未获取，请重新登录')
+      return
+    }
+    
+    const userId = userStore.userInfo.id
     const response = await getCompanyList({
       page: currentPage.value,
       pageSize: pageSize.value,
-      companyName: searchForm.companyName
+      companyName: searchForm.companyName,
+      userId   // 只添加这一个参数
     })
     
     // 兼容不同的响应结构
