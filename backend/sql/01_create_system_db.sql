@@ -146,6 +146,7 @@ CREATE TABLE IF NOT EXISTS sys_login_log (
     login_time      DATETIME NOT NULL            -- 登录时间
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='登录日志表';
 
+/*
 -- AI模型配置表
 CREATE TABLE IF NOT EXISTS sys_ai_model (
     id              INT PRIMARY KEY AUTO_INCREMENT,
@@ -326,7 +327,7 @@ CREATE TABLE IF NOT EXISTS sys_ai_usage_stats (
     KEY idx_company_date (company_id, stat_date),
     KEY idx_user_date (user_id, stat_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI使用统计表';
-
+*/
 -- 系统配置表
 CREATE TABLE IF NOT EXISTS sys_config (
     id              INT PRIMARY KEY AUTO_INCREMENT,
