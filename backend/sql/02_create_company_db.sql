@@ -528,9 +528,67 @@ CREATE TABLE IF NOT EXISTS sys_role_permission (
     UNIQUE KEY uk_role_perm (role_id, permission_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色权限关系表';
 
+
+-- 常用凭证模板表
+CREATE TABLE IF NOT EXISTS voucher_template (
+    id              INT PRIMARY KEY AUTO_INCREMENT,      -- 主键ID
+    template_code   VARCHAR(50) NOT NULL,               -- 模板编码
+    template_name   VARCHAR(100) NOT NULL,              -- 模板名称
+    template_type   VARCHAR(50) NOT NULL,               -- 模板类型(手工/自动)
+    summary         VARCHAR(200),                       -- 摘要
+    debit_subject   VARCHAR(50) NOT NULL,              -- 借方科目编码
+    credit_subject  VARCHAR(50) NOT NULL,              -- 贷方科目编码
+    amount_type     TINYINT NOT NULL DEFAULT 1,        -- 金额类型(1:固定金额 2:变动金额)
+    fixed_amount    DECIMAL(18,2),                     -- 固定金额
+    need_auxiliary  BIT NOT NULL DEFAULT 0,            -- 是否需要辅助核算
+    auxiliary_types VARCHAR(500),                       -- 辅助核算类型(JSON)
+    use_count       INT NOT NULL DEFAULT 0,            -- 使用次数
+    last_used_at    DATETIME,                          -- 最后使用时间
+    status          TINYINT NOT NULL DEFAULT 1,        -- 状态(1:启用 0:禁用)
+    created_at      DATETIME NOT NULL,                 -- 创建时间
+    created_by      INT NOT NULL,                      -- 创建人
+    updated_at      DATETIME,                          -- 更新时间
+    updated_by      INT,                               -- 更新人
+    UNIQUE KEY uk_template_code (template_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='常用凭证模板表';
+
+-- 结账记录表
+CREATE TABLE IF NOT EXISTS closing_record (
+    id              INT PRIMARY KEY AUTO_INCREMENT,      -- 主键ID
+    period_year     INT NOT NULL,                       -- 会计年度
+    period_month    INT NOT NULL,                       -- 会计月份
+    closing_type    VARCHAR(50) NOT NULL,               -- 结账类型(月结/年结)
+    closing_status  TINYINT NOT NULL DEFAULT 0,         -- 结账状态(0:未结账 1:结账中 2:已结账 3:已反结账)
+    start_time      DATETIME,                           -- 开始时间
+    end_time        DATETIME,                           -- 完成时间
+    error_message   TEXT,                               -- 错误信息
+    created_at      DATETIME NOT NULL,                  -- 创建时间
+    created_by      INT NOT NULL,                       -- 创建人
+    updated_at      DATETIME,                           -- 更新时间
+    updated_by      INT,                                -- 更新人
+    UNIQUE KEY uk_period (period_year, period_month)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='结账记录表';
+
+
 INSERT INTO sys_user (username, password, real_name, email, mobile, is_admin, created_at, created_by)
 VALUES ('admin', '$2b$10$uYYuRZqOZ3jBGp0rrMV7n./9VkGccPN/zLO/e/MmoqmJbLKtCNmVO', '管理员', 'admin@example.com', '1234567890', 1, NOW(), 1);
 
 -- 插入普通用户数据
 INSERT INTO sys_user (username, password, real_name, email, mobile, is_admin, status, created_at, created_by)
 VALUES ('user', '$2b$10$uYYuRZqOZ3jBGp0rrMV7n./9VkGccPN/zLO/e/MmoqmJbLKtCNmVO', 'User', 'user@example.com', '1234567890', 0, 1, NOW(), 1);
+
+-- 测试数据
+INSERT INTO voucher_template (
+    template_code, template_name, template_type, 
+    summary, debit_subject, credit_subject,
+    amount_type, created_at, created_by
+) VALUES 
+('TPL001', '工资发放', '手工', '计提工资', '6602', '2211', 2, NOW(), 1),
+('TPL002', '银行存款', '手工', '收到货款', '1002', '1122', 2, NOW(), 1);
+
+INSERT INTO closing_record (
+    period_year, period_month, closing_type,
+    closing_status, created_at, created_by
+) VALUES 
+(2024, 1, '月结', 2, NOW(), 1),
+(2024, 2, '月结', 0, NOW(), 1);
