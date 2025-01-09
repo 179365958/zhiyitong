@@ -45,15 +45,15 @@
           </el-icon>
         </div>
         <div class="account-select">
-         <el-select v-model="selectedAccount" placeholder="请选择账套" @change="handleAccountChange">
-           <el-option
-          v-for="item in accounts"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value">
-           </el-option>
-         </el-select>
-       </div>
+    <el-select v-model="selectedAccount" placeholder="请选择账套" @change="handleAccountChange">
+      <el-option
+        v-for="item in accounts"
+        :key="item.id"
+        :label="item.company_name"
+        :value="item.id">
+      </el-option>
+    </el-select>
+  </div>
         <div class="user-info">
           <el-dropdown @command="handleCommand" class="user-dropdown">
             <div class="user-dropdown-link">
@@ -129,23 +129,52 @@
 </template>
 
 <script>
+import { getCompanyList } from '@/api/system'
+import { setCurrentCompany, getCurrentCompany } from '@/utils/auth'
+
+
 export default {
   data() {
     return {
-      
       selectedAccount: '',
-      accounts: [
-        { value: 'account1', label: '账套1' },
-        { value: 'account2', label: '账套2' },
-        { value: 'account3', label: '账套3' }
-      ],
-       }
+      accounts: []
+    }
   },
   methods: {
-    // >>>>>> 在这里添加方法 <<<<<<
-    handleAccountChange(value) {
-      console.log('Selected account:', value)
+    async fetchAccounts() {
+      try {
+        const response = await getCompanyList()
+        console.log('fetchAccounts response:', response) // 添加日志输出
+
+        const companies = response.data.list || []
+        if (Array.isArray(companies)) {
+          this.accounts = companies.map(company => ({
+            id: company.id,
+            company_name: company.company_name
+          }))
+        } else {
+          console.error('Unexpected response structure:', response)
+          throw new Error('获取账套列表失败')
+        }
+
+        const currentCompany = getCurrentCompany()
+        if (currentCompany) {
+          this.selectedAccount = currentCompany.id
+        }
+      } catch (error) {
+        console.error('获取账套列表失败:', error)
+      }
     },
+    handleAccountChange(value) {
+      const selectedCompany = this.accounts.find(account => account.id === value)
+      if (selectedCompany) {
+        setCurrentCompany(selectedCompany)
+        console.log('Selected account:', selectedCompany)
+      }
+    }
+  },
+  async mounted() {
+    await this.fetchAccounts()
   }
 }
 </script>
