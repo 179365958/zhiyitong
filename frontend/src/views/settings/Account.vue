@@ -1,414 +1,414 @@
 <template>
-  <div class="account-settings">
-    <div class="header">
-      <h2>账套管理</h2>
-      <el-button type="primary" @click="showAddDialog">
-        <el-icon><Plus /></el-icon>新增账套
-      </el-button>
-    </div>
+  <div class="account-management-container">
+    <el-card class="box-card" shadow="hover">
+      <template #header>
+        <div class="card-header">
+          <div class="header-left">
+            <span class="header-title">账套管理</span>
+          </div>
+          <div class="header-right">
 
-    <!-- 账套列表 -->
-    <el-table :data="tableData" style="width: 100%" border>
-      <el-table-column type="index" label="序号" width="80" align="center" />
-      <el-table-column prop="company_name" label="账套名称" min-width="200" />
-      <el-table-column prop="fiscal_year" label="会计年度" width="120" align="center" />
-      <el-table-column prop="begin_date" label="启用日期" width="120" align="center" />
-      <el-table-column prop="status" label="状态" width="100" align="center">
-        <template #default="scope">
-          <el-tag :type="scope.row.status === 1 ? 'success' : 'info'">
-            {{ scope.row.status === 1 ? '启用' : '停用' }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="create_time" label="创建时间" width="180" align="center" />
-      <el-table-column label="操作" width="250" align="center">
-        <template #default="scope">
-          <el-button-group>
-            <el-button type="primary" link @click="handleEdit(scope.row)">
-              编辑
-            </el-button>
+          </div>
+        </div>
+      </template>
+
+      <div class="search-bar">
+        <el-form :inline="true" class="demo-form-inline">
+          <el-form-item>
             <el-button 
               type="primary" 
-              link 
-              @click="handleToggleStatus(scope.row)"
+              @click="handleCreate" 
+              icon="Plus"
             >
-              {{ scope.row.status === 1 ? '停用' : '启用' }}
+              新建账套
             </el-button>
-            <el-button 
-              type="danger" 
-              link 
-              @click="handleDelete(scope.row)"
-              :disabled="scope.row.status === 1"
-            >
-              删除
-            </el-button>
-          </el-button-group>
-        </template>
-      </el-table-column>
-    </el-table>
+          </el-form-item>
+          <el-form-item label="账套名称">
+            <el-input 
+              v-model="searchForm.companyName" 
+              placeholder="请输入账套名称" 
+              clearable 
+              style="width: 200px;"
+            />
+          </el-form-item>
+          <el-form-item>
+            <el-button-group>
+              <el-button type="primary" @click="handleSearch" icon="Search">查询</el-button>
+              <el-button @click="resetSearch" icon="Refresh">重置</el-button>
+            </el-button-group>
+          </el-form-item>
+        </el-form>
+      </div>
 
-    <!-- 新增/编辑账套对话框 -->
-    <el-dialog
-      v-model="dialogVisible"
-      :title="dialogType === 'add' ? '新增账套' : '编辑账套'"
-      width="600px"
+      <el-table 
+        :data="tableData" 
+        style="width: 100%" 
+        v-loading="loading"
+        element-loading-text="正在加载..."
+        border
+        stripe
+      >
+        <el-table-column prop="company_code" label="账套代码" width="120" align="center" />
+        <el-table-column prop="company_name" label="账套名称" width="200" align="center" />
+        <el-table-column prop="db_name" label="数据库名" width="200" align="center" />
+        <el-table-column prop="status" label="状态" width="100" align="center">
+          <template #default="{ row }">
+            <el-tag :type="row.status === 1 ? 'success' : 'danger'" effect="light">
+              {{ row.status === 1 ? '启用' : '停用' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="350" align="center">
+          <template #default="{ row }">
+            <el-button-group>
+              <el-button type="primary" @click="handleEdit(row)" icon="Edit" size="small">编辑</el-button>
+              <el-button type="danger" @click="handleDelete(row)" icon="Delete" size="small">删除</el-button>
+              <el-button type="warning" @click="handleBackup(row)" icon="Folder" size="small">备份</el-button>
+              <el-button type="success" @click="handleRestore(row)" icon="Refresh" size="small">恢复</el-button>
+            </el-button-group>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <div class="pagination">
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :total="total"
+          :page-sizes="[10, 20, 50, 100]"
+          layout="total, sizes, prev, pager, next, jumper"
+          @current-change="fetchCompanyList"
+          @size-change="fetchCompanyList"
+        />
+      </div>
+    </el-card>
+
+    <el-dialog 
+      :title="dialogTitle" 
+      v-model="dialogVisible" 
+      :close-on-click-modal="false"
+      width="500px"
     >
       <el-form 
         :model="form" 
-        :rules="rules" 
+        :rules="formRules" 
         ref="formRef" 
-        label-width="100px"
+        label-width="120px"
+        status-icon
       >
-        <el-form-item 
-          label="账套编码" 
-          prop="company_code"
-        >
-          <el-input 
-            v-model="form.company_code" 
-            placeholder="请输入账套编码"
-            :disabled="dialogType === 'edit'"
-          />
+        <el-form-item label="账套代码" prop="company_code">
+          <el-input v-model="form.company_code" placeholder="请输入账套代码" clearable />
         </el-form-item>
-        <el-form-item 
-          label="账套名称" 
-          prop="company_name"
-        >
-          <el-input 
-            v-model="form.company_name" 
-            placeholder="请输入账套名称" 
-          />
+        <el-form-item label="账套名称" prop="company_name">
+          <el-input v-model="form.company_name" placeholder="请输入账套名称" clearable />
         </el-form-item>
-        <el-form-item 
-          label="会计制度" 
-          prop="accounting_system_id"
-        >
-          <el-select 
-            v-model="form.accounting_system_id" 
-            placeholder="请选择会计制度"
-            style="width: 100%"
-          >
-            <el-option
-              v-for="item in accountingSystems"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
-            />
+        <el-form-item label="数据库名" prop="db_name">
+          <el-input v-model="form.db_name" placeholder="请输入数据库名" clearable />
+        </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-select v-model="form.status" placeholder="选择状态">
+            <el-option label="启用" :value="1" />
+            <el-option label="停用" :value="0" />
           </el-select>
-        </el-form-item>
-        <el-form-item 
-          label="会计年度" 
-          prop="fiscal_year"
-        >
-          <el-date-picker
-            v-model="form.fiscal_year"
-            type="year"
-            placeholder="选择年度"
-            style="width: 100%"
-          />
-        </el-form-item>
-        <el-form-item 
-          label="启用日期" 
-          prop="begin_date"
-        >
-          <el-date-picker
-            v-model="form.begin_date"
-            type="date"
-            placeholder="选择启用日期"
-            style="width: 100%"
-          />
-        </el-form-item>
-        <el-form-item 
-          label="税号" 
-          prop="tax_code"
-        >
-          <el-input 
-            v-model="form.tax_code" 
-            placeholder="请输入税号" 
-          />
-        </el-form-item>
-        <el-form-item 
-          label="法人" 
-          prop="legal_person"
-        >
-          <el-input 
-            v-model="form.legal_person" 
-            placeholder="请输入法人姓名" 
-          />
-        </el-form-item>
-        <el-form-item 
-          label="联系人" 
-          prop="contact"
-        >
-          <el-input 
-            v-model="form.contact" 
-            placeholder="请输入联系人" 
-          />
-        </el-form-item>
-        <el-form-item 
-          label="联系电话" 
-          prop="phone"
-        >
-          <el-input 
-            v-model="form.phone" 
-            placeholder="请输入联系电话" 
-          />
-        </el-form-item>
-        <el-form-item 
-          label="地址" 
-          prop="address"
-        >
-          <el-input 
-            v-model="form.address" 
-            placeholder="请输入地址" 
-          />
-        </el-form-item>
-        <el-form-item 
-          label="邮箱" 
-          prop="email"
-        >
-          <el-input 
-            v-model="form.email" 
-            placeholder="请输入邮箱" 
-          />
         </el-form-item>
       </el-form>
       <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="handleSave">确定</el-button>
-        </div>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSubmit">确定</el-button>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { Plus } from '@element-plus/icons-vue'
-import { ElMessageBox, ElMessage } from 'element-plus'
-import { getCompanies, createCompany, updateCompany, deleteCompany, toggleCompanyStatus } from '@/api/account'
-import { getAccountingSystems } from '@/api/account'
+import { ref, reactive, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { storeToRefs } from 'pinia'
+import { useUserStore } from '@/stores/user'
+import { 
+  getCompanyList, 
+  createCompany, 
+  updateCompany, 
+  deleteCompany,
+  backupCompany,
+  restoreCompany 
+} from '@/api/system'
+//import { useStore } from 'vuex' // 引入 Vuex
 
-// 表格数据
-const tableData = ref([])
-const accountingSystems = ref([])
+const userStore = useUserStore()
+const { userInfo } = storeToRefs(userStore)
 
-// 加载账套列表
-const loadCompanies = async () => {
-  try {
-    const data = await getCompanies()
-    tableData.value = data
-  } catch (error) {
-    ElMessage.error('加载账套列表失败')
-  }
-}
-
-// 加载会计制度列表
-const loadAccountingSystems = async () => {
-  try {
-    const data = await getAccountingSystems()
-    accountingSystems.value = data
-  } catch (error) {
-    ElMessage.error('加载会计制度列表失败')
-  }
-}
-
-// 对话框相关
+const router = useRouter()
+const loading = ref(false)
 const dialogVisible = ref(false)
-const dialogType = ref('add')
-const form = ref({
-  company_code: '',
-  company_name: '',
-  tax_code: '',
-  legal_person: '',
-  contact: '',
-  phone: '',
-  address: '',
-  email: '',
-  db_name: '',
-  fiscal_year: new Date().getFullYear(),
-  period_type: 1,
-  begin_date: '',
-  currency_code: 'CNY',
-  accounting_system_id: '',
-  status: 1,
-  remark: ''
+const dialogTitle = ref('新建账套')
+const currentPage = ref(1)
+const pageSize = ref(10)
+const total = ref(0)
+const tableData = ref([])
+const formRef = ref(null)
+
+const searchForm = reactive({
+  companyName: ''
 })
 
-// 表单验证规则
-const rules = {
+
+const form = reactive({
+  id: null,
+  company_code: '',
+  company_name: '',
+  db_name: '',
+  status: 1
+})
+
+const formRules = {
   company_code: [
-    { required: true, message: '请输入账套编码', trigger: 'blur' },
-    { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
+    { required: true, message: '请输入账套代码', trigger: 'blur' },
+    { min: 3, max: 10, message: '账套代码长度在3-10个字符', trigger: 'blur' }
   ],
   company_name: [
-    { required: true, message: '请输入账套名称', trigger: 'blur' },
-    { min: 2, max: 100, message: '长度在 2 到 100 个字符', trigger: 'blur' }
+    { required: true, message: '请输入账套名称', trigger: 'blur' }
   ],
-  accounting_system_id: [
-    { required: true, message: '请选择会计制度', trigger: 'change' }
-  ],
-  fiscal_year: [
-    { required: true, message: '请选择会计年度', trigger: 'change' }
-  ],
-  begin_date: [
-    { required: true, message: '请选择启用日期', trigger: 'change' }
-  ],
-  tax_code: [
-    { pattern: /^[A-Z0-9]{15,20}$/, message: '请输入正确的税号格式', trigger: 'blur' }
-  ],
-  phone: [
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
-  ],
-  email: [
-    { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
+  db_name: [
+    { required: true, message: '请输入数据库名', trigger: 'blur' }
   ]
 }
 
-const formRef = ref(null)
+// 获取账套列表
+const fetchCompanyList = async () => {
+  loading.value = true
+  try {  
+    if (!userStore.userInfo?.id) {
+      ElMessage.warning('用户信息未获取，请重新登录')
+      return
+    }
+    
+    const userId = userStore.userInfo.id
+    const response = await getCompanyList({
+      page: currentPage.value,
+      pageSize: pageSize.value,
+      companyName: searchForm.companyName,
+      userId   // 只添加这一个参数
+    })
+    
+    // 兼容不同的响应结构
+    const data = response.data || response
+    const { list = [], total: totalCount = 0, page, pageSize: fetchedPageSize } = data
+    
+    tableData.value = list
+    total.value = totalCount  // 使用不同的变量名避免冲突
+    currentPage.value = page || currentPage.value
+    pageSize.value = fetchedPageSize || pageSize.value
 
-// 显示新增对话框
-const showAddDialog = () => {
-  dialogType.value = 'add'
-  form.value = {
-    company_code: '',
-    company_name: '',
-    tax_code: '',
-    legal_person: '',
-    contact: '',
-    phone: '',
-    address: '',
-    email: '',
-    db_name: '',
-    fiscal_year: new Date().getFullYear(),
-    period_type: 1,
-    begin_date: '',
-    currency_code: 'CNY',
-    accounting_system_id: '',
-    status: 1,
-    remark: ''
+    console.log('获取账套列表成功:', tableData.value)
+  } catch (error) {
+    console.error('获取账套列表失败:', error)
+    ElMessage.error(error.message || '获取账套列表失败')
+    tableData.value = []
+    total.value = 0
+  } finally {
+    loading.value = false
   }
+}
+
+// 查询
+const handleSearch = () => {
+  currentPage.value = 1
+  fetchCompanyList()
+}
+
+// 重置查询
+const resetSearch = () => {
+  searchForm.companyName = ''
+  currentPage.value = 1
+  fetchCompanyList()
+}
+
+// 新建账套
+const handleCreate = () => {
   dialogVisible.value = true
+  dialogTitle.value = '新建账套'
+  form.id = null
+  form.company_code = ''
+  form.company_name = ''
+  form.db_name = ''
+  form.status = 1
 }
 
 // 编辑账套
 const handleEdit = (row) => {
-  dialogType.value = 'edit'
-  form.value = { ...row }
   dialogVisible.value = true
-}
-
-// 切换状态
-const handleToggleStatus = async (row) => {
-  const action = row.status === 1 ? '停用' : '启用'
-  try {
-    await ElMessageBox.confirm(
-      `确定要${action}该账套吗？`,
-      '提示',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-      }
-    )
-    
-    await toggleCompanyStatus(row.id, row.status === 1 ? 0 : 1)
-    row.status = row.status === 1 ? 0 : 1
-    ElMessage.success(`${action}成功`)
-  } catch (error) {
-    if (error !== 'cancel') {
-      ElMessage.error(`${action}失败`)
-    }
-  }
+  dialogTitle.value = '编辑账套'
+  form.id = row.id
+  form.company_code = row.company_code
+  form.company_name = row.company_name
+  form.db_name = row.db_name
+  form.status = row.status
 }
 
 // 删除账套
-const handleDelete = async (row) => {
+const handleDelete = (row) => {
+  ElMessageBox.confirm(`确定要删除账套 [${row.company_code}] ${row.company_name} 吗？`, '删除确认', {
+    type: 'warning'
+  }).then(async () => {
+    try {
+      await deleteCompany(row.id)
+      ElMessage.success('删除成功')
+      fetchCompanyList()
+    } catch (error) {
+      ElMessage.error('删除失败：' + (error.message || '未知错误'))
+    }
+  }).catch(() => {})
+}
+
+// 备份账套
+const handleBackup = async (row) => {
   try {
-    await ElMessageBox.confirm(
-      '删除后数据无法恢复，确定要删除该账套吗？',
-      '警告',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-      }
-    )
-    
-    await deleteCompany(row.id)
-    const index = tableData.value.findIndex(item => item.id === row.id)
-    if (index > -1) {
-      tableData.value.splice(index, 1)
-    }
-    ElMessage.success('删除成功')
+    await backupCompany(row.id)
+    ElMessage.success('备份成功')
   } catch (error) {
-    if (error !== 'cancel') {
-      ElMessage.error('删除失败')
-    }
+    ElMessage.error('备份失败：' + (error.message || '未知错误'))
   }
 }
 
-// 保存账套
-const handleSave = async () => {
-  if (!formRef.value) return
+// 恢复账套
+const handleRestore = async (row) => {
+  ElMessageBox.confirm(`确定要恢复账套 [${row.company_code}] ${row.company_name} 吗？`, '恢复确认', {
+    type: 'warning'
+  }).then(async () => {
+    try {
+      await restoreCompany(row.id)
+      ElMessage.success('恢复成功')
+      fetchCompanyList()
+    } catch (error) {
+      ElMessage.error('恢复失败：' + (error.message || '未知错误'))
+    }
+  }).catch(() => {})
+}
+
+// 提交表单
+const handleSubmit = () => {
+  formRef.value.validate(async (valid) => {
+    if (valid) {
+      try {
+        if (form.id) {
+          // 编辑
+          await updateCompany(form.id, form)
+          ElMessage.success('编辑成功')
+        } else {
+          // 新建
+          await createCompany(form)
+          ElMessage.success('创建成功')
+        }
+        dialogVisible.value = false
+        fetchCompanyList()
+      } catch (error) {
+        ElMessage.error(error.message || '操作失败')
+      }
+    }
+  })
+}
+
+// 处理用户下拉菜单操作
+const handleCommand = (command) => {
+  if (command === 'logout') {
+    userStore.logout()
+    router.push('account-book/login')
+  } else if (command === 'profile') {
+    router.push('/settings/profile')
+  }
+}
+
+// 返回登录页
+/*
+const goBack = () => {
+  router.push('/login')
+}
+*/
+onMounted(async () => {
+  // 检查并更新用户信息
+  await userStore.safeGetUserInfo()
   
-  try {
-    await formRef.value.validate()
-    
-    if (dialogType.value === 'add') {
-      // 添加新账套
-      const data = await createCompany(form.value)
-      tableData.value.unshift(data)
-      ElMessage.success('添加成功')
-    } else {
-      // 更新现有账套
-      const data = await updateCompany(form.value.id, form.value)
-      const index = tableData.value.findIndex(item => item.id === form.value.id)
-      if (index > -1) {
-        tableData.value[index] = data
-      }
-      ElMessage.success('更新成功')
-    }
-    dialogVisible.value = false
-  } catch (error) {
-    if (error.name === 'ValidationError') {
-      // 表单验证失败
-      return
-    }
-    ElMessage.error(dialogType.value === 'add' ? '添加失败' : '更新失败')
-  }
-}
-
-// 初始化加载
-onMounted(() => {
-  loadCompanies()
-  loadAccountingSystems()
+  fetchCompanyList()
 })
 </script>
 
 <style scoped>
-.account-settings {
+.account-management-container {
+  background-color: #f5f7fa;
+  height: 100vh;
   padding: 20px;
 }
 
-.header {
+.box-card {
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.header-title {
+  margin-left: 15px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #303133;
+}
+
+.user-dropdown {
+  cursor: pointer;
+}
+
+.user-dropdown-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar {
+  margin-right: 10px;
+}
+
+.user-name-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.user-name {
+  font-size: 16px;
+  font-weight: bold;
+  color: #303133;
+}
+
+.user-role {
+  font-size: 14px;
+  color: #606266;
+}
+
+.search-bar {
   margin-bottom: 20px;
 }
 
-.header h2 {
-  margin: 0;
-}
-
-:deep(.el-button-group .el-button--link) {
-  border: none;
-}
-
-.dialog-footer {
+.pagination {
+  margin-top: 20px;
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+  justify-content: center;
 }
 </style>
