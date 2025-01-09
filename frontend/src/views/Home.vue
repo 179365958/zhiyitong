@@ -45,15 +45,15 @@
           </el-icon>
         </div>
         <div class="account-select">
-    <el-select v-model="selectedAccount" placeholder="请选择账套" @change="handleAccountChange">
-      <el-option
-        v-for="item in accounts"
-        :key="item.id"
-        :label="item.company_name"
-        :value="item.id">
-      </el-option>
-    </el-select>
-  </div>
+          <el-select v-model="selectedAccount" placeholder="请选择账套" @change="handleAccountChange">
+            <el-option
+               v-for="item in accounts"
+               :key="item.id"
+               :label="item.company_name"
+               :value="item.id">
+          </el-option>
+         </el-select>
+        </div>
         <div class="user-info">
           <el-dropdown @command="handleCommand" class="user-dropdown">
             <div class="user-dropdown-link">
@@ -131,7 +131,7 @@
 <script>
 import { getCompanyList } from '@/api/system'
 import { setCurrentCompany, getCurrentCompany } from '@/utils/auth'
-
+import { useUserStore } from '@/stores/user'
 
 export default {
   data() {
@@ -143,7 +143,10 @@ export default {
   methods: {
     async fetchAccounts() {
       try {
-        const response = await getCompanyList()
+        const userStore = useUserStore()
+        const userId = userStore.userInfo.id
+
+        const response = await getCompanyList({ userId })
         console.log('fetchAccounts response:', response) // 添加日志输出
 
         const companies = response.data.list || []
