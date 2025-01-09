@@ -425,6 +425,8 @@ onMounted(async () => {
 
 .account-select {
   width: 150px;
+  margin-left: auto;  /* 添加这行，将账套选择推到右边 */
+  margin-right: 20px; /* 添加这行，与用户信息保持间距 */
 }
 
 </style>
