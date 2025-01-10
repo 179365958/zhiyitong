@@ -182,7 +182,7 @@ export default {
     },
     async switchDatabase(company, userId) {
       try {
-        const response = await fetch('/api/switch-database', {
+        const response = await fetch('/api/system/switch-database', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
