@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 import { login as loginApi, getCurrentUser } from '@/api/auth'
-import { setToken, clearAuth, getUserInfo, setUserInfo } from '@/utils/auth'
+import { setToken, clearAuth, getUserInfo, setUserInfo ,getToken} from '@/utils/auth'
 
 /*
 export const useUserStore = defineStore('user', () => {
@@ -203,7 +203,7 @@ export const useUserStore = defineStore('user', () => {
   // 切换数据库
   async function switchDatabase(companyId) {
     try {
-      const response = await fetch('/api/switch-database', {
+      const response = await fetch('/api/system/switch-database', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
