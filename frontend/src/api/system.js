@@ -68,6 +68,25 @@ export const getCompanyList = (params) => {
   });
 };
 
+// 切换数据库
+export const switchDatabase = (data) => {
+  return request({
+    url: 'api/system/switch-database',
+    method: 'post',
+    data
+  }).then(response => {
+    console.log('switchDatabase response:', response);
+    if (response.success) {
+      return response;
+    } else {
+      console.error('切换数据库失败:', response);
+      throw new Error(response.message || '切换数据库失败');
+    }
+  }).catch(error => {
+    console.error('switchDatabase error:', error);
+    throw error;
+  });
+};
 // 获取企业账套列表
 /*
 export const getCompanyList = (params) => {

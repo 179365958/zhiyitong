@@ -129,7 +129,7 @@
 </template>
 
 <script>
-import { getCompanyList } from '@/api/system'
+import { getCompanyList,switchDatabase} from '@/api/system'
 import { setCurrentCompany, getCurrentCompany ,getToken} from '@/utils/auth'
 import { useUserStore } from '@/stores/user'
 
@@ -182,19 +182,14 @@ export default {
     },
     async switchDatabase(company, userId) {
       try {
-        const response = await fetch('/api/system/switch-database', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${getToken()}`
-          },
-          body: JSON.stringify({ companyId: company.id, userId })
+        const response = await switchDatabase({
+          companyId: company.id,
+          userId: userId
         })
-        const result = await response.json()
-        if (result.success) {
+        if (response.success) {
           console.log('Database switched successfully')
         } else {
-          console.error('Failed to switch database:', result.message)
+          console.error('Failed to switch database:', response.message)
         }
       } catch (error) {
         console.error('Error switching database:', error)
