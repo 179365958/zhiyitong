@@ -57,11 +57,13 @@ CREATE TABLE IF NOT EXISTS sys_user (
     is_admin        BIT NOT NULL DEFAULT 0,      -- 是否管理员
     status          TINYINT NOT NULL DEFAULT 1,  -- 状态(1:正常 0:禁用)
     last_login      DATETIME,                    -- 最后登录时间
+    recent_company_id INT,                       -- 最近使用的账套ID
     created_at      DATETIME NOT NULL,           -- 创建时间
     created_by      INT NOT NULL,                -- 创建人
     updated_at      DATETIME,                    -- 更新时间
     updated_by      INT,                         -- 更新人
-    UNIQUE KEY uk_username (username)
+    UNIQUE KEY uk_username (username),
+    FOREIGN KEY (recent_company_id) REFERENCES sys_company(id) -- 外键：最近使用的账套ID引用企业账套表
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
 
 -- 角色表
