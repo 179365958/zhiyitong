@@ -71,8 +71,12 @@ export const getCompanyList = (params) => {
 // 切换数据库
 export const switchDatabase = (data) => {
   return request({
-    url: 'api/system/switch-database',
+    url: '/api/system/switch-database',
     method: 'post',
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+      'Content-Type': 'application/json'
+    },
     data
   }).then(response => {
     console.log('switchDatabase response:', response);
