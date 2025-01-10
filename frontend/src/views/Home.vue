@@ -130,7 +130,7 @@
 
 <script>
 import { getCompanyList } from '@/api/system'
-import { setCurrentCompany, getCurrentCompany } from '@/utils/auth'
+import { setCurrentCompany, getCurrentCompany ,getToken} from '@/utils/auth'
 import { useUserStore } from '@/stores/user'
 
 export default {
