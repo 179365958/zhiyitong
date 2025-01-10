@@ -4,8 +4,18 @@ const cors = require('cors');
 const logger = require('./utils/logger');
 const systemRoutes = require('./routes/system');
 const path = require('path');
+const session = require('express-session');
 
 const app = express();
+
+// 配置会话中间件
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your_secret_key', // 请使用一个安全的密钥
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false } // 在生产环境中应设置为 true
+}));
+
 
 // 配置 CORS
 const allowedOrigins = process.env.CORS_ORIGIN

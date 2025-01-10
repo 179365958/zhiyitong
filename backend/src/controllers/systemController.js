@@ -151,3 +151,17 @@ exports.login = async (req, res) => {
         });
     }
 };
+
+
+
+// 切换数据库
+exports.switchDatabase = async (req, res) => {
+  const { companyId, userId } = req.body;
+  try {
+    await systemService.switchDatabase(companyId, userId);
+    res.json({ success: true, message: 'Database switched successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+

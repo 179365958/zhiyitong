@@ -168,11 +168,36 @@ export default {
         console.error('获取账套列表失败:', error)
       }
     },
-    handleAccountChange(value) {
+    async handleAccountChange(value) {
+      const userStore = useUserStore()
+      const userId = userStore.userInfo.id
       const selectedCompany = this.accounts.find(account => account.id === value)
       if (selectedCompany) {
         setCurrentCompany(selectedCompany)
         console.log('Selected account:', selectedCompany)
+
+        // 发送选择的账套信息到后端
+        await this.switchDatabase(selectedCompany, userId)
+      }
+    },
+    async switchDatabase(company, userId) {
+      try {
+        const response = await fetch('/api/switch-database', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${getToken()}`
+          },
+          body: JSON.stringify({ companyId: company.id, userId })
+        })
+        const result = await response.json()
+        if (result.success) {
+          console.log('Database switched successfully')
+        } else {
+          console.error('Failed to switch database:', result.message)
+        }
+      } catch (error) {
+        console.error('Error switching database:', error)
       }
     }
   },

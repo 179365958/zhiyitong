@@ -4,6 +4,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const dbConfig = require('../config/database'); // 引入数据库配置
 const jwt = require('jsonwebtoken'); // 确保导入jsonwebtoken
+const session = require('express-session')
 
 
 // 检查 MySQL 连接状态
@@ -494,3 +495,53 @@ exports.login = async (username, password, logintype) => {
         }
     }
 };
+
+// 切换数据库
+exports.switchDatabase = async (companyId, userId) => {
+    try {
+      // 根据 companyId 获取对应的数据库名称
+      const connection = await mysql.createConnection({
+        host: dbConfig.mysql.host,
+        user: dbConfig.mysql.username,
+        password: dbConfig.mysql.password,
+        database: dbConfig.mysql.database,
+        port: dbConfig.mysql.port,
+      })
+  
+      const [rows] = await connection.query('SELECT db_name FROM sys_company WHERE id = ?', [companyId])
+      if (rows.length === 0) {
+        throw new Error('Company not found')
+      }
+  
+      const dbName = rows[0].db_name
+  
+      // 将数据库名称存储在会话中
+      session.dbName = dbName
+  
+      // 记录最近使用的账套信息
+      await connection.query('UPDATE sys_user SET recent_company_id = ? WHERE id = ?', [companyId, userId])
+  
+      await connection.end()
+    } catch (error) {
+      console.error('Error switching database:', error)
+      throw error
+    }
+  }
+  
+  // 获取数据库连接
+  exports.getConnection = async () => {
+    try {
+      const dbName = session.dbName || dbConfig.mysql.database
+      const connection = await mysql.createConnection({
+        host: dbConfig.mysql.host,
+        user: dbConfig.mysql.username,
+        password: dbConfig.mysql.password,
+        database: dbName,
+        port: dbConfig.mysql.port,
+      })
+      return connection
+    } catch (error) {
+      console.error('Error getting database connection:', error)
+      throw error
+    }
+  }
