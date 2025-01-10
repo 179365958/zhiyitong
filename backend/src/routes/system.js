@@ -44,6 +44,9 @@ router.get('/status', systemController.getSystemStatus);
 //router.get('/companies', systemController.getCompanies);
 router.get('/companies', authMiddleware, systemController.getCompanies);
 
+// 切换数据库
+router.post('/switch-database', authMiddleware, systemController.switchDatabase);
+
 // 用户登录
 router.post('/login', systemController.login);
 

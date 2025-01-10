@@ -5,17 +5,30 @@ const logger = require('./utils/logger');
 const systemRoutes = require('./routes/system');
 const path = require('path');
 const session = require('express-session');
+const MySQLStore = require('express-mysql-session')(session);
 
 const app = express();
+
+// 配置会话存储选项
+const sessionStoreOptions = {
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_SYS_NAME,
+};
+
+// 创建会话存储
+const sessionStore = new MySQLStore(sessionStoreOptions);
 
 // 配置会话中间件
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your_secret_key', // 请使用一个安全的密钥
   resave: false,
   saveUninitialized: true,
+  store: sessionStore,
   cookie: { secure: false } // 在生产环境中应设置为 true
 }));
-
 
 // 配置 CORS
 const allowedOrigins = process.env.CORS_ORIGIN
