@@ -96,7 +96,9 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
+import { getSubjects, addSubject, updateSubject, toggleSubjectStatus, importSubjects, exportSubjects } from '@/api/subject'
 
 const tableData = ref([])
 const dialogVisible = ref(false)
@@ -128,6 +130,11 @@ const rules = {
 
 const formRef = ref()
 
+const fetchSubjects = async () => {
+  const response = await getSubjects()
+  tableData.value = response.data
+}
+
 const handleAdd = () => {
   dialogType.value = 'add'
   dialogVisible.value = true
@@ -147,28 +154,52 @@ const handleAddChild = (row) => {
   parentSubject.value = `${row.code} - ${row.name}`
 }
 
-const handleImport = () => {
-  // TODO: 实现导入逻辑
-  console.log('Import subjects')
+const handleImport = async () => {
+  try {
+    await importSubjects()
+    ElMessage.success('导入成功')
+    fetchSubjects()
+  } catch (error) {
+    ElMessage.error('导入失败')
+  }
 }
 
-const handleExport = () => {
-  // TODO: 实现导出逻辑
-  console.log('Export subjects')
+const handleExport = async () => {
+  try {
+    await exportSubjects()
+    ElMessage.success('导出成功')
+  } catch (error) {
+    ElMessage.error('导出失败')
+  }
 }
 
-const handleToggleStatus = (row) => {
-  // TODO: 实现状态切换逻辑
-  console.log('Toggle status:', row)
+const handleToggleStatus = async (row) => {
+  try {
+    await toggleSubjectStatus(row.id)
+    ElMessage.success('状态切换成功')
+    fetchSubjects()
+  } catch (error) {
+    ElMessage.error('状态切换失败')
+  }
 }
 
 const handleSubmit = async () => {
   if (!formRef.value) return
-  await formRef.value.validate((valid) => {
+  await formRef.value.validate(async (valid) => {
     if (valid) {
-      // TODO: 实现提交逻辑
-      console.log('Submit form:', form)
-      dialogVisible.value = false
+      try {
+        if (dialogType.value === 'add' || dialogType.value === 'addChild') {
+          await addSubject(form)
+          ElMessage.success('新增成功')
+        } else if (dialogType.value === 'edit') {
+          await updateSubject(form)
+          ElMessage.success('编辑成功')
+        }
+        dialogVisible.value = false
+        fetchSubjects()
+      } catch (error) {
+        ElMessage.error('提交失败')
+      }
     }
   })
 }
@@ -184,6 +215,10 @@ const resetForm = () => {
     direction: 'debit'
   })
 }
+
+onMounted(() => {
+  fetchSubjects()
+})
 </script>
 
 <style scoped>
