@@ -383,118 +383,7 @@ exports.deleteCompany = async (id) => {
     }
 };
 
-// 用户登录
-exports.login = async (username, password, logintype) => {
-    let connection;
-    try {
-        // 创建数据库连接
-        connection = await mysql.createConnection({
-            host: dbConfig.mysql.host,
-            user: dbConfig.mysql.username,
-            password: dbConfig.mysql.password,
-            database: dbConfig.mysql.database,
-            port: dbConfig.mysql.port,
-        });
 
-      //  console.log(username, password, logintype);
-
-        if (logintype === 'admin') {
-            // 管理员登录逻辑
-            await connection.query('USE zyt_sys');
-            const [users] = await connection.query(
-                'SELECT * FROM sys_user WHERE username = ? AND status = 1',
-                [username]
-            );
-
-            if (users.length === 0) {
-                return {
-                    success: false,
-                    message: '用户不存在或已被禁用'
-                };
-            }
-
-            const user = users[0];
-            const isValidPassword = await bcrypt.compare(password, user.password);
-            if (!isValidPassword) {
-                return {
-                    success: false,
-                    message: '密码错误'
-                };
-            }
-             // 生成 JWT
-            const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-                expiresIn: process.env.JWT_EXPIRES_IN,
-            });
-
-            return {
-                success: true,
-                message: '登录成功',
-                token: token, // 返回生成的 token
-                data: {
-                    id: user.id,
-                    username: user.username,
-                    realName: user.real_name,
-                    isAdmin: user.is_admin[0] === 1,
-                    status: user.status
-                }
-            };
-        } else if (logintype === 'user') {
-            // 普通用户登录逻辑
-            await connection.query('USE zyt_sys');
-            const [users] = await connection.query(
-                'SELECT * FROM sys_user WHERE username = ? AND status = 1',
-                [username]
-            );
-
-            if (users.length === 0) {
-                return {
-                    success: false,
-                    message: '用户不存在或已被禁用'
-                };
-            }
-
-            const user = users[0];
-            const isValidPassword = await bcrypt.compare(password, user.password);
-            if (!isValidPassword) {
-                return {
-                    success: false,
-                    message: '密码错误'
-                };
-            }
-             // 生成 JWT
-            const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-                expiresIn: process.env.JWT_EXPIRES_IN,
-            });
-
-            return {
-                success: true,
-                message: '登录成功',
-                token: token, // 返回生成的 token
-                data: {
-                    id: user.id,
-                    username: user.username,
-                    realName: user.real_name,
-                    isAdmin: user.is_admin[0] === 1,
-                    status: user.status
-                }
-            };
-
-            
-        } else {
-            throw new Error('无效的登录类型');
-        }
-    } catch (error) {
-        console.error('登录失败:', error);
-        return {
-            success: false,
-            message: '登录失败：' + error.message
-        };
-    } finally {
-        if (connection) {
-            await connection.end();
-        }
-    }
-};
 
 // 切换数据库
 exports.switchDatabase = async (companyId, userId) => {
@@ -545,3 +434,120 @@ exports.switchDatabase = async (companyId, userId) => {
       throw error
     }
   }
+
+// 用户登录
+exports.login = async (username, password, logintype) => {
+    let connection;
+    try {
+      // 创建数据库连接
+      connection = await mysql.createConnection({
+        host: dbConfig.mysql.host,
+        user: dbConfig.mysql.username,
+        password: dbConfig.mysql.password,
+        database: dbConfig.mysql.database,
+        port: dbConfig.mysql.port,
+      });
+  
+      if (logintype === 'admin') {
+        // 管理员登录逻辑
+        await connection.query('USE zyt_sys');
+        const [users] = await connection.query(
+          'SELECT * FROM sys_user WHERE username = ? AND status = 1',
+          [username]
+        );
+  
+        if (users.length === 0) {
+          return {
+            success: false,
+            message: '用户不存在或已被禁用'
+          };
+        }
+  
+        const user = users[0];
+        const isValidPassword = await bcrypt.compare(password, user.password);
+        if (!isValidPassword) {
+          return {
+            success: false,
+            message: '密码错误'
+          };
+        }
+  
+        // 生成 JWT
+        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+          expiresIn: process.env.JWT_EXPIRES_IN,
+        });
+  
+        return {
+          success: true,
+          message: '登录成功',
+          token: token, // 返回生成的 token
+          data: {
+            id: user.id,
+            username: user.username,
+            realName: user.real_name,
+            isAdmin: user.is_admin[0] === 1,
+            status: user.status
+          }
+        };
+      } else if (logintype === 'user') {
+        // 普通用户登录逻辑
+        await connection.query('USE zyt_sys');
+        const [users] = await connection.query(
+          'SELECT * FROM sys_user WHERE username = ? AND status = 1',
+          [username]
+        );
+  
+        if (users.length === 0) {
+          return {
+            success: false,
+            message: '用户不存在或已被禁用'
+          };
+        }
+  
+        const user = users[0];
+        const isValidPassword = await bcrypt.compare(password, user.password);
+        if (!isValidPassword) {
+          return {
+            success: false,
+            message: '密码错误'
+          };
+        }
+  
+        // 获取用户有权限的账套列表
+        const [companyRows] = await connection.query('SELECT company_id FROM sys_user_company WHERE user_id = ?', [user.id]);
+        const companyIds = companyRows.map(row => row.company_id);
+  
+        // 生成 JWT
+        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+          expiresIn: process.env.JWT_EXPIRES_IN,
+        });
+  
+        return {
+          success: true,
+          message: '登录成功',
+          token: token, // 返回生成的 token
+          data: {
+            id: user.id,
+            username: user.username,
+            realName: user.real_name,
+            isAdmin: user.is_admin[0] === 1,
+            status: user.status,
+            recentCompanyId: user.recent_company_id, // 返回最近使用的账套ID
+            companyIds: companyIds // 返回用户有权限的账套列表
+          }
+        };
+      } else {
+        throw new Error('无效的登录类型');
+      }
+    } catch (error) {
+      console.error('登录失败:', error);
+      return {
+        success: false,
+        message: '登录失败：' + error.message
+      };
+    } finally {
+      if (connection) {
+        await connection.end();
+      }
+    }
+  };
