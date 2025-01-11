@@ -194,8 +194,29 @@ export default {
       } catch (error) {
         console.error('Error switching database:', error)
       }
-    }
+    },
+    handleTabsCommand(command) {
+      if (command === 'closeOther') {
+        tabsStore.closeOtherTabs(route.path)
+      } else if (command === 'closeAll') {
+        tabsStore.closeAllTabs()
+        router.push('/dashboard')
+      }
+    },
+    handleCommand(command) {
+      if (command === 'logout') {
+        userStore.logout()
+        router.push('/login')
+      } else if (command === 'profile') {
+        router.push('/settings/profile')
+      }
+    },
+    handleSaveAndNew() {
+      // 定义 handleSaveAndNew 方法的逻辑
+      console.log('handleSaveAndNew 方法被调用')
+    },
   },
+
   async mounted() {
     await this.fetchAccounts()
   }
