@@ -153,9 +153,14 @@ const submitLogin = async () => {
           setToken(response.token);
           setUserInfo(userInfo);
           
+          console.log('Login response:', response);
+          
           // 如果有企业账套信息，设置当前企业
           if (response.data.company) {
+            console.log('Setting current company:', response.data.company);
             setCurrentCompany(response.data.company)
+          } else {
+            console.warn('No company information found in login response');
           }
           
           // 如果选择了记住密码，保存登录信息

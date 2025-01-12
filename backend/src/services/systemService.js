@@ -516,6 +516,7 @@ exports.login = async (username, password, logintype) => {
         // 获取用户有权限的账套列表
         const [companyRows] = await connection.query('SELECT company_id FROM sys_user_company WHERE user_id = ?', [user.id]);
         const companyIds = companyRows.map(row => row.company_id);
+        const recentCompany = companyRows.find(row => row.company_id === user.recent_company_id);
   
         // 生成 JWT
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
@@ -533,7 +534,9 @@ exports.login = async (username, password, logintype) => {
             isAdmin: user.is_admin[0] === 1,
             status: user.status,
             recentCompanyId: user.recent_company_id, // 返回最近使用的账套ID
-            companyIds: companyIds // 返回用户有权限的账套列表
+            companyIds: companyIds, // 返回用户有权限的账套列表
+            company: recentCompany ? { id: recentCompany.company_id, name: recentCompany.company_name } : null
+            
           }
         };
       } else {
