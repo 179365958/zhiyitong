@@ -156,12 +156,12 @@ exports.login = async (req, res) => {
 
 // 切换数据库
 exports.switchDatabase = async (req, res) => {
-  const { companyId, userId } = req.body;
-  try {
-    await systemService.switchDatabase(companyId, userId);
-    res.json({ success: true, message: 'Database switched successfully' });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
+    const { companyId, userId } = req.body;
+    try {
+      const database = await systemService.switchDatabase(companyId, userId);
+      req.session.currentDatabase = database; // 设置会话中的当前数据库名称
+      res.json({ success: true, message: '切换数据库成功' });
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  };

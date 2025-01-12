@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const systemController = require('../controllers/systemController');
+const subjectController = require('../controllers/subjectController');
 const authMiddleware = require('../middleware/auth');
 
 /*
@@ -50,5 +51,13 @@ router.post('/switch-database', authMiddleware, systemController.switchDatabase)
 
 // 用户登录
 router.post('/login', systemController.login);
+
+// 科目相关路由
+router.get('/subjects',subjectController.getSubjects);
+router.post('/subjects', authMiddleware, subjectController.addSubject);
+router.put('/subjects/:id', authMiddleware, subjectController.updateSubject);
+router.patch('/subjects/:id/status', authMiddleware, subjectController.toggleSubjectStatus);
+router.post('/subjects/import', authMiddleware, subjectController.importSubjects);
+router.get('/subjects/export', authMiddleware, subjectController.exportSubjects);
 
 module.exports = router;
