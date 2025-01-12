@@ -4,7 +4,8 @@ import { getToken } from '@/utils/auth'
 import Home from '@/views/Home.vue'
 import Login from '@/views/Admin/Login.vue'
 import { checkSystemInit } from '@/api/system'
-//import Initialize from '@/views/account-book/Initialize.vue'
+import Profile from '@/views/settings/Profile.vue'
+
 
 // 动态导入组件的函数
 const loadView = (view) => {
@@ -39,6 +40,7 @@ const loadView = (view) => {
       'settings/Subject': () => import('@/views/settings/Subject.vue'),
       'settings/User': () => import('@/views/settings/User.vue'),
       'settings/Role': () => import('@/views/settings/Role.vue'),
+      'settings/Profile': () => import('@/views/settings/Profile.vue'), // 添加 Profile 路由
     }
     
     const loader = componentMap[view]
@@ -114,6 +116,12 @@ const baseRoutes = [
     component: Home,
     redirect: '/dashboard',
     children: generateRoutes(menuItems)
+  },
+  {
+    path: '/settings/profile',
+    name: 'Profile',
+    component: Profile,
+    meta: { title: '个人信息' }
   },
   {
     path: '/:pathMatch(.*)*',
