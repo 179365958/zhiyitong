@@ -3,10 +3,10 @@ const { pool } = require('../config/database');
 exports.getConnection = async (database) => {
   const connection = await pool.getConnection();
   try {
-    await connection.query(`USE ${database}`);
+    await connection.query(`USE \`${database}\``); // 使用反引号包裹数据库名称
     return connection;
   } catch (error) {
-    connection.release(); // 移除 await 关键字
+    connection.release();
     throw error;
   }
 };
