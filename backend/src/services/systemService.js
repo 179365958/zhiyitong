@@ -331,7 +331,7 @@ exports.deleteCompany = async (id) => {
 };
 
 // 切换数据库
-exports.switchDatabase = async (companyId, userId) => {
+exports.switchDatabase = async (companyId, userId, req) => {
   let connection;
   try {
     connection = await pool.getConnection();
@@ -345,7 +345,7 @@ exports.switchDatabase = async (companyId, userId) => {
     const dbName = rows[0].db_name;
 
     // 将数据库名称存储在会话中
-    session.dbName = dbName;
+    req.session.currentDatabase = dbName;
 
     // 记录最近使用的账套信息
     await connection.query('UPDATE sys_user SET recent_company_id = ? WHERE id = ?', [companyId, userId]);
@@ -379,7 +379,7 @@ exports.getConnection = async () => {
 };
 
 // 用户登录
-exports.login = async (username, password, logintype) => {
+exports.login = async (username, password, logintype, req) => {
   let connection;
   try {
     connection = await pool.getConnection();
@@ -413,10 +413,13 @@ exports.login = async (username, password, logintype) => {
         expiresIn: process.env.JWT_EXPIRES_IN,
       });
 
+      // 设置当前数据库名称
+      req.session.currentDatabase = 'zyt_sys';
+
       return {
         success: true,
         message: '登录成功',
-        token: token, // 返回生成的 token
+        token: token,
         data: {
           id: user.id,
           username: user.username,
@@ -458,18 +461,21 @@ exports.login = async (username, password, logintype) => {
         expiresIn: process.env.JWT_EXPIRES_IN,
       });
 
+      // 设置当前数据库名称
+      req.session.currentDatabase = recentCompany ? recentCompany.db_name : null;
+
       return {
         success: true,
         message: '登录成功',
-        token: token, // 返回生成的 token
+        token: token,
         data: {
           id: user.id,
           username: user.username,
           realName: user.real_name,
           isAdmin: user.is_admin[0] === 1,
           status: user.status,
-          recentCompanyId: user.recent_company_id, // 返回最近使用的账套ID
-          companyIds: companyIds, // 返回用户有权限的账套列表
+          recentCompanyId: user.recent_company_id,
+          companyIds: companyIds,
           company: recentCompany ? { id: recentCompany.company_id, name: recentCompany.company_name } : null
         }
       };

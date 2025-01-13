@@ -141,27 +141,23 @@ exports.deleteCompany = async (req, res) => {
 // 用户登录
 exports.login = async (req, res) => {
     try {
-        const { username, password, logintype} = req.body; // 获取用户名和密码
-        const result = await systemService.login(username, password,logintype); // 传递 companyId
-        res.json(result);
+      const { username, password, logintype } = req.body;
+      const result = await systemService.login(username, password, logintype, req);
+      res.json(result);
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message || '登录失败'
-        });
+      console.error('登录失败:', error);
+      res.status(500).json({ success: false, message: '登录失败' });
     }
-};
-
-
-
-// 切换数据库
-exports.switchDatabase = async (req, res) => {
-    const { companyId, userId } = req.body;
+  };
+  
+  // 切换数据库
+  exports.switchDatabase = async (req, res) => {
     try {
-      const database = await systemService.switchDatabase(companyId, userId);
-      req.session.currentDatabase = database; // 设置会话中的当前数据库名称
-      res.json({ success: true, message: '切换数据库成功' });
+      const { companyId, userId } = req.body;
+      const result = await systemService.switchDatabase(companyId, userId, req);
+      res.json(result);
     } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
+      console.error('切换数据库失败:', error);
+      res.status(500).json({ success: false, message: '切换数据库失败' });
     }
   };
