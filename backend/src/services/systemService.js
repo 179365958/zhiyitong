@@ -456,13 +456,20 @@ exports.login = async (username, password, logintype, req) => {
       const companyIds = companyRows.map(row => row.company_id);
       const recentCompany = companyRows.find(row => row.company_id === user.recent_company_id);
 
+      // 获取数据库名称
+      let dbName = null;
+      if (recentCompany) {
+        const [company] = await connection.query('SELECT db_name FROM sys_company WHERE id = ?', [recentCompany.company_id]);
+        dbName = company.length > 0 ? company[0].db_name : null;
+      }
+
       // 生成 JWT
       const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRES_IN,
       });
 
       // 设置当前数据库名称
-      req.session.currentDatabase = recentCompany ? recentCompany.db_name : null;
+      req.session.currentDatabase = dbName;
 
       return {
         success: true,
@@ -476,7 +483,7 @@ exports.login = async (username, password, logintype, req) => {
           status: user.status,
           recentCompanyId: user.recent_company_id,
           companyIds: companyIds,
-          company: recentCompany ? { id: recentCompany.company_id, name: recentCompany.company_name } : null
+          company: recentCompany ? { id: recentCompany.company_id, name: dbName } : null
         }
       };
     } else {
