@@ -96,21 +96,22 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
-import { getSubjects, addSubject, updateSubject, toggleSubjectStatus, importSubjects, exportSubjects } from '@/api/subject'
+import { ref, reactive, onMounted, watch } from 'vue';
+import { ElMessage } from 'element-plus';
+import { getSubjects, addSubject, updateSubject, toggleSubjectStatus, importSubjects, exportSubjects } from '@/api/subject';
+import { useAccountStore } from '@/stores/account'; // 引入 Pinia Store
 
-const tableData = ref([])
-const dialogVisible = ref(false)
-const dialogType = ref('add') // add, edit, addChild
-const parentSubject = ref('')
+const tableData = ref([]);
+const dialogVisible = ref(false);
+const dialogType = ref('add'); // add, edit, addChild
+const parentSubject = ref('');
 
 const form = reactive({
   code: '',
   name: '',
   category: '',
   direction: 'debit'
-})
+});
 
 const rules = {
   code: [
@@ -126,116 +127,106 @@ const rules = {
   direction: [
     { required: true, message: '请选择余额方向', trigger: 'blur' }
   ]
-}
+};
 
-const formRef = ref()
+const formRef = ref();
 
 const fetchSubjects = async () => {
-  const response = await getSubjects()
-  tableData.value = response.data
-}
+  const response = await getSubjects();
+  tableData.value = response.data;
+};
 
 const handleAdd = () => {
-  dialogType.value = 'add'
-  dialogVisible.value = true
-  resetForm()
-}
+  dialogType.value = 'add';
+  dialogVisible.value = true;
+  resetForm();
+};
 
 const handleEdit = (row) => {
-  dialogType.value = 'edit'
-  dialogVisible.value = true
-  Object.assign(form, row)
-}
+  dialogType.value = 'edit';
+  dialogVisible.value = true;
+  Object.assign(form, row);
+};
 
 const handleAddChild = (row) => {
-  dialogType.value = 'addChild'
-  dialogVisible.value = true
-  resetForm()
-  parentSubject.value = `${row.code} - ${row.name}`
-}
+  dialogType.value = 'addChild';
+  dialogVisible.value = true;
+  resetForm();
+  parentSubject.value = `${row.code} - ${row.name}`;
+};
 
 const handleImport = async () => {
   try {
-    await importSubjects()
-    ElMessage.success('导入成功')
-    fetchSubjects()
+    await importSubjects();
+    ElMessage.success('导入成功');
+    fetchSubjects();
   } catch (error) {
-    ElMessage.error('导入失败')
+    ElMessage.error('导入失败');
   }
-}
+};
 
 const handleExport = async () => {
   try {
-    await exportSubjects()
-    ElMessage.success('导出成功')
+    await exportSubjects();
+    ElMessage.success('导出成功');
   } catch (error) {
-    ElMessage.error('导出失败')
+    ElMessage.error('导出失败');
   }
-}
+};
 
 const handleToggleStatus = async (row) => {
   try {
-    await toggleSubjectStatus(row.id)
-    ElMessage.success('状态切换成功')
-    fetchSubjects()
+    await toggleSubjectStatus(row.id);
+    ElMessage.success('状态切换成功');
+    fetchSubjects();
   } catch (error) {
-    ElMessage.error('状态切换失败')
+    ElMessage.error('状态切换失败');
   }
-}
+};
 
 const handleSubmit = async () => {
-  if (!formRef.value) return
+  if (!formRef.value) return;
   await formRef.value.validate(async (valid) => {
     if (valid) {
       try {
         if (dialogType.value === 'add' || dialogType.value === 'addChild') {
-          await addSubject(form)
-          ElMessage.success('新增成功')
+          await addSubject(form);
+          ElMessage.success('新增成功');
         } else if (dialogType.value === 'edit') {
-          await updateSubject(form)
-          ElMessage.success('编辑成功')
+          await updateSubject(form);
+          ElMessage.success('编辑成功');
         }
-        dialogVisible.value = false
-        fetchSubjects()
+        dialogVisible.value = false;
+        fetchSubjects();
       } catch (error) {
-        ElMessage.error('提交失败')
+        ElMessage.error('提交失败');
       }
     }
-  })
-}
+  });
+};
 
 const resetForm = () => {
   if (formRef.value) {
-    formRef.value.resetFields()
+    formRef.value.resetFields();
   }
   Object.assign(form, {
     code: '',
     name: '',
     category: '',
     direction: 'debit'
-  })
-}
+  });
+};
 
 onMounted(() => {
-  fetchSubjects()
-})
+  fetchSubjects();
+});
+
+const accountStore = useAccountStore();
+
+// 监听账套切换
+watch(() => accountStore.currentAccount, (newAccount) => {
+  if (newAccount) {
+    fetchSubjects();
+  }
+});
 </script>
-
-<style scoped>
-.subject-settings {
-  padding: 20px;
-}
-
-.operation-card {
-  margin-bottom: 20px;
-}
-
-.operation-buttons {
-  display: flex;
-  gap: 10px;
-}
-
-.table-card {
-  margin-bottom: 20px;
-}
-</style>

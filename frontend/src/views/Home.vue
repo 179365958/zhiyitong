@@ -129,55 +129,60 @@
 </template>
 
 <script>
-import { getCompanyList,switchDatabase} from '@/api/system'
-import { setCurrentCompany, getCurrentCompany } from '@/utils/auth'
-import { useUserStore } from '@/stores/user'
+import { getCompanyList, switchDatabase } from '@/api/system';
+import { setCurrentCompany, getCurrentCompany } from '@/utils/auth';
+import { useUserStore } from '@/stores/user';
+import { useAccountStore } from '@/stores/account'; // 引入 Pinia Store
 
 export default {
   data() {
     return {
       selectedAccount: '',
       accounts: []
-    }
+    };
   },
   methods: {
     async fetchAccounts() {
       try {
-        const userStore = useUserStore()
-        const userId = userStore.userInfo.id
+        const userStore = useUserStore();
+        const userId = userStore.userInfo.id;
 
-        const response = await getCompanyList({ userId })
-        console.log('fetchAccounts response:', response) // 添加日志输出
+        const response = await getCompanyList({ userId });
+        console.log('fetchAccounts response:', response); // 添加日志输出
 
-        const companies = response.data.list || []
+        const companies = response.data.list || [];
         if (Array.isArray(companies)) {
           this.accounts = companies.map(company => ({
             id: company.id,
             company_name: company.company_name
-          }))
+          }));
         } else {
-          console.error('Unexpected response structure:', response)
-          throw new Error('获取账套列表失败')
+          console.error('Unexpected response structure:', response);
+          throw new Error('获取账套列表失败');
         }
 
-        const currentCompany = getCurrentCompany()
+        const currentCompany = getCurrentCompany();
         if (currentCompany) {
-          this.selectedAccount = currentCompany.id
+          this.selectedAccount = currentCompany.id;
         }
       } catch (error) {
-        console.error('获取账套列表失败:', error)
+        console.error('获取账套列表失败:', error);
       }
     },
     async handleAccountChange(value) {
-      const userStore = useUserStore()
-      const userId = userStore.userInfo.id
-      const selectedCompany = this.accounts.find(account => account.id === value)
+      const userStore = useUserStore();
+      const accountStore = useAccountStore(); // 使用 Pinia Store
+      const userId = userStore.userInfo.id;
+      const selectedCompany = this.accounts.find(account => account.id === value);
       if (selectedCompany) {
-        setCurrentCompany(selectedCompany)
-        console.log('Selected account:', selectedCompany)
+        setCurrentCompany(selectedCompany);
+        console.log('Selected account:', selectedCompany);
+
+        // 更新 Pinia Store 中的状态
+        accountStore.setCurrentAccount(selectedCompany);
 
         // 发送选择的账套信息到后端
-        await this.switchDatabase(selectedCompany, userId)
+        await this.switchDatabase(selectedCompany, userId);
       }
     },
     async switchDatabase(company, userId) {
@@ -185,42 +190,42 @@ export default {
         const response = await switchDatabase({
           companyId: company.id,
           userId: userId
-        })
+        });
         if (response.success) {
-          console.log('Database switched successfully')
+          console.log('Database switched successfully');
         } else {
-          console.error('Failed to switch database:', response.message)
+          console.error('Failed to switch database:', response.message);
         }
       } catch (error) {
-        console.error('Error switching database:', error)
+        console.error('Error switching database:', error);
       }
     },
     handleTabsCommand(command) {
       if (command === 'closeOther') {
-        tabsStore.closeOtherTabs(route.path)
+        tabsStore.closeOtherTabs(route.path);
       } else if (command === 'closeAll') {
-        tabsStore.closeAllTabs()
-        router.push('/dashboard')
+        tabsStore.closeAllTabs();
+        router.push('/dashboard');
       }
     },
     handleCommand(command) {
       if (command === 'logout') {
-        userStore.logout()
-        router.push('/login')
+        userStore.logout();
+        router.push('/login');
       } else if (command === 'profile') {
-        router.push('/settings/profile')
+        router.push('/settings/profile');
       }
     },
     handleSaveAndNew() {
       // 定义 handleSaveAndNew 方法的逻辑
-      console.log('handleSaveAndNew 方法被调用')
+      console.log('handleSaveAndNew 方法被调用');
     },
   },
 
   async mounted() {
-    await this.fetchAccounts()
+    await this.fetchAccounts();
   }
-}
+};
 </script>
 
 <script setup>
