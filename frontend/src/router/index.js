@@ -41,6 +41,19 @@ const loadView = (view) => {
       'settings/User': () => import('@/views/settings/User.vue'),
       'settings/Role': () => import('@/views/settings/Role.vue'),
       'settings/Profile': () => import('@/views/settings/Profile.vue'), // 添加 Profile 路由
+
+      // 管理页面 
+ 
+      
+      
+      'admin/Dashboard': () => import('@/views/admin/Dashboard.vue'),
+      'admin/UserManagement': () => import('@/views/admin/UserManagement.vue'),
+      'admin/RoleManagement': () => import('@/views/admin/RoleManagement.vue'),
+      'admin/PermissionManagement': () => import('@/views/admin/PermissionManagement.vue'),
+      'admin/AccountManagement': () => import('@/views/admin/AccountManagement.vue'),
+      'admin/LogManagement': () => import('@/views/admin/LogManagement.vue'),
+      'admin/SystemSettings': () => import('@/views/admin/SystemSettings.vue'),
+      
     }
     
     const loader = componentMap[view]
@@ -123,6 +136,50 @@ const baseRoutes = [
     component: Profile,
     meta: { title: '个人信息' }
   },
+  
+  {
+    path: '/admin/dashboard',
+    name: 'AdminDashboard',
+    component: () => import('@/views/admin/Dashboard.vue'),
+    meta: { title: '仪表盘' }
+  },
+  {
+    path: '/admin/users',
+    name: 'UserManagement',
+    component: () => import('@/views/admin/UserManagement.vue'),
+    meta: { title: '用户管理' }
+  },
+  {
+    path: '/admin/roles',
+    name: 'RoleManagement',
+    component: () => import('@/views/admin/RoleManagement.vue'),
+    meta: { title: '角色管理' }
+  },
+  {
+    path: '/admin/permissions',
+    name: 'PermissionManagement',
+    component: () => import('@/views/admin/PermissionManagement.vue'),
+    meta: { title: '权限管理' }
+  },
+  {
+    path: '/admin/accounts',
+    name: 'AccountManagement',
+    component: () => import('@/views/admin/AccountManagement.vue'),
+    meta: { title: '账套管理' }
+  },
+  {
+    path: '/admin/logs',
+    name: 'LogManagement',
+    component: () => import('@/views/admin/LogManagement.vue'),
+    meta: { title: '日志管理' }
+  },
+  {
+    path: '/admin/settings',
+    name: 'SystemSettings',
+    component: () => import('@/views/admin/SystemSettings.vue'),
+    meta: { title: '系统设置' }
+  },
+  
   {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
