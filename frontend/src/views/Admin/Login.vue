@@ -74,7 +74,8 @@ const handleLogin = async () => {
       }
       
       ElMessage.success('登录成功');
-      router.push({ name: 'AccountBook' });
+      router.push({ name: 'AdminHome' });
+      //router.push({ name: 'AccountBook' });
     } else {
       ElMessage.error(response.message || '登录失败');
       // 提示用户转到安装页面

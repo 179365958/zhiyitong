@@ -156,3 +156,18 @@ export const restoreCompany = (id) => {
     method: 'post'
   })
 }
+
+export function getSystemSettings() {
+  return request({
+    url: '/api/system/settings',
+    method: 'get'
+  });
+}
+
+export function updateSystemSettings(data) {
+  return request({
+    url: '/api/system/settings',
+    method: 'post',
+    data
+  });
+}

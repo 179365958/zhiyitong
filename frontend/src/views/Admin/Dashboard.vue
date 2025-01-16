@@ -6,7 +6,7 @@
           <span class="header-title">仪表盘</span>
         </div>
       </template>
-      <div class="dashboard-content">
+      <div>
         <el-row :gutter="20">
           <el-col :span="6">
             <el-card>
@@ -57,10 +57,17 @@ const logCount = ref(0);
 
 const fetchDashboardData = async () => {
   try {
-    userCount.value = await getUserCount();
-    accountCount.value = await getAccountCount();
-    roleCount.value = await getRoleCount();
-    logCount.value = await getLogCount();
+    const userCountResponse = await getUserCount();
+    userCount.value = userCountResponse.data;
+
+    const accountCountResponse = await getAccountCount();
+    accountCount.value = accountCountResponse.data;
+
+    const roleCountResponse = await getRoleCount();
+    roleCount.value = roleCountResponse.data;
+
+    const logCountResponse = await getLogCount();
+    logCount.value = logCountResponse.data;
   } catch (error) {
     console.error('获取仪表盘数据失败:', error);
   }
@@ -73,35 +80,21 @@ onMounted(() => {
 
 <style scoped>
 .dashboard-container {
-  background-color: #f5f7fa;
-  height: 100vh;
   padding: 20px;
 }
-
-.box-card {
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-
 .header-title {
   font-size: 18px;
   font-weight: bold;
-  color: #303133;
 }
-
-.dashboard-content {
-  margin-top: 20px;
-}
-
-.text {
+.text.item {
   font-size: 24px;
   font-weight: bold;
   text-align: center;
+  margin-top: 20px;
 }
 </style>
