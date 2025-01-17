@@ -4,37 +4,10 @@
       <template #header>
         <div class="card-header">
           <div class="header-left">
-            <!-- <el-button 
-              type="info" 
-              icon="Back" 
-              @click="goBack" 
-              circle 
-              plain
-              title="返回登录"
-            /> -->
             <span class="header-title">账套管理</span>
           </div>
           <div class="header-right">
-            <el-dropdown @command="handleCommand" class="user-dropdown">
-              <div class="user-dropdown-link">
-                <el-avatar 
-                  :src="userInfo?.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642ab9b686a4768png.png'" 
-                  :size="40" 
-                  class="user-avatar"
-                />
-                <div class="user-name-wrapper">
-                  <span class="user-name">{{ userInfo?.username || userInfo?.name || '未登录' }}</span>
-                  <span class="user-role">{{ userInfo?.roles?.[0] || '普通用户' }}</span>
-                </div>
-                <el-icon class="el-icon--right"><arrow-down /></el-icon>
-              </div>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item command="profile">个人信息</el-dropdown-item>
-                  <el-dropdown-item command="logout">退出登录</el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
+
           </div>
         </div>
       </template>
