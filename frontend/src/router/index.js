@@ -115,65 +115,77 @@ const baseRoutes = [
     component: () => import('@/views/Login.vue'),
     meta: { title: '用户登录' }
   },
-  /*
   {
     path: '/Admin',
-    name: 'AccountBook',
-    component: () => import('@/views/Admin/AccountManagement.vue'),
+    name: 'AdminHome',
+    component: () => import('@/views/Admin/AdminHome.vue'),
     meta: { title: '账套管理' }
   },  
-  */
   {
-    path: '/admin',
-    component: AdminHome,
-    children: [
-      {
-        path: 'home',
-        name: 'Dashboard',
-        component: Dashboard,
-        meta: { title: '管理首页' }
-      },
-      {
-        path: 'user-management',
-        name: 'UserManagement',
-        component: UserManagement,
-        meta: { title: '用户管理' }
-      },
-      {
-        path: 'log-management',
-        name: 'LogManagement',
-        component: LogManagement,
-        meta: { title: '日志管理' }
-      },
-      {
-        path: 'system-settings',
-        name: 'SystemSettings',
-        component: SystemSettings,
-        meta: { title: '系统设置' }
-      },
-      {
-        path: 'account-management',
-        name: 'AccountManagement',
-        component: AccountManagement,
-        meta: { title: '账套管理' }
-      },
-      {
-        path: 'permission-management',
-        name: 'PermissionManagement',
-        component: PermissionManagement,
-        meta: { title: '权限管理' }
-      },
-      {
-        path: 'role-management',
-        name: 'RoleManagement',
-        component: RoleManagement,
-        meta: { title: '角色管理' }
-      }
-    ]
+    path: '/Admin/login',
+    name: 'AccountBookLogin',
+    component: () => import('@/views/Admin/Login.vue'),
+    meta: { title: '账套管理登录' }
+  },
+  {
+    path: '/install',
+    name: 'Install',
+    component: () => import('@/views/install/Install.vue'),
+    meta: { title: '账套初始化' }
   },
   {
     path: '/',
-    redirect: '/admin/home'
+    component: Home,
+    redirect: '/dashboard',
+    children: generateRoutes(menuItems)
+  },
+  {
+    path: '/settings/profile',
+    name: 'Profile',
+    component: Profile,
+    meta: { title: '个人信息' }
+  },
+  {
+    path: '/admin/dashboard',
+    name: 'AdminDashboard',
+    component: () => import('@/views/admin/Dashboard.vue'),
+    meta: { title: '仪表盘' }
+  },
+  {
+    path: '/admin/users',
+    name: 'UserManagement',
+    component: () => import('@/views/admin/UserManagement.vue'),
+    meta: { title: '用户管理' }
+  },
+  {
+    path: '/admin/roles',
+    name: 'RoleManagement',
+    component: () => import('@/views/admin/RoleManagement.vue'),
+    meta: { title: '角色管理' }
+  },
+  {
+    path: '/admin/permissions',
+    name: 'PermissionManagement',
+    component: () => import('@/views/admin/PermissionManagement.vue'),
+    meta: { title: '权限管理' }
+  },
+  {
+    path: '/admin/accounts',
+    name: 'AccountManagement',
+    component: () => import('@/views/admin/AccountManagement.vue'),
+    meta: { title: '账套管理' }
+  },
+  {
+    path: '/admin/logs',
+    name: 'LogManagement',
+    component: () => import('@/views/admin/LogManagement.vue'),
+    meta: { title: '日志管理' }
+  },
+  {
+    path: '/admin/settings',
+    name: 'SystemSettings',
+    component: () => import('@/views/admin/SystemSettings.vue'),
+    meta: { title: '系统设置' }
   },
   {
     path: '/Admin/login',

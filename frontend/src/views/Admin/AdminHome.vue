@@ -3,8 +3,11 @@
     <el-container>
       <el-aside width="200px">
         <el-menu :default-active="activeIndex" class="el-menu-vertical-demo" @select="handleSelect">
-          <el-menu-item index="home">首页</el-menu-item>
+          <el-menu-item index="dashboard">仪表盘</el-menu-item>
           <el-menu-item index="user-management">用户管理</el-menu-item>
+          <el-menu-item index="role-management">角色管理</el-menu-item>
+          <el-menu-item index="permission-management">权限管理</el-menu-item>
+          <el-menu-item index="account-management">账套管理</el-menu-item>
           <el-menu-item index="log-management">日志管理</el-menu-item>
           <el-menu-item index="system-settings">系统设置</el-menu-item>
         </el-menu>
@@ -22,29 +25,36 @@
 </template>
 
 <script>
-import { ref } from 'vue';
-
 export default {
   name: 'AdminHome',
   data() {
     return {
-      activeIndex: 'home'
+      activeIndex: 'dashboard'
     };
   },
   methods: {
     handleSelect(key, keyPath) {
       switch (key) {
-        case 'home':
-          this.$router.push({ path: '/admin/home' });
+        case 'dashboard':
+          this.$router.push({ path: '/admin/dashboard' });
           break;
         case 'user-management':
-          this.$router.push({ path: '/admin/user-management' });
+          this.$router.push({ path: '/admin/users' });
+          break;
+        case 'role-management':
+          this.$router.push({ path: '/admin/roles' });
+          break;
+        case 'permission-management':
+          this.$router.push({ path: '/admin/permissions' });
+          break;
+        case 'account-management':
+          this.$router.push({ path: '/admin/accounts' });
           break;
         case 'log-management':
-          this.$router.push({ path: '/admin/log-management' });
+          this.$router.push({ path: '/admin/logs' });
           break;
         case 'system-settings':
-          this.$router.push({ path: '/admin/system-settings' });
+          this.$router.push({ path: '/admin/settings' });
           break;
       }
     }
