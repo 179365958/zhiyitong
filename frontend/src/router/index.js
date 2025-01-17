@@ -115,6 +115,7 @@ const baseRoutes = [
     name: 'AdminHome',
     component: AdminHome,
     meta: { title: '账套管理' },
+    redirect: '/Admin/dashboard', // 添加这一行
     children: [
       {
         path: 'dashboard',
