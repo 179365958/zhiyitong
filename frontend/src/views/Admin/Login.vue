@@ -56,6 +56,13 @@ const handleLogin = async () => {
     console.log('Login Response:', response.token); // 添加日志输出
 
     if (response.success) {  
+     /*
+      const userRoles = response.data.roles || [];
+      if (!userRoles.includes('admin')) {
+        ElMessage.error('您没有权限访问此页面');
+        return;
+      }
+      */
       setToken(response.token);
       setUserInfo(response.data);
 
