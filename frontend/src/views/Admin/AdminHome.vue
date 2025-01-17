@@ -1,6 +1,6 @@
 <template>
   <div class="admin-home">
-    <el-container>
+    <el-container style="height: 100vh;">
       <el-aside width="200px">
         <el-menu :default-active="activeIndex" class="el-menu-vertical-demo" @select="handleSelect">
           <el-menu-item index="dashboard">仪表盘</el-menu-item>
@@ -67,7 +67,7 @@ export default {
 
 <style scoped>
 .admin-home {
-  padding: 20px;
+  height: 100vh;
 }
 .el-menu-vertical-demo {
   background-color: #545c64;

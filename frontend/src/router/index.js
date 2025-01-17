@@ -15,7 +15,6 @@ import AccountManagement from '@/views/Admin/AccountManagement.vue';
 import PermissionManagement from '@/views/Admin/PermissionManagement.vue';
 import RoleManagement from '@/views/Admin/RoleManagement.vue';
 
-
 // 动态导入组件的函数
 const loadView = (view) => {
   // Vite 支持的动态导入格式
@@ -52,9 +51,6 @@ const loadView = (view) => {
       'settings/Profile': () => import('@/views/settings/Profile.vue'), // 添加 Profile 路由
 
       // 管理页面 
- 
-      
-      
       'admin/Dashboard': () => import('@/views/admin/Dashboard.vue'),
       'admin/UserManagement': () => import('@/views/admin/UserManagement.vue'),
       'admin/RoleManagement': () => import('@/views/admin/RoleManagement.vue'),
@@ -62,7 +58,6 @@ const loadView = (view) => {
       'admin/AccountManagement': () => import('@/views/admin/AccountManagement.vue'),
       'admin/LogManagement': () => import('@/views/admin/LogManagement.vue'),
       'admin/SystemSettings': () => import('@/views/admin/SystemSettings.vue'),
-      
     }
     
     const loader = componentMap[view]
@@ -118,13 +113,57 @@ const baseRoutes = [
   {
     path: '/Admin',
     name: 'AdminHome',
-    component: () => import('@/views/Admin/AdminHome.vue'),
-    meta: { title: '账套管理' }
-  },  
+    component: AdminHome,
+    meta: { title: '账套管理' },
+    children: [
+      {
+        path: 'dashboard',
+        name: 'AdminDashboard',
+        component: Dashboard,
+        meta: { title: '仪表盘' }
+      },
+      {
+        path: 'users',
+        name: 'UserManagement',
+        component: UserManagement,
+        meta: { title: '用户管理' }
+      },
+      {
+        path: 'roles',
+        name: 'RoleManagement',
+        component: RoleManagement,
+        meta: { title: '角色管理' }
+      },
+      {
+        path: 'permissions',
+        name: 'PermissionManagement',
+        component: PermissionManagement,
+        meta: { title: '权限管理' }
+      },
+      {
+        path: 'accounts',
+        name: 'AccountManagement',
+        component: AccountManagement,
+        meta: { title: '账套管理' }
+      },
+      {
+        path: 'logs',
+        name: 'LogManagement',
+        component: LogManagement,
+        meta: { title: '日志管理' }
+      },
+      {
+        path: 'settings',
+        name: 'SystemSettings',
+        component: SystemSettings,
+        meta: { title: '系统设置' }
+      }
+    ]
+  },
   {
     path: '/Admin/login',
     name: 'AccountBookLogin',
-    component: () => import('@/views/Admin/Login.vue'),
+    component: Login,
     meta: { title: '账套管理登录' }
   },
   {
@@ -145,75 +184,6 @@ const baseRoutes = [
     component: Profile,
     meta: { title: '个人信息' }
   },
-  {
-    path: '/admin/dashboard',
-    name: 'AdminDashboard',
-    component: () => import('@/views/admin/Dashboard.vue'),
-    meta: { title: '仪表盘' }
-  },
-  {
-    path: '/admin/users',
-    name: 'UserManagement',
-    component: () => import('@/views/admin/UserManagement.vue'),
-    meta: { title: '用户管理' }
-  },
-  {
-    path: '/admin/roles',
-    name: 'RoleManagement',
-    component: () => import('@/views/admin/RoleManagement.vue'),
-    meta: { title: '角色管理' }
-  },
-  {
-    path: '/admin/permissions',
-    name: 'PermissionManagement',
-    component: () => import('@/views/admin/PermissionManagement.vue'),
-    meta: { title: '权限管理' }
-  },
-  {
-    path: '/admin/accounts',
-    name: 'AccountManagement',
-    component: () => import('@/views/admin/AccountManagement.vue'),
-    meta: { title: '账套管理' }
-  },
-  {
-    path: '/admin/logs',
-    name: 'LogManagement',
-    component: () => import('@/views/admin/LogManagement.vue'),
-    meta: { title: '日志管理' }
-  },
-  {
-    path: '/admin/settings',
-    name: 'SystemSettings',
-    component: () => import('@/views/admin/SystemSettings.vue'),
-    meta: { title: '系统设置' }
-  },
-  {
-    path: '/Admin/login',
-    name: 'AccountBookLogin',
-    component: () => import('@/views/Admin/Login.vue'),
-    meta: { title: '账套管理登录' }
-  },
-  {
-    path: '/install',
-    name: 'Install',
-    component: () => import('@/views/install/Install.vue'),
-    meta: { title: '账套初始化' }
-  },
-  {
-    path: '/',
-    component: Home,
-    redirect: '/dashboard',
-    children: generateRoutes(menuItems)
-  },
-  {
-    path: '/settings/profile',
-    name: 'Profile',
-    component: Profile,
-    meta: { title: '个人信息' }
-  },
-  
-  
-  
   {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
