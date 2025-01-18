@@ -23,10 +23,10 @@
               新建账套
             </el-button>
           </el-form-item>
-          <el-form-item label="账套名称">
+          <el-form-item label="公司名称">
             <el-input 
               v-model="searchForm.companyName" 
-              placeholder="请输入账套名称" 
+              placeholder="请输入公司名称" 
               clearable 
               style="width: 200px;"
             />
@@ -49,7 +49,7 @@
         stripe
       >
         <el-table-column prop="company_code" label="账套代码" width="120" align="center" />
-        <el-table-column prop="company_name" label="账套名称" width="200" align="center" />
+        <el-table-column prop="company_name" label="公司名称" width="200" align="center" />
         <el-table-column prop="db_name" label="数据库名" width="200" align="center" />
         <el-table-column prop="status" label="状态" width="100" align="center">
           <template #default="{ row }">
@@ -89,29 +89,51 @@
       :close-on-click-modal="false"
       width="500px"
     >
-      <el-form 
-        :model="form" 
-        :rules="formRules" 
-        ref="formRef" 
-        label-width="120px"
-        status-icon
-      >
-        <el-form-item label="账套代码" prop="company_code">
-          <el-input v-model="form.company_code" placeholder="请输入账套代码" clearable />
-        </el-form-item>
-        <el-form-item label="账套名称" prop="company_name">
-          <el-input v-model="form.company_name" placeholder="请输入账套名称" clearable />
-        </el-form-item>
-        <el-form-item label="数据库名" prop="db_name">
-          <el-input v-model="form.db_name" placeholder="请输入数据库名" clearable />
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-select v-model="form.status" placeholder="选择状态">
-            <el-option label="启用" :value="1" />
-            <el-option label="停用" :value="0" />
-          </el-select>
-        </el-form-item>
-      </el-form>
+      <el-tabs v-model="activeTab">
+        <el-tab-pane label="基本信息" name="basic">
+          <el-form 
+            :model="form" 
+            :rules="formRules" 
+            ref="formRef" 
+            label-width="120px"
+            status-icon
+          >
+            <el-form-item label="账套代码" prop="company_code">
+              <el-input v-model="form.company_code" placeholder="自动生成" disabled />
+            </el-form-item>
+            <el-form-item label="公司名称" prop="company_name">
+              <el-input v-model="form.company_name" placeholder="请输入公司名称" clearable />
+            </el-form-item>
+            <el-form-item label="数据库名" prop="db_name">
+              <el-input v-model="form.db_name" placeholder="自动生成" disabled />
+            </el-form-item>
+            <el-form-item label="状态" prop="status">
+              <el-select v-model="form.status" placeholder="选择状态">
+                <el-option label="启用" :value="1" />
+                <el-option label="停用" :value="0" />
+              </el-select>
+            </el-form-item>
+          </el-form>
+        </el-tab-pane>
+        <el-tab-pane label="其他信息" name="additional">
+          <el-form 
+            :model="form" 
+            ref="formRef" 
+            label-width="120px"
+            status-icon
+          >
+            <el-form-item label="联系人" prop="contact_person">
+              <el-input v-model="form.contact_person" placeholder="请输入联系人" clearable />
+            </el-form-item>
+            <el-form-item label="联系电话" prop="contact_phone">
+              <el-input v-model="form.contact_phone" placeholder="请输入联系电话" clearable />
+            </el-form-item>
+            <el-form-item label="地址" prop="address">
+              <el-input v-model="form.address" placeholder="请输入地址" clearable />
+            </el-form-item>
+          </el-form>
+        </el-tab-pane>
+      </el-tabs>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
         <el-button type="primary" @click="handleSubmit">确定</el-button>
@@ -134,7 +156,6 @@ import {
   backupCompany,
   restoreCompany 
 } from '@/api/system'
-//import { useStore } from 'vuex' // 引入 Vuex
 
 const userStore = useUserStore()
 const { userInfo } = storeToRefs(userStore)
@@ -148,30 +169,35 @@ const pageSize = ref(10)
 const total = ref(0)
 const tableData = ref([])
 const formRef = ref(null)
+const activeTab = ref('basic')
 
 const searchForm = reactive({
   companyName: ''
 })
-
 
 const form = reactive({
   id: null,
   company_code: '',
   company_name: '',
   db_name: '',
-  status: 1
+  status: 1,
+  contact_person: '',
+  contact_phone: '',
+  address: ''
 })
 
 const formRules = {
-  company_code: [
-    { required: true, message: '请输入账套代码', trigger: 'blur' },
-    { min: 3, max: 10, message: '账套代码长度在3-10个字符', trigger: 'blur' }
-  ],
   company_name: [
-    { required: true, message: '请输入账套名称', trigger: 'blur' }
+    { required: true, message: '请输入公司名称', trigger: 'blur' }
   ],
-  db_name: [
-    { required: true, message: '请输入数据库名', trigger: 'blur' }
+  contact_person: [
+    { required: true, message: '请输入联系人', trigger: 'blur' }
+  ],
+  contact_phone: [
+    { required: true, message: '请输入联系电话', trigger: 'blur' }
+  ],
+  address: [
+    { required: true, message: '请输入地址', trigger: 'blur' }
   ]
 }
 
@@ -225,15 +251,25 @@ const resetSearch = () => {
   fetchCompanyList()
 }
 
+// 自动生成账套代码
+const generateCompanyCode = () => {
+  const year = new Date().getFullYear().toString().slice(2)
+  const randomCode = Math.floor(Math.random() * 900 + 100).toString()
+  return `ZYT${year}${randomCode}`
+}
+
 // 新建账套
 const handleCreate = () => {
   dialogVisible.value = true
   dialogTitle.value = '新建账套'
   form.id = null
-  form.company_code = ''
+  form.company_code = generateCompanyCode()
   form.company_name = ''
-  form.db_name = ''
+  form.db_name = form.company_code
   form.status = 1
+  form.contact_person = ''
+  form.contact_phone = ''
+  form.address = ''
 }
 
 // 编辑账套
@@ -245,6 +281,9 @@ const handleEdit = (row) => {
   form.company_name = row.company_name
   form.db_name = row.db_name
   form.status = row.status
+  form.contact_person = row.contact_person
+  form.contact_phone = row.contact_phone
+  form.address = row.address
 }
 
 // 删除账套
@@ -320,12 +359,6 @@ const handleCommand = (command) => {
   }
 }
 
-// 返回登录页
-/*
-const goBack = () => {
-  router.push('/login')
-}
-*/
 onMounted(async () => {
   // 检查并更新用户信息
   await userStore.safeGetUserInfo()
