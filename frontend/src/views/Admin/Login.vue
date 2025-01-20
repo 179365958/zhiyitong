@@ -77,8 +77,8 @@ const handleLogin = async () => {
       } else {
         ElMessage.error('您没有权限访问此页面');
         // 如果没有权限，清除用户信息和 token
-        setUserInfo(null);
-        setToken(null);
+        sessionStorage.removeItem('zyt_user_info');
+        sessionStorage.removeItem('zyt_token');
         router.push('/Admin/login'); // 重定向到登录页面
       }
     } else {
