@@ -22,7 +22,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import request from '@/utils/request'
 import { setToken, setUserInfo } from '@/utils/auth'
 
@@ -70,10 +70,9 @@ const handleLogin = async () => {
         localStorage.removeItem('accountBookLoginInfo');
       }
       
-      ElMessage.success('登录成功');
-      
-      // 根据 is_admin 字段跳转到不同页面
-      if (response.data.is_admin) {
+      // 根据 isAdmin 字段跳转到不同页面
+      if (response.data.isAdmin) {
+        ElMessage.success('登录成功');
         router.push({ name: 'AdminHome' });
       } else {
         ElMessage.error('您没有权限访问此页面');
