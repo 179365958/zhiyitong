@@ -76,6 +76,9 @@ const handleLogin = async () => {
         router.push({ name: 'AdminHome' });
       } else {
         ElMessage.error('您没有权限访问此页面');
+        // 如果没有权限，清除用户信息和 token
+        setUserInfo(null);
+        setToken(null);
       }
     } else {
       ElMessage.error(response.message || '登录失败');
