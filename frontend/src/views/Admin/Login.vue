@@ -23,7 +23,6 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { checkSystemInit } from '@/api/system'
 import request from '@/utils/request'
 import { setToken, setUserInfo } from '@/utils/auth'
 
@@ -37,7 +36,6 @@ const loginForm = ref({
   rememberMe: false
 })
 
-// Login.vue
 const handleLogin = async () => {
   if (!loginFormRef.value) return
   
@@ -56,17 +54,9 @@ const handleLogin = async () => {
     console.log('Login Response:', response.token); // 添加日志输出
 
     if (response.success) {  
-     /*
-      const userRoles = response.data.roles || [];
-      if (!userRoles.includes('admin')) {
-        ElMessage.error('您没有权限访问此页面');
-        return;
-      }
-      */
       setToken(response.token);
       setUserInfo(response.data);
 
-     // console.log('Login Response:', response.data.token); // 添加日志输出
       // 保存用户角色到本地存储
       sessionStorage.setItem('userRole', JSON.stringify(response.data.roles));
       
@@ -81,24 +71,15 @@ const handleLogin = async () => {
       }
       
       ElMessage.success('登录成功');
-      router.push({ name: 'AdminHome' });
-      //router.push({ name: 'AccountBook' });
+      
+      // 根据 is_admin 字段跳转到不同页面
+      if (response.data.is_admin) {
+        router.push({ name: 'AdminHome' });
+      } else {
+        ElMessage.error('您没有权限访问此页面');
+      }
     } else {
       ElMessage.error(response.message || '登录失败');
-      // 提示用户转到安装页面
-      /*
-      const initResponse = await checkSystemInit();
-      if (!initResponse.install) {
-        ElMessageBox.confirm('登录失败，系统未初始化，是否转到安装页面？', '警告', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          router.push('/install');
-        }).catch(() => {
-          return;
-        });
-      }  */
     }
   } catch (error) {
     console.error('登录失败:', error);
