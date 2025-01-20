@@ -79,6 +79,7 @@ const handleLogin = async () => {
         // 如果没有权限，清除用户信息和 token
         setUserInfo(null);
         setToken(null);
+        router.push('/login'); // 重定向到登录页面
       }
     } else {
       ElMessage.error(response.message || '登录失败');
