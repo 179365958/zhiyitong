@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { menuItems } from './modules/menu'
-import { getToken, getUserInfo, fetchUserInfo } from '@/utils/auth'
+import { getToken, getUserInfo, fetchUserInfo, setUserInfo, setToken } from '@/utils/auth'
 import Home from '@/views/Home.vue'
 import Login from '@/views/Admin/Login.vue'
 import { checkSystemInit } from '@/api/system'
@@ -199,6 +199,8 @@ const router = createRouter({
   routes: baseRoutes
 })
 
+let isFetchingUserInfo = false; // 添加标志位
+
 // 路由守卫
 router.beforeEach(async (to, from, next) => {
   const token = getToken()
@@ -227,20 +229,27 @@ router.beforeEach(async (to, from, next) => {
   } else {
     if (token) {
       // 如果用户信息为空，从服务器获取最新的用户信息
-      if (!userInfo) {
+      if (!userInfo && !isFetchingUserInfo) {
+        isFetchingUserInfo = true;
         try {
           userInfo = await fetchUserInfo()
         } catch (error) {
           console.error('获取用户信息失败:', error)
           ElMessage.error('获取用户信息失败，请重新登录')
+          setUserInfo(null)
+          setToken(null)
+          isFetchingUserInfo = false;
           return next('/login')
         }
+        isFetchingUserInfo = false;
       }
       
       // 检查是否需要管理员权限
-      if (to.matched.some(record => record.meta.requiresAdmin) && !userInfo.isAdmin) {
+      if (to.matched.some(record => record.meta.requiresAdmin) && (!userInfo || !userInfo.isAdmin)) {
         ElMessage.error('您没有权限访问此页面')
-        next('/login')
+        setUserInfo(null)
+        setToken(null)
+        return next('/login')
       } else {
         next() // 已登录用户可以访问其他页面
       }
