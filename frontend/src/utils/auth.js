@@ -81,3 +81,14 @@ export function clearAuth() {
 export function isAuthenticated() {
   return !!getToken();
 }
+
+// 从服务器获取最新的用户信息
+export async function fetchUserInfo() {
+  const response = await axios.get('/api/system/userinfo');
+  if (response.data.success) {
+    setUserInfo(response.data.user);
+    return response.data.user;
+  } else {
+    throw new Error('获取用户信息失败');
+  }
+}

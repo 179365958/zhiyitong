@@ -330,6 +330,28 @@ exports.deleteCompany = async (id) => {
   }
 };
 
+// 验证 JWT 并获取用户信息
+exports.verifyToken = (token) => {
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET);
+  } catch (error) {
+    throw new Error('无效的 Token');
+  }
+};
+
+// 检查用户是否为管理员
+exports.checkAdmin = async (userId) => {
+  const connection = await pool.getConnection();
+  try {
+    const [rows] = await connection.query('SELECT is_admin FROM sys_user WHERE id = ?', [userId]);
+    if (rows.length === 0 || !rows[0].is_admin) {
+      throw new Error('您没有权限访问此页面,请联系管理员');
+    }
+  } finally {
+    connection.release();
+  }
+};
+
 // 切换数据库
 exports.switchDatabase = async (companyId, userId, req) => {
   let connection;
