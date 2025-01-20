@@ -1,10 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { menuItems } from './modules/menu'
-import { getToken } from '@/utils/auth'
+import { getToken, getUserInfo } from '@/utils/auth'
 import Home from '@/views/Home.vue'
 import Login from '@/views/Admin/Login.vue'
 import { checkSystemInit } from '@/api/system'
 import Profile from '@/views/settings/Profile.vue'
+import { ElMessage } from 'element-plus' // 导入 ElMessage
+
 
 import AdminHome from '@/views/Admin/AdminHome.vue';
 import UserManagement from '@/views/Admin/UserManagement.vue';
@@ -114,7 +116,7 @@ const baseRoutes = [
     path: '/Admin',
     name: 'AdminHome',
     component: AdminHome,
-    meta: { title: '账套管理' },
+    meta: { title: '账套管理', requiresAuth: true, requiresAdmin: true },
     redirect: '/Admin/dashboard', // 添加这一行
     children: [
       {
@@ -201,6 +203,7 @@ const router = createRouter({
 // 路由守卫
 router.beforeEach((to, from, next) => {
   const token = getToken()
+  const userInfo = getUserInfo()
   
   // 不需要登录就可以访问的页面
   const publicPages = ['/login', '/install', '/Admin/login']
@@ -224,7 +227,13 @@ router.beforeEach((to, from, next) => {
     }
   } else {
     if (token) {
-      next() // 已登录用户可以访问其他页面
+      // 检查是否需要管理员权限
+      if (to.matched.some(record => record.meta.requiresAdmin) && !userInfo.isAdmin) {
+        ElMessage.error('您没有权限访问此页面')
+        next('/login')
+      } else {
+        next() // 已登录用户可以访问其他页面
+      }
     } else {
       // 未登录用户重定向到对应的登录页
       if (to.path.startsWith('/Admin')) {
