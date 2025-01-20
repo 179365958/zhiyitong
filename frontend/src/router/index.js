@@ -7,7 +7,6 @@ import { checkSystemInit } from '@/api/system'
 import Profile from '@/views/settings/Profile.vue'
 import { ElMessage } from 'element-plus' // 导入 ElMessage
 
-
 import AdminHome from '@/views/Admin/AdminHome.vue';
 import UserManagement from '@/views/Admin/UserManagement.vue';
 import LogManagement from '@/views/Admin/LogManagement.vue';
@@ -228,7 +227,7 @@ router.beforeEach((to, from, next) => {
   } else {
     if (token) {
       // 检查是否需要管理员权限
-      if (to.matched.some(record => record.meta.requiresAdmin) && !userInfo.isAdmin) {
+      if (to.matched.some(record => record.meta.requiresAdmin) && (!userInfo || !userInfo.isAdmin)) {
         ElMessage.error('您没有权限访问此页面')
         next('/login')
       } else {
