@@ -1,11 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { menuItems } from './modules/menu'
-import { getToken, getUserInfo, fetchUserInfo, setUserInfo, setToken } from '@/utils/auth'
+import { getToken } from '@/utils/auth'
 import Home from '@/views/Home.vue'
 import Login from '@/views/Admin/Login.vue'
 import { checkSystemInit } from '@/api/system'
 import Profile from '@/views/settings/Profile.vue'
-import { ElMessage } from 'element-plus' // 导入 ElMessage
 
 import AdminHome from '@/views/Admin/AdminHome.vue';
 import UserManagement from '@/views/Admin/UserManagement.vue';
@@ -115,7 +114,7 @@ const baseRoutes = [
     path: '/Admin',
     name: 'AdminHome',
     component: AdminHome,
-    meta: { title: '账套管理', requiresAuth: true, requiresAdmin: true },
+    meta: { title: '账套管理' },
     redirect: '/Admin/dashboard', // 添加这一行
     children: [
       {
@@ -199,12 +198,9 @@ const router = createRouter({
   routes: baseRoutes
 })
 
-let isFetchingUserInfo = false; // 添加标志位
-
 // 路由守卫
-router.beforeEach(async (to, from, next) => {
+router.beforeEach((to, from, next) => {
   const token = getToken()
-  let userInfo = getUserInfo()
   
   // 不需要登录就可以访问的页面
   const publicPages = ['/login', '/install', '/Admin/login']
@@ -228,31 +224,7 @@ router.beforeEach(async (to, from, next) => {
     }
   } else {
     if (token) {
-      // 如果用户信息为空，从服务器获取最新的用户信息
-      if (!userInfo && !isFetchingUserInfo) {
-        isFetchingUserInfo = true;
-        try {
-          userInfo = await fetchUserInfo()
-        } catch (error) {
-          console.error('获取用户信息失败:', error)
-          ElMessage.error('获取用户信息失败，请重新登录')
-          setUserInfo(null)
-          setToken(null)
-          isFetchingUserInfo = false;
-          return next('/login')
-        }
-        isFetchingUserInfo = false;
-      }
-      
-      // 检查是否需要管理员权限
-      if (to.matched.some(record => record.meta.requiresAdmin) && (!userInfo || !userInfo.isAdmin)) {
-        ElMessage.error('您没有权限访问此页面')
-        setUserInfo(null)
-        setToken(null)
-        return next('/login')
-      } else {
-        next() // 已登录用户可以访问其他页面
-      }
+      next() // 已登录用户可以访问其他页面
     } else {
       // 未登录用户重定向到对应的登录页
       if (to.path.startsWith('/Admin')) {
