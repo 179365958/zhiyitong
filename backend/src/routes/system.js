@@ -4,60 +4,72 @@ const systemController = require('../controllers/systemController');
 const subjectController = require('../controllers/subjectController');
 const authMiddleware = require('../middleware/auth');
 
-/*
 // 检查系统初始化状态
-router.get('/check-init', authMiddleware, (req, res) => {
-    // 处理检查初始化状态逻辑
+router.get('/check-init', systemController.checkSystemInit, (err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
 });
 
 // 验证数据库配置
-router.post('/validate-db', authMiddleware, systemController.validateDbConfig);
+router.post('/validate-db', systemController.validateDbConfig, (err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
 
 // 初始化系统
-router.post('/initialize', authMiddleware, (req, res) => {
-    // 处理初始化逻辑
+router.post('/initialize', systemController.initializeDatabase, (err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
 });
 
 // 获取系统状态
-router.get('/status', authMiddleware, systemController.getSystemStatus);
+router.get('/status', systemController.getSystemStatus, (err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
 
 // 获取企业账套列表
-router.get('/companies', authMiddleware, systemController.getCompanies);
-
-// 用户登录
-router.post('/login', systemController.login);
-
-module.exports = router;
-*/
-// 检查系统初始化状态
-router.get('/check-init', systemController.checkSystemInit);
-
-// 验证数据库配置
-router.post('/validate-db', systemController.validateDbConfig);
-
-// 初始化系统
-router.post('/initialize', systemController.initializeDatabase);
-
-// 获取系统状态
-router.get('/status', systemController.getSystemStatus);
-
-// 获取企业账套列表
-//router.get('/companies', systemController.getCompanies);
-router.get('/companies', authMiddleware, systemController.getCompanies);
+router.get('/companies', authMiddleware, systemController.getCompanies, (err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
 
 // 切换数据库
-//router.post('/switch-database',  systemController.switchDatabase);
-router.post('/switch-database', authMiddleware, systemController.switchDatabase);
+router.post('/switch-database', authMiddleware, systemController.switchDatabase, (err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
 
 // 用户登录
-router.post('/login', systemController.login);
+router.post('/login', systemController.login, (err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
 
 // 科目相关路由
-router.get('/subjects',subjectController.getSubjects);
-router.post('/subjects', authMiddleware, subjectController.addSubject);
-router.put('/subjects/:id', authMiddleware, subjectController.updateSubject);
-router.patch('/subjects/:id/status', authMiddleware, subjectController.toggleSubjectStatus);
-router.post('/subjects/import', authMiddleware, subjectController.importSubjects);
-router.get('/subjects/export', authMiddleware, subjectController.exportSubjects);
+router.get('/subjects', subjectController.getSubjects, (err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
+router.post('/subjects', authMiddleware, subjectController.addSubject, (err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
+router.put('/subjects/:id', authMiddleware, subjectController.updateSubject, (err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
+router.patch('/subjects/:id/status', authMiddleware, subjectController.toggleSubjectStatus, (err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
+router.post('/subjects/import', authMiddleware, subjectController.importSubjects, (err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
+router.get('/subjects/export', authMiddleware, subjectController.exportSubjects, (err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
 
 module.exports = router;
