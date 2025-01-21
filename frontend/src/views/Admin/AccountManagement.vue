@@ -6,9 +6,7 @@
           <div class="header-left">
             <span class="header-title">账套管理</span>
           </div>
-          <div class="header-right">
-
-          </div>
+          <div class="header-right"></div>
         </div>
       </template>
 
@@ -99,21 +97,21 @@
             status-icon
           >
             <el-form-item label="账套代码" prop="company_code">
-              <el-input v-model="form.company_code" placeholder="自动生成" disabled />
+              <el-input v-model="form.company_code" placeholder="请输入账套代码" clearable />
             </el-form-item>
             <el-form-item label="公司名称" prop="company_name">
               <el-input v-model="form.company_name" placeholder="请输入公司名称" clearable />
             </el-form-item>
             <el-form-item label="数据库名" prop="db_name">
-              <el-input v-model="form.db_name" placeholder="自动生成" disabled />
+              <el-input v-model="form.db_name" placeholder="请输入数据库名" clearable />
             </el-form-item>
             <el-form-item label="会计准则" prop="accounting_standard">
-               <el-select v-model="form.accounting_standard" placeholder="选择会计准则">
-               <el-option label="准则1" value="standard1" />
-               <el-option label="准则2" value="standard2" />
+              <el-select v-model="form.accounting_standard" placeholder="选择会计准则">
+                <el-option label="准则1" value="standard1" />
+                <el-option label="准则2" value="standard2" />
                 <!-- 根据实际情况添加更多选项 -->
-  </el-select>
-</el-form-item>
+              </el-select>
+            </el-form-item>
           </el-form>
         </el-tab-pane>
         <el-tab-pane label="其他信息" name="additional">
@@ -135,9 +133,14 @@
           </el-form>
         </el-tab-pane>
       </el-tabs>
-      <template #footer>
+      <template #footer v-if="activeTab === 'basic'">
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleSubmit">确定</el-button>
+        <el-button type="primary" @click="handleNextStep">下一步</el-button>
+      </template>
+      <template #footer v-else-if="activeTab === 'additional'">
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button @click="handlePreviousStep">上一步</el-button>
+        <el-button type="primary" @click="handleSubmit">创建</el-button>
       </template>
     </el-dialog>
   </div>
@@ -181,7 +184,7 @@ const form = reactive({
   company_code: '',
   company_name: '',
   db_name: '',
-  status: 1,
+  accounting_standard: '',
   contact_person: '',
   contact_phone: '',
   address: ''
@@ -191,6 +194,12 @@ const formRules = {
   company_name: [
     { required: true, message: '请输入公司名称', trigger: 'blur' }
   ],
+  company_code: [
+    { required: true, message: '请输入账套代码', trigger: 'blur' }
+  ],
+  db_name: [
+    { required: true, message: '请输入数据库名', trigger: 'blur' }
+  ],
   contact_person: [
     { required: true, message: '请输入联系人', trigger: 'blur' }
   ],
@@ -199,6 +208,9 @@ const formRules = {
   ],
   address: [
     { required: true, message: '请输入地址', trigger: 'blur' }
+  ],
+  accounting_standard: [
+    { required: true, message: '请选择会计准则', trigger: 'change' }
   ]
 }
 
@@ -264,13 +276,14 @@ const handleCreate = () => {
   dialogVisible.value = true
   dialogTitle.value = '新建账套'
   form.id = null
-  form.company_code = generateCompanyCode()
+  form.company_code = '' // 不再自动生成账套代码
   form.company_name = ''
-  form.db_name = form.company_code
-  form.status = 1
+  form.db_name = '' // 不再自动生成数据库名
+  form.accounting_standard = ''
   form.contact_person = ''
   form.contact_phone = ''
   form.address = ''
+  activeTab.value = 'basic' // 初始标签页为基本信息
 }
 
 // 编辑账套
@@ -281,10 +294,11 @@ const handleEdit = (row) => {
   form.company_code = row.company_code
   form.company_name = row.company_name
   form.db_name = row.db_name
-  form.status = row.status
+  form.accounting_standard = row.accounting_standard
   form.contact_person = row.contact_person
   form.contact_phone = row.contact_phone
   form.address = row.address
+  activeTab.value = 'basic' // 初始标签页为基本信息
 }
 
 // 删除账套
@@ -348,6 +362,20 @@ const handleSubmit = () => {
       }
     }
   })
+}
+
+// 下一步按钮逻辑
+const handleNextStep = () => {
+  formRef.value.validate((valid) => {
+    if (valid) {
+      activeTab.value = 'additional' // 切换到其他信息标签页
+    }
+  })
+}
+
+// 上一步按钮逻辑
+const handlePreviousStep = () => {
+  activeTab.value = 'basic' // 切换到基本信息标签页
 }
 
 // 处理用户下拉菜单操作
