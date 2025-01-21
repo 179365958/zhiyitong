@@ -214,6 +214,13 @@ const formRules = {
   ]
 }
 
+// 自动生成账套代码
+const generateCompanyCode = () => {
+  const year = new Date().getFullYear().toString();
+  const randomCode = Math.floor(Math.random() * 900 + 100).toString().padStart(3, '0');
+  return `ZYT_${year}${randomCode}`;
+}
+
 // 获取账套列表
 const fetchCompanyList = async () => {
   loading.value = true
@@ -264,21 +271,14 @@ const resetSearch = () => {
   fetchCompanyList()
 }
 
-// 自动生成账套代码
-const generateCompanyCode = () => {
-  const year = new Date().getFullYear().toString().slice(2)
-  const randomCode = Math.floor(Math.random() * 900 + 100).toString()
-  return `ZYT${year}${randomCode}`
-}
-
 // 新建账套
 const handleCreate = () => {
   dialogVisible.value = true
   dialogTitle.value = '新建账套'
   form.id = null
-  form.company_code = '' // 不再自动生成账套代码
+  form.company_code = generateCompanyCode(); // 自动生成账套代码
   form.company_name = ''
-  form.db_name = '' // 不再自动生成数据库名
+  form.db_name = form.company_code; // 数据库名自动同步账套代码
   form.accounting_standard = ''
   form.contact_person = ''
   form.contact_phone = ''
