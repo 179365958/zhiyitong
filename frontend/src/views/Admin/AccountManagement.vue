@@ -107,12 +107,13 @@
             <el-form-item label="数据库名" prop="db_name">
               <el-input v-model="form.db_name" placeholder="自动生成" disabled />
             </el-form-item>
-            <el-form-item label="状态" prop="status">
-              <el-select v-model="form.status" placeholder="选择状态">
-                <el-option label="启用" :value="1" />
-                <el-option label="停用" :value="0" />
-              </el-select>
-            </el-form-item>
+            <el-form-item label="会计准则" prop="accounting_standard">
+               <el-select v-model="form.accounting_standard" placeholder="选择会计准则">
+               <el-option label="准则1" value="standard1" />
+               <el-option label="准则2" value="standard2" />
+                <!-- 根据实际情况添加更多选项 -->
+  </el-select>
+</el-form-item>
           </el-form>
         </el-tab-pane>
         <el-tab-pane label="其他信息" name="additional">
