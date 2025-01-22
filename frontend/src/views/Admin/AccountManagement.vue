@@ -49,6 +49,7 @@
         <el-table-column prop="company_code" label="账套代码" width="120" align="center" />
         <el-table-column prop="company_name" label="公司名称" width="200" align="center" />
         <el-table-column prop="tax_code" label="统一社会信用代码" width="200" align="center" /> <!-- 修改：将 db_name 改为 tax_code -->
+        <el-table-column prop="db_name" label="数据库名" width="200" align="center" />
         <el-table-column prop="status" label="状态" width="100" align="center">
           <template #default="{ row }">
             <el-tag :type="row.status === 1 ? 'success' : 'danger'" effect="light">
