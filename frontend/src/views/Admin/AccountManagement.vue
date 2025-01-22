@@ -148,7 +148,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { storeToRefs } from 'pinia'
@@ -215,13 +215,6 @@ const formRules = {
   ]
 }
 
-// 自动生成账套代码
-const generateCompanyCode = () => {
-  const year = new Date().getFullYear().toString();
-  const randomCode = Math.floor(Math.random() * 900 + 100).toString().padStart(3, '0');
-  return `ZYT_${year}${randomCode}`;
-}
-
 // 获取账套列表
 const fetchCompanyList = async () => {
   loading.value = true
@@ -273,19 +266,30 @@ const resetSearch = () => {
 }
 
 // 新建账套
-const handleCreate = () => {
-  dialogVisible.value = true
-  dialogTitle.value = '新建账套'
-  form.id = null
-  form.company_code = generateCompanyCode(); // 自动生成账套代码
-  form.company_name = ''
-  form.tax_code = ''; // 修改：将 db_name 改为 tax_code
-  form.accounting_standard = ''
-  form.contact_person = ''
-  form.contact_phone = ''
-  form.address = ''
-  activeTab.value = 'basic' // 初始标签页为基本信息
-}
+const handleCreate = async () => {
+  dialogVisible.value = true;
+  dialogTitle.value = '新建账套';
+  form.id = null;
+  form.company_name = '';
+  form.tax_code = '';
+  form.accounting_standard = '';
+  form.contact_person = '';
+  form.contact_phone = '';
+  form.address = '';
+  activeTab.value = 'basic'; // 初始标签页为基本信息
+
+  try {
+    const response = await getCompanyList({ page: 1, pageSize: 1000, userId: userStore.userInfo.id });
+    const data = response.data || response;
+    const existingCodes = data.list.map(item => item.company_code);
+
+    // 生成账套代码
+    form.company_code = generateNextCompanyCode(existingCodes);
+  } catch (error) {
+    console.error('获取账套列表失败:', error);
+    ElMessage.error(error.message || '获取账套列表失败');
+  }
+};
 
 // 编辑账套
 const handleEdit = (row) => {
@@ -349,21 +353,26 @@ const handleSubmit = () => {
       try {
         if (form.id) {
           // 编辑
-          await updateCompany(form.id, form)
-          ElMessage.success('编辑成功')
+          await updateCompany(form.id, form);
+          ElMessage.success('编辑成功');
         } else {
           // 新建
-          await createCompany(form)
-          ElMessage.success('创建成功')
+          const isCodeUnique = await checkCompanyCodeExists(form.company_code);
+          if (!isCodeUnique) {
+            ElMessage.error('账套代码已存在，请更换编号');
+            return;
+          }
+          await createCompany(form);
+          ElMessage.success('创建成功');
         }
-        dialogVisible.value = false
-        fetchCompanyList()
+        dialogVisible.value = false;
+        fetchCompanyList();
       } catch (error) {
-        ElMessage.error(error.message || '操作失败')
+        ElMessage.error(error.message || '操作失败');
       }
     }
-  })
-}
+  });
+};
 
 // 下一步按钮逻辑
 const handleNextStep = () => {
@@ -379,15 +388,33 @@ const handlePreviousStep = () => {
   activeTab.value = 'basic' // 切换到基本信息标签页
 }
 
-// 处理用户下拉菜单操作
-const handleCommand = (command) => {
-  if (command === 'logout') {
-    userStore.logout()
-    router.push('account-book/login')
-  } else if (command === 'profile') {
-    router.push('/settings/profile')
+// 生成下一个账套代码
+const generateNextCompanyCode = (existingCodes) => {
+  const year = new Date().getFullYear().toString();
+  const prefix = `ZYT_${year}`;
+  const existingNumbers = existingCodes
+    .filter(code => code.startsWith(prefix))
+    .map(code => parseInt(code.substring(prefix.length), 10))
+    .sort((a, b) => a - b);
+
+  let nextNumber = 1;
+  if (existingNumbers.length > 0) {
+    nextNumber = existingNumbers[existingNumbers.length - 1] + 1;
   }
+
+  return `${prefix}${nextNumber.toString().padStart(3, '0')}`;
 }
+
+// 检查账套代码是否存在
+const checkCompanyCodeExists = async (companyCode) => {
+  try {
+    const response = await getCompanyList({ companyCode });
+    return response.data && response.data.length === 0;
+  } catch (error) {
+    console.error('检查账套代码唯一性失败:', error);
+    return false; // 如果检查失败，认为代码已存在以避免重复
+  }
+};
 
 onMounted(async () => {
   // 检查并更新用户信息
