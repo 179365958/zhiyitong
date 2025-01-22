@@ -57,7 +57,7 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="350" align="center">
+        <el-table-column label="操作"  align="center">
           <template #default="{ row }">
             <el-button-group>
               <el-button type="primary" @click="handleEdit(row)" icon="Edit" size="small">编辑</el-button>
@@ -473,5 +473,24 @@ onMounted(async () => {
   margin-top: 20px;
   display: flex;
   justify-content: center;
+}
+
+.el-table__body-wrapper {
+  display: flex;
+}
+
+.el-table .cell {
+  flex: 1;
+}
+
+.el-table-column.operation-column {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 768px) {
+  .el-table-column.operation-column {
+    width: 100%;
+    text-align: center;
+  }
 }
 </style>
