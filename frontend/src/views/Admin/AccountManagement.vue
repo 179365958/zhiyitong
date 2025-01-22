@@ -48,7 +48,7 @@
       >
         <el-table-column prop="company_code" label="账套代码" width="120" align="center" />
         <el-table-column prop="company_name" label="公司名称" width="200" align="center" />
-        <el-table-column prop="db_name" label="数据库名" width="200" align="center" />
+        <el-table-column prop="tax_code" label="统一社会信用代码" width="200" align="center" /> <!-- 修改：将 db_name 改为 tax_code -->
         <el-table-column prop="status" label="状态" width="100" align="center">
           <template #default="{ row }">
             <el-tag :type="row.status === 1 ? 'success' : 'danger'" effect="light">
@@ -102,8 +102,8 @@
             <el-form-item label="公司名称" prop="company_name">
               <el-input v-model="form.company_name" placeholder="请输入公司名称" clearable />
             </el-form-item>
-            <el-form-item label="数据库名" prop="db_name">
-              <el-input v-model="form.db_name" placeholder="请输入数据库名" clearable />
+            <el-form-item label="统一社会信用代码" prop="tax_code"> <!-- 修改：将 db_name 改为 tax_code -->
+              <el-input v-model="form.tax_code" placeholder="请输入统一社会信用代码" clearable />
             </el-form-item>
             <el-form-item label="会计准则" prop="accounting_standard">
               <el-select v-model="form.accounting_standard" placeholder="选择会计准则">
@@ -183,7 +183,7 @@ const form = reactive({
   id: null,
   company_code: '',
   company_name: '',
-  db_name: '',
+  tax_code: '', // 修改：将 db_name 改为 tax_code
   accounting_standard: '',
   contact_person: '',
   contact_phone: '',
@@ -197,8 +197,8 @@ const formRules = {
   company_code: [
     { required: true, message: '请输入账套代码', trigger: 'blur' }
   ],
-  db_name: [
-    { required: true, message: '请输入数据库名', trigger: 'blur' }
+  tax_code: [ // 修改：将 db_name 改为 tax_code
+    { required: true, message: '请输入统一社会信用代码', trigger: 'blur' }
   ],
   contact_person: [
     { required: true, message: '请输入联系人', trigger: 'blur' }
@@ -278,7 +278,7 @@ const handleCreate = () => {
   form.id = null
   form.company_code = generateCompanyCode(); // 自动生成账套代码
   form.company_name = ''
-  form.db_name = form.company_code; // 数据库名自动同步账套代码
+  form.tax_code = ''; // 修改：将 db_name 改为 tax_code
   form.accounting_standard = ''
   form.contact_person = ''
   form.contact_phone = ''
@@ -293,7 +293,7 @@ const handleEdit = (row) => {
   form.id = row.id
   form.company_code = row.company_code
   form.company_name = row.company_name
-  form.db_name = row.db_name
+  form.tax_code = row.tax_code // 修改：将 db_name 改为 tax_code
   form.accounting_standard = row.accounting_standard
   form.contact_person = row.contact_person
   form.contact_phone = row.contact_phone
