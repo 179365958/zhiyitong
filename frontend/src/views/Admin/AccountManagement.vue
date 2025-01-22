@@ -358,7 +358,7 @@ const handleSubmit = () => {
         } else {
           // 新建
           const isCodeUnique = await checkCompanyCodeExists(form.company_code);
-          if (!isCodeUnique) {
+          if (isCodeUnique) {
             ElMessage.error('账套代码已存在，请更换编号');
             return;
           }
@@ -408,11 +408,24 @@ const generateNextCompanyCode = (existingCodes) => {
 // 检查账套代码是否存在
 const checkCompanyCodeExists = async (companyCode) => {
   try {
-    const response = await getCompanyList({ companyCode });
-    return response.data && response.data.length === 0;
+    const response = await getCompanyList({ companyCode: companyCode });
+    //console.log('API Response:', response); // 打印 API 响应内容，便于调试
+    
+    if (!response || !response.data || !response.data.list) {
+      console.warn('API 响应格式不正确');
+      return false;
+    }
+
+    const list = response.data.list;
+
+    // 检查列表中是否存在匹配的 company_code
+    const exists = list.some(item => item.company_code === companyCode);
+  //  console.log('Matching List:', list.filter(item => item.company_code === companyCode)); // 打印匹配的账套列表
+    
+    return exists; // 如果有匹配项，返回 true，否则返回 false
   } catch (error) {
     console.error('检查账套代码唯一性失败:', error);
-    return false; // 如果检查失败，认为代码已存在以避免重复
+    throw new Error('检查账套代码唯一性失败'); // 抛出异常，让调用方处理
   }
 };
 
