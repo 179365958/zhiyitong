@@ -112,6 +112,9 @@
                 <el-option label="准则2" value="standard2" />
               </el-select>
             </el-form-item>
+            <el-form-item label="会计年度" prop="fiscal_year">
+              <el-input-number v-model="form.fiscal_year" placeholder="请输入会计年度" :min="1900" :max="2100" />
+            </el-form-item>
             <el-form-item label="启用日期" prop="start_date">
               <el-date-picker
                 v-model="form.start_date"
@@ -119,6 +122,16 @@
                 placeholder="选择启用日期"
                 value-format="yyyy-MM-dd"
               ></el-date-picker>
+            </el-form-item>
+            
+            <el-form-item label="会计期间类型" prop="period_type">
+              <el-select v-model="form.period_type" placeholder="选择会计期间类型">
+                <el-option label="12期间" value="1" />
+                <el-option label="13期间" value="2" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="本位币" prop="currency_code">
+              <el-input v-model="form.currency_code" placeholder="请输入本位币" clearable />
             </el-form-item>
           </el-form>
         </el-tab-pane>
