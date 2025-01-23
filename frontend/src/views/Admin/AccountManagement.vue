@@ -48,7 +48,7 @@
       >
         <el-table-column prop="company_code" label="账套代码" width="120" align="center" />
         <el-table-column prop="company_name" label="公司名称" width="200" align="center" />
-        <el-table-column prop="tax_code" label="统一社会信用代码" width="200" align="center" /> <!-- 修改：将 db_name 改为 tax_code -->
+        <el-table-column prop="tax_code" label="统一社会信用代码" width="200" align="center" />
         <el-table-column prop="db_name" label="数据库名" width="200" align="center" />
         <el-table-column prop="status" label="状态" width="100" align="center">
           <template #default="{ row }">
@@ -98,19 +98,18 @@
             status-icon
           >
             <el-form-item label="账套代码" prop="company_code">
-              <el-input v-model="form.company_code" placeholder="请输入账套代码" clearable />
+              <el-input v-model="form.company_code" placeholder="请输入账套代码" clearable @change="setDefaultDbName" />
             </el-form-item>
             <el-form-item label="公司名称" prop="company_name">
               <el-input v-model="form.company_name" placeholder="请输入公司名称" clearable />
             </el-form-item>
-            <el-form-item label="统一社会信用代码" prop="tax_code"> <!-- 修改：将 db_name 改为 tax_code -->
+            <el-form-item label="统一社会信用代码" prop="tax_code">
               <el-input v-model="form.tax_code" placeholder="请输入统一社会信用代码" clearable />
             </el-form-item>
             <el-form-item label="会计准则" prop="accounting_standard">
               <el-select v-model="form.accounting_standard" placeholder="选择会计准则">
                 <el-option label="准则1" value="standard1" />
                 <el-option label="准则2" value="standard2" />
-                <!-- 根据实际情况添加更多选项 -->
               </el-select>
             </el-form-item>
             <el-form-item label="启用日期" prop="start_date">
@@ -121,6 +120,9 @@
                 value-format="yyyy-MM-dd"
               ></el-date-picker>
             </el-form-item>
+            <el-form-item label="数据库名" prop="db_name">
+              <el-input v-model="form.db_name" placeholder="请输入账套数据库名" clearable />
+            </el-form-item>
           </el-form>
         </el-tab-pane>
         <el-tab-pane label="其他信息" name="additional">
@@ -130,25 +132,26 @@
             label-width="120px"
             status-icon
           >
-            <el-form-item label="联系人" prop="contact_person">
-              <el-input v-model="form.contact_person" placeholder="请输入联系人" clearable />
+            <el-form-item label="法人" prop="legal_person">
+              <el-input v-model="form.legal_person" placeholder="请输入法人" clearable />
             </el-form-item>
-            <el-form-item label="联系电话" prop="contact_phone">
-              <el-input v-model="form.contact_phone" placeholder="请输入联系电话" clearable />
+            <el-form-item label="联系人" prop="contact">
+              <el-input v-model="form.contact" placeholder="请输入联系人" clearable />
+            </el-form-item>
+            <el-form-item label="联系电话" prop="phone">
+              <el-input v-model="form.phone" placeholder="请输入联系电话" clearable />
             </el-form-item>
             <el-form-item label="地址" prop="address">
               <el-input v-model="form.address" placeholder="请输入地址" clearable />
             </el-form-item>
+            <el-form-item label="邮箱" prop="email">
+              <el-input v-model="form.email" placeholder="请输入邮箱" clearable />
+            </el-form-item>
           </el-form>
         </el-tab-pane>
       </el-tabs>
-      <template #footer v-if="activeTab === 'basic'">
+      <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleNextStep">下一步</el-button>
-      </template>
-      <template #footer v-else-if="activeTab === 'additional'">
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button @click="handlePreviousStep">上一步</el-button>
         <el-button type="primary" @click="handleSubmit">创建</el-button>
       </template>
     </el-dialog>
@@ -192,12 +195,24 @@ const form = reactive({
   id: null,
   company_code: '',
   company_name: '',
-  tax_code: '', // 修改：将 db_name 改为 tax_code
+  tax_code: '',
   accounting_standard: '',
-  contact_person: '',
-  contact_phone: '',
-  address: '',
-  start_date: '' // 添加启用日期字段
+  start_date: '',
+  db_name: '',
+  legal_person: '',
+  contact: '',
+  phone: '',
+  email: '',
+  fiscal_year: '',
+  period_type: 1,
+  begin_date: '',
+  currency_code: '',
+  accounting_system_id: '',
+  status: 1,
+  created_at: '',
+  created_by: '',
+  updated_at: '',
+  updated_by: ''
 })
 
 const formRules = {
@@ -207,17 +222,11 @@ const formRules = {
   company_code: [
     { required: true, message: '请输入账套代码', trigger: 'blur' }
   ],
-  tax_code: [ // 修改：将 db_name 改为 tax_code
+  tax_code: [ 
     { required: true, message: '请输入统一社会信用代码', trigger: 'blur' }
   ],
-  contact_person: [
-    { required: true, message: '请输入联系人', trigger: 'blur' }
-  ],
-  contact_phone: [
-    { required: true, message: '请输入联系电话', trigger: 'blur' }
-  ],
-  address: [
-    { required: true, message: '请输入地址', trigger: 'blur' }
+  db_name: [
+    { required: true, message: '请输入账套数据库名', trigger: 'blur' }
   ],
   accounting_standard: [
     { required: true, message: '请选择会计准则', trigger: 'change' }
@@ -241,15 +250,14 @@ const fetchCompanyList = async () => {
       page: currentPage.value,
       pageSize: pageSize.value,
       companyName: searchForm.companyName,
-      userId   // 只添加这一个参数
+      userId   
     })
     
-    // 兼容不同的响应结构
     const data = response.data || response
     const { list = [], total: totalCount = 0, page, pageSize: fetchedPageSize } = data
     
     tableData.value = list
-    total.value = totalCount  // 使用不同的变量名避免冲突
+    total.value = totalCount  
     currentPage.value = page || currentPage.value
     pageSize.value = fetchedPageSize || pageSize.value
 
@@ -285,19 +293,30 @@ const handleCreate = async () => {
   form.company_name = '';
   form.tax_code = '';
   form.accounting_standard = '';
-  form.contact_person = '';
-  form.contact_phone = '';
-  form.address = '';
-  form.start_date = ''; // 初始化启用日期
-  activeTab.value = 'basic'; // 初始标签页为基本信息
+  form.start_date = '';
+  form.db_name = '';
+  form.legal_person = '';
+  form.contact = '';
+  form.phone = '';
+  form.email = '';
+  form.fiscal_year = '';
+  form.period_type = 1;
+  form.begin_date = '';
+  form.currency_code = '';
+  form.accounting_system_id = '';
+  form.status = 1;
+  form.created_at = '';
+  form.created_by = '';
+  form.updated_at = '';
+  form.updated_by = '';
 
   try {
     const response = await getCompanyList({ page: 1, pageSize: 1000, userId: userStore.userInfo.id });
     const data = response.data || response;
     const existingCodes = data.list.map(item => item.company_code);
 
-    // 生成账套代码
     form.company_code = generateNextCompanyCode(existingCodes);
+    form.db_name = form.company_code; // 设置数据库名为账套代码
   } catch (error) {
     console.error('获取账套列表失败:', error);
     ElMessage.error(error.message || '获取账套列表失败');
@@ -311,13 +330,24 @@ const handleEdit = (row) => {
   form.id = row.id
   form.company_code = row.company_code
   form.company_name = row.company_name
-  form.tax_code = row.tax_code // 修改：将 db_name 改为 tax_code
+  form.tax_code = row.tax_code
   form.accounting_standard = row.accounting_standard
-  form.contact_person = row.contact_person
-  form.contact_phone = row.contact_phone
-  form.address = row.address
-  form.start_date = row.start_date || ''; // 设置启用日期
-  activeTab.value = 'basic' // 初始标签页为基本信息
+  form.start_date = row.start_date || '';
+  form.db_name = row.db_name || '';
+  form.legal_person = row.legal_person || '';
+  form.contact = row.contact || '';
+  form.phone = row.phone || '';
+  form.email = row.email || '';
+  form.fiscal_year = row.fiscal_year || '';
+  form.period_type = row.period_type || 1;
+  form.begin_date = row.begin_date || '';
+  form.currency_code = row.currency_code || '';
+  form.accounting_system_id = row.accounting_system_id || '';
+  form.status = row.status || 1;
+  form.created_at = row.created_at || '';
+  form.created_by = row.created_by || '';
+  form.updated_at = row.updated_at || '';
+  form.updated_by = row.updated_by || '';
 }
 
 // 删除账套
@@ -366,11 +396,9 @@ const handleSubmit = () => {
     if (valid) {
       try {
         if (form.id) {
-          // 编辑
           await updateCompany(form.id, form);
           ElMessage.success('编辑成功');
         } else {
-          // 新建
           const isCodeUnique = await checkCompanyCodeExists(form.company_code);
           if (isCodeUnique) {
             ElMessage.error('账套代码已存在，请更换编号');
@@ -388,18 +416,11 @@ const handleSubmit = () => {
   });
 };
 
-// 下一步按钮逻辑
-const handleNextStep = () => {
-  formRef.value.validate((valid) => {
-    if (valid) {
-      activeTab.value = 'additional' // 切换到其他信息标签页
-    }
-  })
-}
-
-// 上一步按钮逻辑
-const handlePreviousStep = () => {
-  activeTab.value = 'basic' // 切换到基本信息标签页
+// 设置数据库名默认值
+const setDefaultDbName = () => {
+  if (!form.db_name) {
+    form.db_name = form.company_code;
+  }
 }
 
 // 生成下一个账套代码
@@ -423,30 +444,22 @@ const generateNextCompanyCode = (existingCodes) => {
 const checkCompanyCodeExists = async (companyCode) => {
   try {
     const response = await getCompanyList({ companyCode: companyCode });
-    //console.log('API Response:', response); // 打印 API 响应内容，便于调试
-    
     if (!response || !response.data || !response.data.list) {
       console.warn('API 响应格式不正确');
       return false;
     }
 
     const list = response.data.list;
-
-    // 检查列表中是否存在匹配的 company_code
     const exists = list.some(item => item.company_code === companyCode);
-  //  console.log('Matching List:', list.filter(item => item.company_code === companyCode)); // 打印匹配的账套列表
-    
-    return exists; // 如果有匹配项，返回 true，否则返回 false
+    return exists;
   } catch (error) {
     console.error('检查账套代码唯一性失败:', error);
-    throw new Error('检查账套代码唯一性失败'); // 抛出异常，让调用方处理
+    throw new Error('检查账套代码唯一性失败');
   }
 };
 
 onMounted(async () => {
-  // 检查并更新用户信息
   await userStore.safeGetUserInfo()
-  
   fetchCompanyList()
 })
 </script>
