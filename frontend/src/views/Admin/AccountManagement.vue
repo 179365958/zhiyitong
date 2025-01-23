@@ -123,8 +123,10 @@
                 value-format="yyyy-MM-dd"
               ></el-date-picker>
             </el-form-item>
-
           </el-form>
+          <template #footer>
+            <el-button type="primary" @click="nextStep">下一步</el-button>
+          </template>
         </el-tab-pane>
         <el-tab-pane label="其他信息" name="additional">
           <el-form 
@@ -149,12 +151,12 @@
               <el-input v-model="form.email" placeholder="请输入邮箱" clearable />
             </el-form-item>
           </el-form>
+          <template #footer>
+            <el-button @click="prevStep">上一步</el-button>
+            <el-button type="primary" @click="handleSubmit">创建</el-button>
+          </template>
         </el-tab-pane>
       </el-tabs>
-      <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleSubmit">创建</el-button>
-      </template>
     </el-dialog>
   </div>
 </template>
@@ -459,11 +461,23 @@ const checkCompanyCodeExists = async (companyCode) => {
   }
 };
 
+// 下一步
+const nextStep = () => {
+  activeTab.value = 'additional';
+}
+
+// 上一步
+const prevStep = () => {
+  activeTab.value = 'basic';
+}
+
 onMounted(async () => {
   await userStore.safeGetUserInfo()
   fetchCompanyList()
 })
 </script>
+
+
 
 <style scoped>
 .account-management-container {
