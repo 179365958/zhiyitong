@@ -425,6 +425,20 @@ const setDefaultDbName = () => {
   }
 }
 
+// 下一步按钮逻辑
+const handleNextStep = () => {
+  formRef.value.validate((valid) => {
+    if (valid) {
+      activeTab.value = 'additional' // 切换到其他信息标签页
+    }
+  })
+}
+
+// 上一步按钮逻辑
+const handlePreviousStep = () => {
+  activeTab.value = 'basic' // 切换到基本信息标签页
+}
+
 // 生成下一个账套代码
 const generateNextCompanyCode = (existingCodes) => {
   const year = new Date().getFullYear().toString();
