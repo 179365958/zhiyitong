@@ -88,11 +88,15 @@ export const switchDatabase = (data) => {
 // 创建账套
 export const createCompany = (data) => {
   return request({
-    url: '/api/system/createCompany', // 更新 URL
+    url: '/api/system/createCompany', // 修改这里的 URL
     method: 'post',
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+      'Content-Type': 'application/json'
+    },
     data
   }).then(response => {
-    console.log('createCompany response:', response); // 添加日志输出
+    console.log('createCompany response:', response);
     if (response.success) {
       return response;
     } else {
@@ -102,7 +106,7 @@ export const createCompany = (data) => {
     console.error('createCompany error:', error);
     throw error;
   });
-}
+};
 
 // 更新账套
 export const updateCompany = (id, data) => {
