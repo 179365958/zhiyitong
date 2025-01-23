@@ -113,6 +113,14 @@
                 <!-- 根据实际情况添加更多选项 -->
               </el-select>
             </el-form-item>
+            <el-form-item label="启用日期" prop="start_date">
+              <el-date-picker
+                v-model="form.start_date"
+                type="date"
+                placeholder="选择启用日期"
+                value-format="yyyy-MM-dd"
+              ></el-date-picker>
+            </el-form-item>
           </el-form>
         </el-tab-pane>
         <el-tab-pane label="其他信息" name="additional">
@@ -188,7 +196,8 @@ const form = reactive({
   accounting_standard: '',
   contact_person: '',
   contact_phone: '',
-  address: ''
+  address: '',
+  start_date: '' // 添加启用日期字段
 })
 
 const formRules = {
@@ -212,6 +221,9 @@ const formRules = {
   ],
   accounting_standard: [
     { required: true, message: '请选择会计准则', trigger: 'change' }
+  ],
+  start_date: [
+    { required: true, message: '请选择启用日期', trigger: 'change' }
   ]
 }
 
@@ -276,6 +288,7 @@ const handleCreate = async () => {
   form.contact_person = '';
   form.contact_phone = '';
   form.address = '';
+  form.start_date = ''; // 初始化启用日期
   activeTab.value = 'basic'; // 初始标签页为基本信息
 
   try {
@@ -303,6 +316,7 @@ const handleEdit = (row) => {
   form.contact_person = row.contact_person
   form.contact_phone = row.contact_phone
   form.address = row.address
+  form.start_date = row.start_date || ''; // 设置启用日期
   activeTab.value = 'basic' // 初始标签页为基本信息
 }
 
