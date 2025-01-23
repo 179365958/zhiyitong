@@ -88,10 +88,20 @@ export const switchDatabase = (data) => {
 // 创建账套
 export const createCompany = (data) => {
   return request({
-    url: '/api/system/companies',
+    url: '/api/system/createCompany', // 更新 URL
     method: 'post',
     data
-  })
+  }).then(response => {
+    console.log('createCompany response:', response); // 添加日志输出
+    if (response.success) {
+      return response;
+    } else {
+      throw new Error(response.message || '创建企业账套失败');
+    }
+  }).catch(error => {
+    console.error('createCompany error:', error);
+    throw error;
+  });
 }
 
 // 更新账套
