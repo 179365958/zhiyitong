@@ -123,7 +123,6 @@
                 value-format="yyyy-MM-dd"
               ></el-date-picker>
             </el-form-item>
-
           </el-form>
         </el-tab-pane>
         <el-tab-pane label="其他信息" name="additional">
@@ -153,7 +152,9 @@
       </el-tabs>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleSubmit">创建</el-button>
+        <el-button v-if="activeTab === 'basic'" type="primary" @click="handleNextStep">下一步</el-button>
+        <el-button v-if="activeTab === 'additional'" @click="handlePreviousStep">上一步</el-button>
+        <el-button v-if="activeTab === 'additional'" type="primary" @click="handleSubmit">创建</el-button>
       </template>
     </el-dialog>
   </div>
