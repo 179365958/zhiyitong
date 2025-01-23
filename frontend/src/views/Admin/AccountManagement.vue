@@ -106,9 +106,6 @@
             <el-form-item label="公司名称" prop="company_name">
               <el-input v-model="form.company_name" placeholder="请输入公司名称" clearable />
             </el-form-item>
-            <el-form-item label="统一社会信用代码" prop="tax_code">
-              <el-input v-model="form.tax_code" placeholder="请输入统一社会信用代码" clearable />
-            </el-form-item>
             <el-form-item label="会计准则" prop="accounting_standard">
               <el-select v-model="form.accounting_standard" placeholder="选择会计准则">
                 <el-option label="准则1" value="standard1" />
@@ -132,6 +129,9 @@
             label-width="120px"
             status-icon
           >
+          <el-form-item label="统一社会信用代码" prop="tax_code">
+              <el-input v-model="form.tax_code" placeholder="请输入统一社会信用代码" clearable />
+            </el-form-item>
             <el-form-item label="法人" prop="legal_person">
               <el-input v-model="form.legal_person" placeholder="请输入法人" clearable />
             </el-form-item>
@@ -198,19 +198,18 @@ const form = reactive({
   company_code: '',
   company_name: '',
   tax_code: '',
-  accounting_standard: '',
-  start_date: '',
-  db_name: '',
   legal_person: '',
   contact: '',
   phone: '',
+  address: '',
   email: '',
-  fiscal_year: '',
-  period_type: 1,
-  begin_date: '',
-  currency_code: '',
-  accounting_system_id: '',
-  status: 1,
+  db_name: '',
+  fiscal_year: new Date().getFullYear(), // 默认当前年份
+  period_type: 1, // 默认12期间
+  begin_date: '', // 可以设置一个默认日期
+  currency_code: '', // 可以设置一个默认值
+  accounting_system_id: '', // 可以设置一个默认值
+  status: 1, // 默认启用状态
   created_at: '',
   created_by: '',
   updated_at: '',
@@ -235,6 +234,18 @@ const formRules = {
   ],
   start_date: [
     { required: true, message: '请选择启用日期', trigger: 'change' }
+  ],
+  fiscal_year: [
+    { required: true, message: '请输入会计年度', trigger: 'blur' }
+  ],
+  begin_date: [
+    { required: true, message: '请选择启用期间', trigger: 'change' }
+  ],
+  currency_code: [
+    { required: true, message: '请输入本位币', trigger: 'blur' }
+  ],
+  accounting_system_id: [
+    { required: true, message: '请选择会计制度ID', trigger: 'change' }
   ]
 }
 
@@ -393,6 +404,7 @@ const handleRestore = async (row) => {
 }
 
 // 提交表单
+// 提交表单
 const handleSubmit = () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
@@ -402,10 +414,18 @@ const handleSubmit = () => {
           ElMessage.success('编辑成功');
         } else {
           const isCodeUnique = await checkCompanyCodeExists(form.company_code);
+          const isDbNameUnique = await checkDbNameExists(form.db_name);
+
           if (isCodeUnique) {
             ElMessage.error('账套代码已存在，请更换编号');
             return;
           }
+
+          if (isDbNameUnique) {
+            ElMessage.error('数据库名已存在，请更换数据库名');
+            return;
+          }
+
           await createCompany(form);
           ElMessage.success('创建成功');
         }
@@ -459,7 +479,7 @@ const generateNextCompanyCode = (existingCodes) => {
 // 检查账套代码是否存在
 const checkCompanyCodeExists = async (companyCode) => {
   try {
-    const response = await getCompanyList({ companyCode: companyCode });
+    const response = await getCompanyList({ companyName: companyCode });
     if (!response || !response.data || !response.data.list) {
       console.warn('API 响应格式不正确');
       return false;
@@ -471,6 +491,24 @@ const checkCompanyCodeExists = async (companyCode) => {
   } catch (error) {
     console.error('检查账套代码唯一性失败:', error);
     throw new Error('检查账套代码唯一性失败');
+  }
+};
+
+// 检查数据库名是否存在
+const checkDbNameExists = async (dbName) => {
+  try {
+    const response = await getCompanyList({ dbName });
+    if (!response || !response.data || !response.data.list) {
+      console.warn('API 响应格式不正确');
+      return false;
+    }
+
+    const list = response.data.list;
+    const exists = list.some(item => item.db_name === dbName);
+    return exists;
+  } catch (error) {
+    console.error('检查数据库名唯一性失败:', error);
+    throw new Error('检查数据库名唯一性失败');
   }
 };
 
