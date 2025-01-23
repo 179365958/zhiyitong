@@ -100,6 +100,9 @@
             <el-form-item label="账套代码" prop="company_code">
               <el-input v-model="form.company_code" placeholder="请输入账套代码" clearable @change="setDefaultDbName" />
             </el-form-item>
+            <el-form-item label="数据库名" prop="db_name">
+              <el-input v-model="form.db_name" placeholder="请输入账套数据库名" clearable />
+            </el-form-item>
             <el-form-item label="公司名称" prop="company_name">
               <el-input v-model="form.company_name" placeholder="请输入公司名称" clearable />
             </el-form-item>
@@ -120,9 +123,7 @@
                 value-format="yyyy-MM-dd"
               ></el-date-picker>
             </el-form-item>
-            <el-form-item label="数据库名" prop="db_name">
-              <el-input v-model="form.db_name" placeholder="请输入账套数据库名" clearable />
-            </el-form-item>
+
           </el-form>
         </el-tab-pane>
         <el-tab-pane label="其他信息" name="additional">
