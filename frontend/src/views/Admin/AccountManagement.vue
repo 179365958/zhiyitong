@@ -120,7 +120,7 @@
                 v-model="form.begin_date"
                 type="date"
                 placeholder="选择启用日期"
-                value-format="yyyy-MM-DD"
+                value-format="YYYY-MM-DD"
               ></el-date-picker>
             </el-form-item>
           

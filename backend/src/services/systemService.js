@@ -249,24 +249,70 @@ exports.getCompanies = async (params = {}) => {
 };
 
 // 创建企业账套
-// 创建企业账套
 exports.createCompany = async (companyData) => {
   let connection;
   try {
     connection = await pool.getConnection();
     await connection.query(`USE ${dbConfig.database}`);
 
-    const { company_code, company_name, db_name, status = 1, fiscal_year } = companyData;
-
-    // 检查 fiscal_year 是否存在，如果不存在可以抛出错误或者给一个默认值
-    if (!fiscal_year) {
-      throw new Error('fiscal_year 字段是必需的');
-    }
+    const {
+      company_code,
+      company_name,
+      db_name,
+      tax_code = '',
+      legal_person = '',
+      contact = '',
+      phone = '',
+      address = '',
+      email = '',
+      fiscal_year,
+      period_type = 1,
+      begin_date,
+      currency_code,
+      accounting_system_id,
+      status = 1,
+      created_by
+    } = companyData;
 
     const [result] = await connection.query(`
-      INSERT INTO sys_company (company_code, company_name, db_name, status, created_at, fiscal_year)
-      VALUES (?, ?, ?, ?, NOW(), ?)
-    `, [company_code, company_name, db_name, status, fiscal_year]);
+      INSERT INTO sys_company (
+        company_code, 
+        company_name, 
+        tax_code, 
+        legal_person, 
+        contact, 
+        phone, 
+        address, 
+        email, 
+        db_name, 
+        fiscal_year, 
+        period_type, 
+        begin_date, 
+        currency_code, 
+        accounting_system_id, 
+        status, 
+        created_at, 
+        created_by
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)
+    `, [
+      company_code, 
+      company_name, 
+      tax_code, 
+      legal_person, 
+      contact, 
+      phone, 
+      address, 
+      email, 
+      db_name, 
+      fiscal_year, 
+      period_type, 
+      begin_date, 
+      currency_code, 
+      accounting_system_id, 
+      status, 
+      created_by
+    ]);
 
     return {
       id: result.insertId,
