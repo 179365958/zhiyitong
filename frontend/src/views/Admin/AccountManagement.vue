@@ -123,13 +123,7 @@
                 value-format="yyyy-MM-dd"
               ></el-date-picker>
             </el-form-item>
-            
-            <el-form-item label="会计期间类型" prop="period_type">
-              <el-select v-model="form.period_type" placeholder="选择会计期间类型">
-                <el-option label="12期间" value="1" />
-                <el-option label="13期间" value="2" />
-              </el-select>
-            </el-form-item>
+          
             <el-form-item label="本位币" prop="currency_code">
               <el-input v-model="form.currency_code" placeholder="请输入本位币" clearable />
             </el-form-item>
@@ -313,6 +307,8 @@ const resetSearch = () => {
 
 // 新建账套
 const handleCreate = async () => {
+
+
   dialogVisible.value = true;
   dialogTitle.value = '新建账套';
   form.id = null;
@@ -325,10 +321,10 @@ const handleCreate = async () => {
   form.contact = '';
   form.phone = '';
   form.email = '';
-  form.fiscal_year = '';
+  form.fiscal_year = new Date().getFullYear();
   form.period_type = 1;
   form.begin_date = '';
-  form.currency_code = '';
+  form.currency_code = 'RMB';
   form.accounting_system_id = '';
   form.status = 1;
   form.created_at = '';
