@@ -115,12 +115,12 @@
             <el-form-item label="会计年度" prop="fiscal_year">
               <el-input-number v-model="form.fiscal_year" placeholder="请输入会计年度" :min="1900" :max="2100" />
             </el-form-item>
-            <el-form-item label="启用日期" prop="start_date">
+            <el-form-item label="启用日期" prop="begin_date">
               <el-date-picker
-                v-model="form.start_date"
+                v-model="form.begin_date"
                 type="date"
                 placeholder="选择启用日期"
-                value-format="yyyy-MM-dd"
+                value-format="yyyy-MM-DD"
               ></el-date-picker>
             </el-form-item>
           
@@ -213,7 +213,7 @@ const form = reactive({
   db_name: '',
   fiscal_year: new Date().getFullYear(), // 默认当前年份
   period_type: 1, // 默认12期间
-  begin_date: '', // 可以设置一个默认日期
+  begin_date: new Date().toISOString().slice(0, 10), // 设置默认启用日期为今天
   currency_code: '', // 可以设置一个默认值
   accounting_system_id: '', // 可以设置一个默认值
   status: 1, // 默认启用状态
@@ -315,7 +315,6 @@ const handleCreate = async () => {
   form.company_name = '';
   form.tax_code = '';
   form.accounting_standard = '';
-  form.start_date = '';
   form.db_name = '';
   form.legal_person = '';
   form.contact = '';
@@ -323,8 +322,8 @@ const handleCreate = async () => {
   form.email = '';
   form.fiscal_year = new Date().getFullYear();
   form.period_type = 1;
-  form.begin_date = '';
-  form.currency_code = 'RMB';
+  form.begin_date = new Date().toISOString().slice(0, 10); // 设置默认启用日期为今天
+  form.currency_code = 'CNY';
   form.accounting_system_id = '';
   form.status = 1;
   form.created_at = '';
@@ -354,7 +353,6 @@ const handleEdit = (row) => {
   form.company_name = row.company_name
   form.tax_code = row.tax_code
   form.accounting_standard = row.accounting_standard
-  form.start_date = row.start_date || '';
   form.db_name = row.db_name || '';
   form.legal_person = row.legal_person || '';
   form.contact = row.contact || '';
