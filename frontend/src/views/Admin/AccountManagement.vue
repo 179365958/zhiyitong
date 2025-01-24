@@ -107,11 +107,11 @@
               <el-input v-model="form.company_name" placeholder="请输入公司名称" clearable />
             </el-form-item>
             <el-form-item label="会计准则" prop="accounting_standard">
-              <el-select v-model="form.accounting_standard" placeholder="选择会计准则">
-                <el-option label="准则1" value="standard1" />
-                <el-option label="准则2" value="standard2" />
-              </el-select>
-            </el-form-item>
+    <el-select v-model="form.accounting_standard" placeholder="选择会计准则">
+      <el-option label="小企业会计准则" value="1" />
+      <el-option label="企业会计准则" value="2" />
+    </el-select>
+  </el-form-item>
             <el-form-item label="会计年度" prop="fiscal_year">
               <el-input-number v-model="form.fiscal_year" placeholder="请输入会计年度" :min="1900" :max="2100" />
             </el-form-item>
