@@ -106,8 +106,8 @@
             <el-form-item label="公司名称" prop="company_name">
               <el-input v-model="form.company_name" placeholder="请输入公司名称" clearable />
             </el-form-item>
-            <el-form-item label="会计准则" prop="accounting_standard">
-    <el-select v-model="form.accounting_standard" placeholder="选择会计准则">
+            <el-form-item label="会计准则" prop="accounting_system_id">
+    <el-select v-model="form.accounting_system_id" placeholder="选择会计准则">
       <el-option label="小企业会计准则" value="1" />
       <el-option label="企业会计准则" value="2" />
     </el-select>
@@ -236,9 +236,6 @@ const formRules = {
   db_name: [
     { required: true, message: '请输入账套数据库名', trigger: 'blur' }
   ],
-  accounting_standard: [
-    { required: true, message: '请选择会计准则', trigger: 'change' }
-  ],
   start_date: [
     { required: true, message: '请选择启用日期', trigger: 'change' }
   ],
@@ -314,7 +311,6 @@ const handleCreate = async () => {
   form.id = null;
   form.company_name = '';
   form.tax_code = '';
-  form.accounting_standard = '';
   form.db_name = '';
   form.legal_person = '';
   form.contact = '';
@@ -326,8 +322,8 @@ const handleCreate = async () => {
   form.currency_code = 'CNY';
   form.accounting_system_id = '';
   form.status = 1;
-  form.created_at = '';
-  form.created_by = '';
+  form.created_at = new Date().toISOString().replace('T', ' ').substring(0, 19); // 设置当前时间为 created_at
+  form.created_by = userInfo.value.id; // 设置当前登录用户的ID为 created_by
   form.updated_at = '';
   form.updated_by = '';
 
@@ -352,7 +348,6 @@ const handleEdit = (row) => {
   form.company_code = row.company_code
   form.company_name = row.company_name
   form.tax_code = row.tax_code
-  form.accounting_standard = row.accounting_standard
   form.db_name = row.db_name || '';
   form.legal_person = row.legal_person || '';
   form.contact = row.contact || '';
