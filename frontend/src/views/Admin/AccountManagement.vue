@@ -315,6 +315,7 @@ const handleCreate = async () => {
   form.legal_person = '';
   form.contact = '';
   form.phone = '';
+  form.address = '';
   form.email = '';
   form.fiscal_year = new Date().getFullYear();
   form.period_type = 1;
