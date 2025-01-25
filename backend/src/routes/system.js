@@ -35,7 +35,13 @@ router.get('/companies', authMiddleware, systemController.getCompanies, (err, re
 });
 
 // 创建账套
-router.post('/createCompany', authMiddleware, systemController.createCompany, (err, req, res, next) => {
+router.put('/createCompany', authMiddleware, systemController.createCompany, (err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
+
+// 更新账套
+router.post('/updateCompany', authMiddleware, systemController.updateCompany, (err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something broke!');
 });

@@ -158,11 +158,13 @@
         </el-tab-pane>
       </el-tabs>
       <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button v-if="activeTab === 'basic'" type="primary" @click="handleNextStep">下一步</el-button>
-        <el-button v-if="activeTab === 'additional'" @click="handlePreviousStep">上一步</el-button>
-        <el-button v-if="activeTab === 'additional'" type="primary" @click="handleSubmit">创建</el-button>
-      </template>
+      <el-button @click="dialogVisible = false">取消</el-button>
+      <el-button v-if="activeTab === 'basic'" type="primary" @click="handleNextStep">下一步</el-button>
+      <el-button v-if="activeTab === 'additional'" type="primary" @click="handlePreviousStep">上一步</el-button>
+      <el-button v-if="activeTab === 'additional'" type="primary" @click="handleSubmit">
+        {{ form.id ? '保存' : '创建' }}
+      </el-button>
+    </template>
     </el-dialog>
   </div>
 </template>

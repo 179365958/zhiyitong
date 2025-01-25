@@ -111,8 +111,12 @@ export const createCompany = (data) => {
 // 更新账套
 export const updateCompany = (id, data) => {
   return request({
-    url: `/api/system/companies/${id}`,
+    url: '/api/system/updateCompany',
     method: 'put',
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+      'Content-Type': 'application/json'
+    },
     data
   })
 }
