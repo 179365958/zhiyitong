@@ -274,6 +274,7 @@ exports.createCompany = async (companyData) => {
       created_by
     } = companyData;
 
+    // 插入企业账套记录
     const [result] = await connection.query(`
       INSERT INTO sys_company (
         company_code, 
@@ -314,8 +315,34 @@ exports.createCompany = async (companyData) => {
       created_by
     ]);
 
+    // 获取插入的企业账套 ID
+    const companyId = result.insertId;
+
+    // 创建新的账套数据库
+    await connection.query(`CREATE DATABASE IF NOT EXISTS ${db_name} DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci`);
+
+    // 使用新创建的数据库
+    await connection.query(`USE ${db_name}`);
+
+    // 读取 SQL 文件
+    const sqlFilePath = path.join(__dirname, '../../sql/02_create_company_db.sql');
+    const sqlContent = await fs.readFile(sqlFilePath, 'utf8');
+
+    // 分割 SQL 语句
+    const sqlStatements = sqlContent
+      .split(';')
+      .map(statement => statement.trim())
+      .filter(statement => statement.length > 0);
+
+    // 执行每个 SQL 语句
+    for (const statement of sqlStatements) {
+      if (statement) {
+        await connection.query(statement);
+      }
+    }
+
     return {
-      id: result.insertId,
+      id: companyId,
       ...companyData
     };
   } catch (error) {

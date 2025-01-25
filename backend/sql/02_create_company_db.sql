@@ -1,8 +1,6 @@
 -- 创建账套数据库模板
 -- 注意：实际使用时需要替换数据库名
-CREATE DATABASE IF NOT EXISTS zyt_example DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
-USE zyt_example;
 -- 科目表
 CREATE TABLE IF NOT EXISTS account_subject (
     id          INT PRIMARY KEY AUTO_INCREMENT,
