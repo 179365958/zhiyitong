@@ -355,6 +355,7 @@ exports.createCompany = async (companyData) => {
   }
 };
 
+
 // 更新企业账套
 exports.updateCompany = async (id, companyData) => {
   let connection;
@@ -387,7 +388,8 @@ exports.updateCompany = async (id, companyData) => {
       begin_date,
       currency_code,
       accounting_system_id,
-      status
+      status,
+      updated_by 
     } = companyData;
 
     // 构建 SQL 更新语句
@@ -409,7 +411,8 @@ exports.updateCompany = async (id, companyData) => {
         currency_code = ?, 
         accounting_system_id = ?, 
         status = ?, 
-        updated_at = NOW()
+        updated_at = NOW(),
+        updated_by = ? 
       WHERE id = ?
     `;
 
@@ -430,6 +433,7 @@ exports.updateCompany = async (id, companyData) => {
       currency_code,
       accounting_system_id,
       status,
+      updated_by, 
       parseInt(id, 10) // 确保 ID 是整数
     ]);
 
@@ -449,7 +453,6 @@ exports.updateCompany = async (id, companyData) => {
     }
   }
 };
-
 // 删除企业账套
 exports.deleteCompany = async (id) => {
   let connection;
