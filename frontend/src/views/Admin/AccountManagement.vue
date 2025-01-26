@@ -306,8 +306,6 @@ const resetSearch = () => {
 
 // 新建账套
 const handleCreate = async () => {
-
-
   dialogVisible.value = true;
   dialogTitle.value = '新建账套';
   form.id = null;
@@ -321,11 +319,11 @@ const handleCreate = async () => {
   form.email = '';
   form.fiscal_year = new Date().getFullYear();
   form.period_type = 1;
-  form.begin_date = new Date().toISOString().slice(0, 10); // 设置默认启用日期为今天
+  form.begin_date = getFirstDayOfMonth(); // 设置为当月第一天
   form.currency_code = 'CNY';
   form.accounting_system_id = '';
   form.status = 1;
-  form.created_at = new Date().toISOString().replace('T', ' ').substring(0, 19); // 设置当前时间为 created_at
+  form.created_at = new Date(); // 设置当前时间为 created_at
   form.created_by = userInfo.value.id; // 设置当前登录用户的ID为 created_by
   form.updated_at = '';
   form.updated_by = '';
@@ -343,14 +341,20 @@ const handleCreate = async () => {
   }
 };
 
+// 获取当月第一天
+const getFirstDayOfMonth = () => {
+  const date = new Date();
+  date.setDate(1);
+  return date.toISOString().slice(0, 10);
+};
 // 编辑账套
 const handleEdit = (row) => {
-  dialogVisible.value = true
-  dialogTitle.value = '编辑账套'
-  form.id = row.id
-  form.company_code = row.company_code
-  form.company_name = row.company_name
-  form.tax_code = row.tax_code
+  dialogVisible.value = true;
+  dialogTitle.value = '编辑账套';
+  form.id = row.id;
+  form.company_code = row.company_code;
+  form.company_name = row.company_name;
+  form.tax_code = row.tax_code;
   form.db_name = row.db_name || '';
   form.legal_person = row.legal_person || '';
   form.contact = row.contact || '';
@@ -358,15 +362,15 @@ const handleEdit = (row) => {
   form.email = row.email || '';
   form.fiscal_year = row.fiscal_year || '';
   form.period_type = row.period_type || 1;
-  form.begin_date = row.begin_date || '';
+  form.begin_date = new Date(row.begin_date || ''); // 确保是 Date 对象
   form.currency_code = row.currency_code || '';
   form.accounting_system_id = row.accounting_system_id || '';
   form.status = row.status || 1;
-  form.created_at = row.created_at || '';
+  form.created_at = new Date(row.created_at || ''); // 确保是 Date 对象
   form.created_by = row.created_by || '';
-  form.updated_at = row.updated_at || '';
-  form.updated_by = row.updated_by || '';
-}
+  form.updated_at = new Date(row.updated_at || ''); // 确保是 Date 对象
+  form.updated_by = userInfo.value.id || '';
+};
 
 // 删除账套
 const handleDelete = (row) => {
@@ -414,8 +418,14 @@ const handleSubmit = () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
       try {
+        const formattedForm = { ...form };
+        formattedForm.begin_date = formatDate(form.begin_date, 'YYYY-MM-DD');
+        formattedForm.created_at = formatDate(form.created_at, 'YYYY-MM-DD HH:mm:ss');
+        formattedForm.updated_at = formatDate(form.updated_at, 'YYYY-MM-DD HH:mm:ss');
+        formattedForm.updated_by = userInfo.value.id || '';
+
         if (form.id) {
-          await updateCompany(form.id, form);
+          await updateCompany(form.id, formattedForm);
           ElMessage.success('编辑成功');
         } else {
           const isCodeUnique = await checkCompanyCodeExists(form.company_code);
@@ -431,7 +441,7 @@ const handleSubmit = () => {
             return;
           }
 
-          await createCompany(form);
+          await createCompany(formattedForm);
           ElMessage.success('创建成功');
         }
         dialogVisible.value = false;
@@ -441,6 +451,24 @@ const handleSubmit = () => {
       }
     }
   });
+};
+
+// 格式化日期函数
+const formatDate = (date, format) => {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  const seconds = String(d.getSeconds()).padStart(2, '0');
+
+  if (format === 'YYYY-MM-DD') {
+    return `${year}-${month}-${day}`;
+  } else if (format === 'YYYY-MM-DD HH:mm:ss') {
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  }
+  return date;
 };
 
 // 设置数据库名默认值
