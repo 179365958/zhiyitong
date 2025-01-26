@@ -359,21 +359,86 @@ exports.createCompany = async (companyData) => {
 exports.updateCompany = async (id, companyData) => {
   let connection;
   try {
+    // 验证 ID 是否有效
+    if (!id) {
+      throw new Error('账套 ID 不能为空');
+    }
+
+    // 获取数据库连接
     connection = await pool.getConnection();
     await connection.query(`USE ${dbConfig.database}`);
 
-    const { company_code, company_name, db_name, status } = companyData;
+    // 打印日志，方便调试
+    console.log('更新账套 ID:', id);
+    console.log('更新账套数据:', companyData);
 
-    const [result] = await connection.query(`
+    const {
+      company_code,
+      company_name,
+      db_name,
+      tax_code,
+      legal_person,
+      contact,
+      phone,
+      address,
+      email,
+      fiscal_year,
+      period_type,
+      begin_date,
+      currency_code,
+      accounting_system_id,
+      status
+    } = companyData;
+
+    // 构建 SQL 更新语句
+    const query = `
       UPDATE sys_company 
-      SET company_code = ?, company_name = ?, db_name = ?, status = ?, updated_at = NOW()
+      SET 
+        company_code = ?, 
+        company_name = ?, 
+        db_name = ?, 
+        tax_code = ?, 
+        legal_person = ?, 
+        contact = ?, 
+        phone = ?, 
+        address = ?, 
+        email = ?, 
+        fiscal_year = ?, 
+        period_type = ?, 
+        begin_date = ?, 
+        currency_code = ?, 
+        accounting_system_id = ?, 
+        status = ?, 
+        updated_at = NOW()
       WHERE id = ?
-    `, [company_code, company_name, db_name, status, id]);
+    `;
 
+    // 执行 SQL 更新
+    const [result] = await connection.query(query, [
+      company_code,
+      company_name,
+      db_name,
+      tax_code,
+      legal_person,
+      contact,
+      phone,
+      address,
+      email,
+      fiscal_year,
+      period_type,
+      begin_date,
+      currency_code,
+      accounting_system_id,
+      status,
+      parseInt(id, 10) // 确保 ID 是整数
+    ]);
+
+    // 检查是否成功更新
     if (result.affectedRows === 0) {
       throw new Error('企业账套不存在');
     }
 
+    // 返回更新后的数据
     return { id, ...companyData };
   } catch (error) {
     console.error('更新企业账套失败:', error);
