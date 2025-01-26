@@ -460,11 +460,22 @@ exports.deleteCompany = async (id) => {
     connection = await pool.getConnection();
     await connection.query(`USE ${dbConfig.database}`);
 
-    const [result] = await connection.query('DELETE FROM sys_company WHERE id = ?', [id]);
+    // 查询企业账套的数据库名称
+    const [companyRows] = await connection.query('SELECT db_name FROM sys_company WHERE id = ?', [id]);
+    if (companyRows.length === 0) {
+      throw new Error('企业账套不存在');
+    }
 
+    const dbName = companyRows[0].db_name;
+
+    // 删除企业账套记录
+    const [result] = await connection.query('DELETE FROM sys_company WHERE id = ?', [id]);
     if (result.affectedRows === 0) {
       throw new Error('企业账套不存在');
     }
+
+    // 删除对应的账套数据库
+    await connection.query(`DROP DATABASE IF EXISTS ${dbName}`);
 
     return true;
   } catch (error) {

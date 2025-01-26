@@ -45,6 +45,11 @@ router.put('/updateCompany/:id', authMiddleware, systemController.updateCompany,
     console.error(err.stack);
     res.status(500).send('Something broke!');
   });
+// 删除账套
+router.delete('/deleteCompany/:id', authMiddleware, systemController.deleteCompany, (err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
 
 // 切换数据库
 router.post('/switch-database', authMiddleware, systemController.switchDatabase, (err, req, res, next) => {

@@ -123,8 +123,12 @@ export const updateCompany = (id, data) => {
 // 删除账套
 export const deleteCompany = (id) => {
   return request({
-    url: `/api/system/companies/${id}`,
-    method: 'delete'
+    url: `/api/system/deleteCompany/${id}`,
+    method: 'delete',
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+      'Content-Type': 'application/json'
+    },
   })
 }
 
