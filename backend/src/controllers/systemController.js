@@ -106,7 +106,7 @@ exports.createCompany = async (req, res) => {
 // 更新企业账套
 exports.updateCompany = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params.id;
         const companyData = req.body;
         const result = await systemService.updateCompany(id, companyData);
         res.json({
