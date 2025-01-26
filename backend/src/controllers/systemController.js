@@ -106,8 +106,8 @@ exports.createCompany = async (req, res) => {
 // 更新企业账套
 exports.updateCompany = async (req, res) => {
     try {
-      const { id } = req.params;
-      const companyData = req.body;
+      const { id } = req.params; // 从 URL 参数中获取 id
+      const companyData = req.body; // 从请求体中获取数据
   
       // 添加日志输出
       console.log('Received params:', req.params);
@@ -121,19 +121,23 @@ exports.updateCompany = async (req, res) => {
         });
       }
   
+      // 调用服务层更新账套
       const result = await systemService.updateCompany(id, companyData);
+  
+      // 返回成功响应
       res.json({
         success: true,
         data: result
       });
     } catch (error) {
-      console.error('Error updating company:', error); // 记录错误日志
+      console.error('Error updating company:', error);
       res.status(500).json({
         success: false,
         message: error.message || '更新企业账套失败'
       });
     }
   };
+
   
 // 删除企业账套
 exports.deleteCompany = async (req, res) => {

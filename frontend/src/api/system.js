@@ -111,16 +111,15 @@ export const createCompany = (data) => {
 // 更新账套
 export const updateCompany = (id, data) => {
   return request({
-    url: '/api/system/updateCompany',
+    url: `/api/system/updateCompany/${id}`, // id 放在 URL 中
     method: 'put',
     headers: {
       Authorization: `Bearer ${getToken()}`,
       'Content-Type': 'application/json'
     },
-    data
-  })
-}
-
+    data // 请求体只包含需要更新的数据
+  });
+};
 // 删除账套
 export const deleteCompany = (id) => {
   return request({
