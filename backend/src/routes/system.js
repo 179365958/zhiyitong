@@ -41,7 +41,7 @@ router.post('/createCompany', authMiddleware, systemController.createCompany, (e
 });
 
 // 更新账套
-router.put('/updateCompany', authMiddleware, systemController.updateCompany, (err, req, res, next) => {
+router.put('/updateCompany:id', authMiddleware, systemController.updateCompany, (err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something broke!');
 });
