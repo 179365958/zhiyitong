@@ -5,6 +5,9 @@
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
+    "debug": "node --inspect src/app.js",
+    "frontend: dev": "vue-cli-service serve", 
+    "backend: dev": "npm run debug",
     "dev": "nodemon src/app.js",
     "test": "jest"
   },
