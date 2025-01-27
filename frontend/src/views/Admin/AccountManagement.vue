@@ -166,23 +166,27 @@
       </template>
     </el-dialog>
 
-    <!-- 恢复账套对话框 -->
-    <el-dialog title="备份和恢复账套" v-model="restoreDialogVisible" width="60%">
+<!-- 恢复账套对话框 -->
+<el-dialog title="备份和恢复账套" v-model="restoreDialogVisible" width="60%" min-height="500px">
+  <div class="backup-restore-dialog-content">
+    <div class="button-group">
       <el-button type="primary" @click="handleBackup(selectedRow)">备份</el-button>
       <el-button type="success" @click="handleUpload">上传</el-button>
-      <el-table :data="backupList" style="width: 100%; margin-top: 20px;">
-        <el-table-column prop="name" label="备份名称" width="180"></el-table-column>
-        <el-table-column prop="date" label="日期" width="180"></el-table-column>
-        <el-table-column prop="size" label="文件大小" width="180"></el-table-column>
-        <el-table-column prop="operator" label="操作人" width="180"></el-table-column>
-        <el-table-column label="操作">
-          <template #default="{ row }">
-            <el-button size="mini" @click="handleRestore(row)">恢复</el-button>
-            <el-button size="mini" type="danger" @click="handleDelete(row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-dialog>
+    </div>
+    <el-table :data="backupList" style="width: 100%; margin-top: 20px;">
+      <el-table-column prop="name" label="备份名称" width="180"></el-table-column>
+      <el-table-column prop="date" label="日期" width="180"></el-table-column>
+      <el-table-column prop="size" label="文件大小" width="150"></el-table-column>
+      <el-table-column prop="operator" label="操作人" width="150"></el-table-column>
+      <el-table-column label="操作">
+        <template #default="{ row }">
+          <el-button size="mini" @click="handleRestore(row)">恢复</el-button>
+          <el-button size="mini" type="danger" @click="handleDelete(row)">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+  </div>
+</el-dialog>
   </div>
 </template>
 
@@ -683,5 +687,20 @@ onMounted(async () => {
     width: 100%;
     text-align: center;
   }
+}
+
+.backup-restore-dialog-content {
+  padding: 20px;
+}
+
+.button-group {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.el-dialog__body {
+  min-height: 400px; /* 确保对话框体有足够的高度 */
 }
 </style>
