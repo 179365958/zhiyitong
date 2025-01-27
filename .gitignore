@@ -45,3 +45,6 @@ Thumbs.db
 # Example folder
 example/
 **/example/
+
+# Optional backup directories
+backups/
