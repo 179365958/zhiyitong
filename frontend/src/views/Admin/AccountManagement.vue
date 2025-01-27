@@ -82,6 +82,7 @@
       </div>
     </el-card>
 
+    <!-- 新建/编辑账套对话框 -->
     <el-dialog 
       :title="dialogTitle" 
       v-model="dialogVisible" 
@@ -107,11 +108,11 @@
               <el-input v-model="form.company_name" placeholder="请输入公司名称" clearable />
             </el-form-item>
             <el-form-item label="会计准则" prop="accounting_system_id">
-    <el-select v-model="form.accounting_system_id" placeholder="选择会计准则">
-      <el-option label="小企业会计准则" value="1" />
-      <el-option label="企业会计准则" value="2" />
-    </el-select>
-  </el-form-item>
+              <el-select v-model="form.accounting_system_id" placeholder="选择会计准则">
+                <el-option label="小企业会计准则" value="1" />
+                <el-option label="企业会计准则" value="2" />
+              </el-select>
+            </el-form-item>
             <el-form-item label="会计年度" prop="fiscal_year">
               <el-input-number v-model="form.fiscal_year" placeholder="请输入会计年度" :min="1900" :max="2100" />
             </el-form-item>
@@ -123,7 +124,6 @@
                 value-format="YYYY-MM-DD"
               ></el-date-picker>
             </el-form-item>
-          
             <el-form-item label="本位币" prop="currency_code">
               <el-input v-model="form.currency_code" placeholder="请输入本位币" clearable />
             </el-form-item>
@@ -136,7 +136,7 @@
             label-width="120px"
             status-icon
           >
-          <el-form-item label="统一社会信用代码" prop="tax_code">
+            <el-form-item label="统一社会信用代码" prop="tax_code">
               <el-input v-model="form.tax_code" placeholder="请输入统一社会信用代码" clearable />
             </el-form-item>
             <el-form-item label="法人" prop="legal_person">
@@ -158,13 +158,35 @@
         </el-tab-pane>
       </el-tabs>
       <template #footer>
-      <el-button @click="dialogVisible = false">取消</el-button>
-      <el-button v-if="activeTab === 'basic'" type="primary" @click="handleNextStep">下一步</el-button>
-      <el-button v-if="activeTab === 'additional'" type="primary" @click="handlePreviousStep">上一步</el-button>
-      <el-button v-if="activeTab === 'additional'" type="primary" @click="handleSubmit">
-        {{ form.id ? '保存' : '创建' }}
-      </el-button>
-    </template>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button v-if="activeTab === 'basic'" type="primary" @click="handleNextStep">下一步</el-button>
+        <el-button v-if="activeTab === 'additional'" type="primary" @click="handlePreviousStep">上一步</el-button>
+        <el-button v-if="activeTab === 'additional'" type="primary" @click="handleSubmit">
+          {{ form.id ? '保存' : '创建' }}
+        </el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 恢复账套对话框 -->
+    <el-dialog 
+      title="恢复账套" 
+      v-model="restoreDialogVisible" 
+      :close-on-click-modal="false"
+      width="500px"
+    >
+      <el-upload
+        ref="upload"
+        action="your-backend-api-url"
+        :on-success="handleRestoreSuccess"
+        :on-error="handleRestoreError"
+        :before-upload="beforeRestoreUpload"
+        :auto-upload="false"
+        :data="{ companyId: selectedRow.id }"
+      >
+        <template #trigger>
+          <el-button slot="trigger" type="primary">选取文件</el-button>
+        </template>
+      </el-upload>
     </el-dialog>
   </div>
 </template>
@@ -197,6 +219,12 @@ const total = ref(0)
 const tableData = ref([])
 const formRef = ref(null)
 const activeTab = ref('basic')
+
+const restoreDialogVisible = ref(false)
+const selectedRow = ref(null)
+const upload = ref(null)
+
+
 
 const searchForm = reactive({
   companyName: ''
@@ -399,17 +427,34 @@ const handleBackup = async (row) => {
 
 // 恢复账套
 const handleRestore = async (row) => {
-  ElMessageBox.confirm(`确定要恢复账套 [${row.company_code}] ${row.company_name} 吗？`, '恢复确认', {
-    type: 'warning'
-  }).then(async () => {
-    try {
-      await restoreCompany(row.id)
-      ElMessage.success('恢复成功')
-      fetchCompanyList()
-    } catch (error) {
-      ElMessage.error('恢复失败：' + (error.message || '未知错误'))
-    }
-  }).catch(() => {})
+  selectedRow.value = row
+  restoreDialogVisible.value = true
+}
+
+// 提交恢复文件上传
+const submitRestoreUpload = () => {
+  upload.value.submit()
+}
+
+// 上传前的验证
+const beforeRestoreUpload = (file) => {
+  const isZip = file.type === 'application/zip'
+  if (!isZip) {
+    ElMessage.error('只能上传 zip 格式的文件!')
+  }
+  return isZip
+}
+
+// 上传成功后的处理
+const handleRestoreSuccess = (response, file, fileList) => {
+  ElMessage.success('恢复成功')
+  restoreDialogVisible.value = false
+  fetchCompanyList()
+}
+
+// 上传失败后的处理
+const handleRestoreError = (err, file, fileList) => {
+  ElMessage.error('恢复失败：' + (err.message || '未知错误'))
 }
 
 // 提交表单
