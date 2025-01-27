@@ -6,6 +6,8 @@ const { pool, dbConfig } = require('../config/database'); // 引入数据库配�
 const jwt = require('jsonwebtoken'); // 确保导入jsonwebtoken
 const session = require('express-session');
 const { getConnection } = require('../utils/db'); // 引入数据库连接逻辑
+const mysqldump = require('mysqldump'); // 确保安装 mysqldump 包
+
 
 // 检查 MySQL 连接状态
 exports.checkSystemInit = async () => {
@@ -485,6 +487,59 @@ exports.deleteCompany = async (id) => {
     if (connection) {
       connection.release();
     }
+  }
+};
+
+// 备份账套
+exports.backupCompany = async (id) => {
+  let connection;
+  try {
+      connection = await pool.getConnection();
+      await connection.query(`USE ${dbConfig.database}`);
+
+      // 查询企业账套的数据库名称
+      const [companyRows] = await connection.query('SELECT db_name FROM sys_company WHERE id = ?', [id]);
+      if (companyRows.length === 0) {
+          throw new Error('企业账套不存在');
+      }
+
+      const dbName = companyRows[0].db_name;
+
+      // 构建备份文件路径
+      const backupDir = path.join(__dirname, '../../backups');
+      const backupFileName = `${dbName}_backup_${new Date().toISOString().replace(/:/g, '-').replace(/\..+/, '')}.sql`;
+      const backupFilePath = path.join(backupDir, backupFileName);
+
+      // 确保备份目录存在
+      await fs.mkdir(backupDir, { recursive: true });
+
+      // 使用 mysqldump 导出数据库
+      const mysqldump = require('mysqldump');
+      await mysqldump({
+          connection: {
+              host: dbConfig.host,
+              user: dbConfig.user,
+              password: dbConfig.password,
+              database: dbName
+          },
+          dumpToFile: backupFilePath
+      });
+
+      return {
+          success: true,
+          message: '账套备份成功',
+          data: {
+              filePath: backupFilePath,
+              fileName: backupFileName
+          }
+      };
+  } catch (error) {
+      console.error('备份账套失败:', error);
+      throw error;
+  } finally {
+      if (connection) {
+          connection.release();
+      }
   }
 };
 

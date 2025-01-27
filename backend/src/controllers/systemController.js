@@ -156,6 +156,35 @@ exports.deleteCompany = async (req, res) => {
     }
 };
 
+// 备份账套
+exports.backupCompany = async (req, res) => {
+    try {
+        const { id } = req.params; // 从 URL 参数中获取账套 ID
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: '账套 ID 不能为空'
+            });
+        }
+
+        // 调用服务层备份账套
+        const result = await systemService.backupCompany(id);
+
+        // 返回成功响应
+        res.json({
+            success: true,
+            data: result,
+            message: '账套备份成功'
+        });
+    } catch (error) {
+        console.error('备份账套失败:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || '备份账套失败'
+        });
+    }
+};
+
 // 用户登录
 exports.login = async (req, res) => {
     try {

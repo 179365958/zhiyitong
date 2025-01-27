@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/app.js",
     "debug": "node --inspect src/app.js",
-    "frontend: dev": "vue-cli-service serve", 
+    "frontend: dev": "vue-cli-service serve",
     "backend: dev": "npm run debug",
     "dev": "nodemon src/app.js",
     "test": "jest"
@@ -20,6 +20,7 @@
     "express-session": "^1.18.1",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.11.5",
+    "mysqldump": "^3.2.0",
     "sequelize": "^6.37.5",
     "winston": "^3.17.0"
   }

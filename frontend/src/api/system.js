@@ -136,7 +136,11 @@ export const deleteCompany = (id) => {
 export const backupCompany = (id) => {
   return request({
     url: `/api/system/companies/${id}/backup`,
-    method: 'post'
+    method: 'post',
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+      'Content-Type': 'application/json'
+    },
   })
 }
 
@@ -144,7 +148,11 @@ export const backupCompany = (id) => {
 export const restoreCompany = (id) => {
   return request({
     url: `/api/system/companies/${id}/restore`,
-    method: 'post'
+    method: 'post',
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+      'Content-Type': 'application/json'
+    },
   })
 }
 
