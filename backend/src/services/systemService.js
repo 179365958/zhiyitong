@@ -495,54 +495,66 @@ exports.deleteCompany = async (id) => {
 exports.backupCompany = async (id) => {
   let connection;
   try {
-      connection = await pool.getConnection();
-      await connection.query(`USE ${dbConfig.database}`);
+    connection = await pool.getConnection();
+    await connection.query(`USE ${dbConfig.database}`);
 
-      // 查询企业账套的数据库名称
-      const [companyRows] = await connection.query('SELECT db_name FROM sys_company WHERE id = ?', [id]);
-      if (companyRows.length === 0) {
-          throw new Error('企业账套不存在');
-      }
+    // 查询企业账套的数据库名称
+    const [companyRows] = await connection.query('SELECT db_name FROM sys_company WHERE id = ?', [id]);
+    if (companyRows.length === 0) {
+      throw new Error('企业账套不存在');
+    }
 
-      const dbName = companyRows[0].db_name;
+    const dbName = companyRows[0].db_name;
 
-      // 构建备份文件路径
-      const backupDir = path.join(__dirname, '../../backups');
-      const backupFileName = `${dbName}_backup_${new Date().toISOString().replace(/:/g, '-').replace(/\..+/, '')}.sql`;
-      const backupFilePath = path.join(backupDir, backupFileName);
+    // 构建备份文件路径
+    const backupDir = path.join(__dirname, '../../backups');
 
-      // 确保备份目录存在
-      await fs.mkdir(backupDir, { recursive: true });
+    // 获取当前日期时间并格式化
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const dateTimeString = `${year}-${month}-${day}T${hours}-${minutes}-${seconds}`;
 
-      // 构建 mysqldump 命令
-      const command = `mysqldump -h ${dbConfig.host} -u ${dbConfig.user} -p${dbConfig.password} ${dbName} > ${backupFilePath}`;
+    // 构建文件名
+    const backupFileName = `${dbName}_backup_${dateTimeString}.sql`;
+    const backupFilePath = path.join(backupDir, backupFileName);
 
-      // 执行 mysqldump 命令
-      return new Promise((resolve, reject) => {
-          exec(command, (error, stdout, stderr) => {
-              if (error) {
-                  console.error('备份账套失败:', error);
-                  reject(error);
-                  return;
-              }
-              console.log('备份账套成功:', backupFilePath);
-              resolve({
-                  success: true,
-                  message: '账套备份成功',
-                  data: {
-                      filePath: backupFilePath,
-                      fileName: backupFileName
-                  }
-              });
-          });
+    // 确保备份目录存在
+    await fs.mkdir(backupDir, { recursive: true });
+
+    // 构建 mysqldump 命令
+    const command = `mysqldump -h ${dbConfig.host} -u ${dbConfig.user} -p${dbConfig.password} ${dbName} > ${backupFilePath}`;
+
+    // 执行 mysqldump 命令
+    return new Promise((resolve, reject) => {
+      exec(command, (error, stdout, stderr) => {
+        if (error) {
+          console.error('备份账套失败:', error);
+          reject(error);
+          return;
+        }
+        console.log('备份账套成功:', backupFilePath);
+        resolve({
+          success: true,
+          message: '账套备份成功',
+          data: {
+            filePath: backupFilePath,
+            fileName: backupFileName
+          }
+        });
       });
+    });
   } catch (error) {
-      console.error('备份账套失败:', error);
-      throw error;
+    console.error('备份账套失败:', error);
+    throw error;
   } finally {
-      if (connection) {
-          connection.release();
-      }
+    if (connection) {
+      connection.release();
+    }
   }
 };
 
