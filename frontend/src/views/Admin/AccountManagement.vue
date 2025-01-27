@@ -62,9 +62,7 @@
             <el-button-group>
               <el-button type="primary" @click="handleEdit(row)" icon="Edit" size="small">编辑</el-button>
               <el-button type="danger" @click="handleDelete(row)" icon="Delete" size="small">删除</el-button>
-              <el-button type="success" @click="openBackupDialog" icon="el-icon-folder" size="small">备份和恢复</el-button>
-       <!--       <el-button type="success" @click="handleBackup(row)" icon="Folder" size="small">备份恢复</el-button>-->
-
+              <el-button type="success" @click="openBackupDialog(row)" icon="el-icon-folder" size="small">备份和恢复</el-button>
             </el-button-group>
           </template>
         </el-table-column>
@@ -169,22 +167,22 @@
     </el-dialog>
 
     <!-- 恢复账套对话框 -->
-    <el-dialog title="备份和恢复账套" :visible.sync="dialogVisible" width="60%">
-    <el-button type="primary" @click="handleBackup">备份</el-button>
-    <el-button type="success" @click="handleUpload">上传</el-button>
-    <el-table :data="backupList" style="width: 100%; margin-top: 20px;">
-      <el-table-column prop="name" label="备份名称" width="180"></el-table-column>
-      <el-table-column prop="date" label="日期" width="180"></el-table-column>
-      <el-table-column prop="size" label="文件大小" width="180"></el-table-column>
-      <el-table-column prop="operator" label="操作人" width="180"></el-table-column>
-      <el-table-column label="操作">
-        <template slot-scope="scope">
-          <el-button size="mini" @click="handleRestore(scope.row)">恢复</el-button>
-          <el-button size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-  </el-dialog>
+    <el-dialog title="备份和恢复账套" v-model="restoreDialogVisible" width="60%">
+      <el-button type="primary" @click="handleBackup(selectedRow)">备份</el-button>
+      <el-button type="success" @click="handleUpload">上传</el-button>
+      <el-table :data="backupList" style="width: 100%; margin-top: 20px;">
+        <el-table-column prop="name" label="备份名称" width="180"></el-table-column>
+        <el-table-column prop="date" label="日期" width="180"></el-table-column>
+        <el-table-column prop="size" label="文件大小" width="180"></el-table-column>
+        <el-table-column prop="operator" label="操作人" width="180"></el-table-column>
+        <el-table-column label="操作">
+          <template #default="{ row }">
+            <el-button size="mini" @click="handleRestore(row)">恢复</el-button>
+            <el-button size="mini" type="danger" @click="handleDelete(row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
