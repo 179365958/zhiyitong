@@ -6,7 +6,7 @@ const { pool, dbConfig } = require('../config/database'); // 引入数据库配�
 const jwt = require('jsonwebtoken'); // 确保导入jsonwebtoken
 const session = require('express-session');
 const { getConnection } = require('../utils/db'); // 引入数据库连接逻辑
-const mysqldump = require('mysqldump'); // 确保安装 mysqldump 包
+const { exec } = require('child_process');
 
 
 // 检查 MySQL 连接状态
@@ -490,6 +490,7 @@ exports.deleteCompany = async (id) => {
   }
 };
 
+
 // 备份账套
 exports.backupCompany = async (id) => {
   let connection;
@@ -513,26 +514,28 @@ exports.backupCompany = async (id) => {
       // 确保备份目录存在
       await fs.mkdir(backupDir, { recursive: true });
 
-      // 使用 mysqldump 导出数据库
-      const mysqldump = require('mysqldump');
-      await mysqldump({
-          connection: {
-              host: dbConfig.host,
-              user: dbConfig.user,
-              password: dbConfig.password,
-              database: dbName
-          },
-          dumpToFile: backupFilePath
-      });
+      // 构建 mysqldump 命令
+      const command = `mysqldump -h ${dbConfig.host} -u ${dbConfig.user} -p${dbConfig.password} ${dbName} > ${backupFilePath}`;
 
-      return {
-          success: true,
-          message: '账套备份成功',
-          data: {
-              filePath: backupFilePath,
-              fileName: backupFileName
-          }
-      };
+      // 执行 mysqldump 命令
+      return new Promise((resolve, reject) => {
+          exec(command, (error, stdout, stderr) => {
+              if (error) {
+                  console.error('备份账套失败:', error);
+                  reject(error);
+                  return;
+              }
+              console.log('备份账套成功:', backupFilePath);
+              resolve({
+                  success: true,
+                  message: '账套备份成功',
+                  data: {
+                      filePath: backupFilePath,
+                      fileName: backupFileName
+                  }
+              });
+          });
+      });
   } catch (error) {
       console.error('备份账套失败:', error);
       throw error;
