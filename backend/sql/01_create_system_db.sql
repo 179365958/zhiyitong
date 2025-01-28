@@ -530,6 +530,58 @@ VALUES
 -- 民间非营利组织会计制度科目模板
 -- TODO: 添加民间非营利组织的科目模板
 
+
+
+-- 插入角色数据
+INSERT INTO sys_role (role_code, role_name, description, status, created_at, created_by)
+VALUES
+('super_admin', '超级管理员', '具有所有权限的超级管理员角色', 1, NOW(), 1),
+('admin', '管理员', '可以创建账套并管理自己拥有的账套权限', 1, NOW(), 1),
+('general_user', '普通用户', '可以使用账套，权限有限', 1, NOW(), 1);
+
+-- 插入权限数据
+INSERT INTO sys_permission (perm_code, perm_name, perm_type, path, component, icon, sort_no, status, created_at, created_by)
+VALUES
+('create_account', '创建账套', 'menu', '/admin/accounts/create', 'CreateAccount', 'add-icon', 1, 1, NOW(), 1),
+('edit_account', '编辑账套', 'menu', '/admin/accounts/edit', 'EditAccount', 'edit-icon', 2, 1, NOW(), 1),
+('delete_account', '删除账套', 'button', NULL, NULL, 'delete-icon', 3, 1, NOW(), 1),
+('view_all_accounts', '查看所有账套', 'menu', '/admin/accounts', 'ViewAccounts', 'list-icon', 4, 1, NOW(), 1),
+('switch_account', '切换账套', 'button', NULL, NULL, 'switch-icon', 5, 1, NOW(), 1),
+('manage_own_accounts', '管理自己拥有的账套', 'menu', '/user/accounts/manage', 'ManageOwnAccounts', 'manage-icon', 6, 1, NOW(), 1);
+
+
+
+-- 为超级管理员分配所有权限
+INSERT INTO sys_role_permission (role_id, permission_id, created_at, created_by)
+SELECT r.id, p.id, NOW(), 1 FROM sys_role r, sys_permission p WHERE r.role_code = 'super_admin';
+
+-- 为管理员分配创建账套和管理自己账套的权限
+INSERT INTO sys_role_permission (role_id, permission_id, created_at, created_by)
+SELECT r.id, p.id, NOW(), 1 
+FROM sys_role r, sys_permission p 
+WHERE r.role_code = 'admin' AND p.perm_code IN ('create_account', 'manage_own_accounts');
+
+-- 为普通用户分配有限权限
+INSERT INTO sys_role_permission (role_id, permission_id, created_at, created_by)
+SELECT r.id, p.id, NOW(), 1 
+FROM sys_role r, sys_permission p 
+WHERE r.role_code = 'general_user' AND p.perm_code IN ('switch_account');
+-- 示例：将用户分配到超级管理员角色
+INSERT INTO sys_user_role (user_id, role_id, created_at, created_by)
+VALUES (1, (SELECT id FROM sys_role WHERE role_code = 'super_admin'), NOW(), 1);
+
+-- 示例：将用户分配到管理员角色
+INSERT INTO sys_user_role (user_id, role_id, created_at, created_by)
+VALUES (2, (SELECT id FROM sys_role WHERE role_code = 'admin'), NOW(), 1);
+
+-- 示例：将用户分配到普通用户角色
+INSERT INTO sys_user_role (user_id, role_id, created_at, created_by)
+VALUES (3, (SELECT id FROM sys_role WHERE role_code = 'general_user'), NOW(), 1);
+
+-- 插入管理员用户
+INSERT INTO sys_user (username, password, real_name, email, mobile, is_admin, created_at, created_by)
+VALUES ('super', '$2b$10$uYYuRZqOZ3jBGp0rrMV7n./9VkGccPN/zLO/e/MmoqmJbLKtCNmVO', '超级管理员', 'super@example.com', '1234567890', 1, NOW(), 1);
+
 -- 插入管理员用户
 INSERT INTO sys_user (username, password, real_name, email, mobile, is_admin, created_at, created_by)
 VALUES ('admin', '$2b$10$uYYuRZqOZ3jBGp0rrMV7n./9VkGccPN/zLO/e/MmoqmJbLKtCNmVO', '管理员', 'admin@example.com', '1234567890', 1, NOW(), 1);
@@ -537,37 +589,3 @@ VALUES ('admin', '$2b$10$uYYuRZqOZ3jBGp0rrMV7n./9VkGccPN/zLO/e/MmoqmJbLKtCNmVO',
 -- 插入普通用户数据
 INSERT INTO sys_user (username, password, real_name, email, mobile, is_admin, status, created_at, created_by)
 VALUES ('user', '$2b$10$uYYuRZqOZ3jBGp0rrMV7n./9VkGccPN/zLO/e/MmoqmJbLKtCNmVO', 'User', 'user@example.com', '1234567890', 0, 1, NOW(), 1);
-
--- 插入角色数据
-INSERT INTO sys_role (role_code, role_name, description, status, created_at, created_by)
-VALUES
-('admin', '管理员', '具有所有权限的管理员角色', 1, NOW(), 1),
-('normal_user', '普通用户', '普通用户角色，权限有限', 1, NOW(), 1);
-
--- 插入权限数据
-INSERT INTO sys_permission (perm_code, perm_name, perm_type, path, component, icon, sort_no, status, created_at, created_by)
-VALUES
-('view_dashboard', '查看仪表盘', 'menu', '/dashboard', 'Dashboard', 'dashboard-icon', 1, 1, NOW(), 1),
-('edit_settings', '编辑设置', 'button', NULL, NULL, 'settings-icon', 2, 1, NOW(), 1),
-('view_reports', '查看报告', 'menu', '/reports', 'Reports', 'reports-icon', 3, 1, NOW(), 1);
-
--- 为管理员角色分配所有权限
-INSERT INTO sys_role_permission (role_id, permission_id, created_at, created_by)
-VALUES
-(1, 1, NOW(), 1),  -- admin 角色查看仪表盘权限
-(1, 2, NOW(), 1),  -- admin 角色编辑设置权限
-(1, 3, NOW(), 1);  -- admin 角色查看报告权限
-
--- 为普通用户角色分配有限权限
-INSERT INTO sys_role_permission (role_id, permission_id, created_at, created_by)
-VALUES
-(2, 1, NOW(), 1),  -- normal_user 角色查看仪表盘权限
-(2, 3, NOW(), 1);  -- normal_user 角色查看报告权限
-
--- 将用户与角色关联
-INSERT INTO sys_user_role (user_id, role_id, created_at, created_by)
-VALUES
-(1, 1, NOW(), 1),  -- 将 admin 用户与 admin 角色关联
-(2, 2, NOW(), 1);  -- 将 user 用户与 normal_user 角色关联
-
-
