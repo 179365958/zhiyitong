@@ -118,7 +118,7 @@
           <router-view v-slot="{ Component }">
             <transition name="fade" mode="out-in">
               <keep-alive>
-                <component :is="Component" />
+                <component :is="Component" ref="subjectComponent" />
               </keep-alive>
             </transition>
           </router-view>
@@ -183,6 +183,9 @@ export default {
 
         // 发送选择的账套信息到后端
         await this.switchDatabase(selectedCompany, userId);
+
+        // 手动触发 Subject.vue 中的 fetchSubjects 方法
+        this.$refs.subjectComponent.fetchSubjects();
       }
     },
     async switchDatabase(company, userId) {
@@ -321,7 +324,6 @@ onMounted(async () => {
   }
 })
 </script>
-
 <style scoped>
 .layout-container {
   height: 100vh;

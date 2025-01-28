@@ -132,8 +132,12 @@ const rules = {
 const formRef = ref();
 
 const fetchSubjects = async () => {
-  const response = await getSubjects();
-  tableData.value = response.data;
+  try {
+    const response = await getSubjects();
+    tableData.value = response.data;
+  } catch (error) {
+    console.error('获取科目数据失败:', error);
+  }
 };
 
 const handleAdd = () => {
@@ -228,5 +232,10 @@ watch(() => accountStore.currentAccount, (newAccount) => {
   if (newAccount) {
     fetchSubjects();
   }
+});
+
+// 暴露 fetchSubjects 方法以便外部调用
+defineExpose({
+  fetchSubjects
 });
 </script>
