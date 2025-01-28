@@ -589,3 +589,28 @@ VALUES ('admin', '$2b$10$uYYuRZqOZ3jBGp0rrMV7n./9VkGccPN/zLO/e/MmoqmJbLKtCNmVO',
 -- 插入普通用户数据
 INSERT INTO sys_user (username, password, real_name, email, mobile, is_admin, status, created_at, created_by)
 VALUES ('user', '$2b$10$uYYuRZqOZ3jBGp0rrMV7n./9VkGccPN/zLO/e/MmoqmJbLKtCNmVO', 'User', 'user@example.com', '1234567890', 0, 1, NOW(), 1);
+
+CREATE VIEW user_permissions_view AS
+SELECT 
+    u.id AS user_id,
+    u.username,
+    u.real_name,
+    r.role_code,
+    p.perm_code,
+    p.perm_name,
+    p.perm_type,
+    p.path,
+    p.component,
+    p.icon,
+    p.sort_no,
+    p.status AS permission_status
+FROM 
+    sys_user u
+JOIN 
+    sys_user_role ur ON u.id = ur.user_id
+JOIN 
+    sys_role_permission rp ON ur.role_id = rp.role_id
+JOIN 
+    sys_permission p ON rp.permission_id = p.id
+JOIN 
+    sys_role r ON ur.role_id = r.id;
