@@ -72,10 +72,25 @@ export default {
       return userStore.userInfo;
     },
     roleName() {
-      const userRoles = this.userInfo?.roles || [];
-      const role = userRoles.find(role => role.code === 'super_admin');
-      return role ? role.name : '普通用户';
+    const userRoles = this.userInfo?.roles || [];
+    
+    // 定义角色映射
+    const roleMapping = {
+      'super_admin': '超级管理员',
+      'admin': '管理员',
+      // 可以继续添加其他角色映射
+    };
+
+    // 检查用户的角色
+    for (const role of userRoles) {
+      if (role.code in roleMapping) {
+        return roleMapping[role.code];
+      }
     }
+
+    // 如果没有匹配到任何定义的角色，返回 '普通用户'
+    return '普通用户';
+  }
   },
   methods: {
     handleSelect(key, keyPath) {

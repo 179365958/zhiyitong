@@ -64,7 +64,7 @@
               />
               <div class="user-name-wrapper">
                 <span class="user-name">{{ userInfo?.username || userInfo?.name || '未登录' }}</span>
-                <span class="user-role">{{ userInfo?.roles?.[0] || '普通用户' }}</span>
+                <span class="user-role">{{ roleName }}</span>
               </div>
               <el-icon class="el-icon--right"><arrow-down /></el-icon>
             </div>
@@ -140,6 +140,32 @@ export default {
       selectedAccount: '',
       accounts: []
     };
+  },
+  computed: {
+    userInfo() {
+      const userStore = useUserStore();
+      return userStore.userInfo;
+    },
+    roleName() {
+    const userRoles = this.userInfo?.roles || [];
+    
+    // 定义角色映射
+    const roleMapping = {
+      'super_admin': '超级管理员',
+      'admin': '管理员',
+      // 可以继续添加其他角色映射
+    };
+
+    // 检查用户的角色
+    for (const role of userRoles) {
+      if (role.code in roleMapping) {
+        return roleMapping[role.code];
+      }
+    }
+
+    // 如果没有匹配到任何定义的角色，返回 '普通用户'
+    return '普通用户';
+  }
   },
   methods: {
     async fetchAccounts() {
