@@ -51,14 +51,18 @@ const handleLogin = async () => {
       }
     });
 
-    console.log('Login Response:', response.token); // 添加日志输出
+    console.log('Login Response:', response); // 添加日志输出
 
     if (response.success) {  
       setToken(response.token);
       setUserInfo(response.data);
 
       // 保存用户角色到本地存储
-      sessionStorage.setItem('userRole', JSON.stringify(response.data.roles));
+      if (response.data.roles !== undefined) {
+        sessionStorage.setItem('userRole', JSON.stringify(response.data.roles));
+      } else {
+        console.error('userRole is undefined in response.data');
+      }
       
       // 记住密码功能
       if (loginForm.value.rememberMe) {

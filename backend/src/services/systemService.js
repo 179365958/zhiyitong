@@ -628,7 +628,8 @@ exports.getConnection = async () => {
   }
 };
 
-// 用户登录
+// 在 systemService.js 的登录逻辑中，添加角色查询
+// 修改登录逻辑以包含 role_name
 exports.login = async (username, password, logintype, req) => {
   let connection;
   try {
@@ -636,7 +637,7 @@ exports.login = async (username, password, logintype, req) => {
     await connection.query('USE zyt_sys');
 
     if (logintype === 'admin') {
-      // 管理员登录逻辑
+      // 后台登录逻辑
       const [users] = await connection.query(
         'SELECT * FROM sys_user WHERE username = ? AND status = 1',
         [username]
@@ -658,6 +659,16 @@ exports.login = async (username, password, logintype, req) => {
         };
       }
 
+      // 查询用户的角色信息
+      const [roles] = await connection.query(`
+        SELECT r.role_code, r.role_name
+        FROM sys_user_role ur
+        JOIN sys_role r ON ur.role_id = r.id
+        WHERE ur.user_id = ?
+      `, [user.id]);
+
+      const userRoles = roles.map(role => ({ code: role.role_code, name: role.role_name }));
+
       // 生成 JWT
       const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRES_IN,
@@ -675,11 +686,12 @@ exports.login = async (username, password, logintype, req) => {
           username: user.username,
           realName: user.real_name,
           isAdmin: user.is_admin[0] === 1,
-          status: user.status
+          status: user.status,
+          roles: userRoles // 返回用户角色信息
         }
       };
     } else if (logintype === 'user') {
-      // 普通用户登录逻辑
+      // 前台用户登录逻辑
       const [users] = await connection.query(
         'SELECT * FROM sys_user WHERE username = ? AND status = 1',
         [username]
@@ -713,6 +725,16 @@ exports.login = async (username, password, logintype, req) => {
         dbName = company.length > 0 ? company[0].db_name : null;
       }
 
+      // 查询用户的角色信息
+      const [roles] = await connection.query(`
+        SELECT r.role_code, r.role_name
+        FROM sys_user_role ur
+        JOIN sys_role r ON ur.role_id = r.id
+        WHERE ur.user_id = ?
+      `, [user.id]);
+
+      const userRoles = roles.map(role => ({ code: role.role_code, name: role.role_name }));
+
       // 生成 JWT
       const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRES_IN,
@@ -733,7 +755,8 @@ exports.login = async (username, password, logintype, req) => {
           status: user.status,
           recentCompanyId: user.recent_company_id,
           companyIds: companyIds,
-          company: recentCompany ? { id: recentCompany.company_id, name: dbName } : null
+          company: recentCompany ? { id: recentCompany.company_id, name: dbName } : null,
+          roles: userRoles // 返回用户角色信息
         }
       };
     } else {

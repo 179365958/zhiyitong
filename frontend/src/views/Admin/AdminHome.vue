@@ -30,7 +30,7 @@
                 />
                 <div class="user-name-wrapper">
                   <span class="user-name">{{ userInfo?.username || userInfo?.name || '未登录' }}</span>
-                  <span class="user-role">{{ userInfo?.roles?.[0] || '普通用户' }}</span>
+                  <span class="user-role">{{ roleName }}</span>
                 </div>
                 <el-icon class="el-icon--right"><arrow-down /></el-icon>
               </div>
@@ -70,6 +70,11 @@ export default {
     userInfo() {
       const userStore = useUserStore();
       return userStore.userInfo;
+    },
+    roleName() {
+      const userRoles = this.userInfo?.roles || [];
+      const role = userRoles.find(role => role.code === 'super_admin');
+      return role ? role.name : '普通用户';
     }
   },
   methods: {
@@ -110,6 +115,10 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+/* 你的样式保持不变 */
+</style>
 
 <style scoped>
 .admin-home {
