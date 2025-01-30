@@ -45,7 +45,7 @@
           <span class="type">{{ voucherForm.type }}</span>
           <span class="no">{{ voucherForm.number }}</span>
         </div>
-        <div class="date-attachment">
+        <div class="date-container">
           <el-date-picker
             v-model="voucherForm.date"
             type="date"
@@ -53,7 +53,9 @@
             style="width: 120px;"
             placeholder="选择日期"
           />
-          <span class="attachment">附单据 {{ voucherForm.attachments }} 张</span>
+        </div>
+        <div class="attachment">
+          附单据 {{ voucherForm.attachments }} 张
         </div>
       </div>
 
@@ -175,8 +177,14 @@ const voucherForm = ref({
   bookkeeper: ''
 })
 
-// 科目选项数据
-const subjectOptions = ref([])
+// 模拟科目选项数据
+const subjectOptions = ref([
+  { code: '1001', name: '现金', type: '资产' },
+  { code: '1002', name: '银行存款', type: '资产' },
+  { code: '2001', name: '短期借款', type: '负债' },
+  { code: '4001', name: '主营业务收入', type: '收入' },
+  { code: '5001', name: '实收资本', type: '所有者权益' }
+])
 
 // 计算借方合计
 const totalDebit = computed(() => {
@@ -203,7 +211,13 @@ const handleSearchSubject = async (query) => {
     const response = await axios.get('/api/subjects', { params: { query } })
     subjectOptions.value = response.data
   } else {
-    subjectOptions.value = []
+    subjectOptions.value = [
+      { code: '1001', name: '现金', type: '资产' },
+      { code: '1002', name: '银行存款', type: '资产' },
+      { code: '2001', name: '短期借款', type: '负债' },
+      { code: '4001', name: '主营业务收入', type: '收入' },
+      { code: '5001', name: '实收资本', type: '所有者权益' }
+    ]
   }
 }
 
@@ -661,4 +675,7 @@ onMounted(() => {
   font-size: 13px;
   background-color: transparent;
 }
+
+
+
 </style>
