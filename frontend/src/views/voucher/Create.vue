@@ -64,7 +64,7 @@
         <table class="voucher-table">
           <thead>
             <tr>
-              <th style="width: 40px"></th>
+              <th style="width: 40px">操作</th>
               <th style="width: 40px">序号</th>
               <th style="width: 150px">摘要</th>
               <th style="width: 220px">会计科目</th>
@@ -74,7 +74,7 @@
               <th class="amount-col">
                 <div>贷方金额</div>
               </th>
-              <th style="width: 40px"></th>
+              <th style="width: 40px">操作</th>
             </tr>
           </thead>
           <tbody>
@@ -463,7 +463,7 @@ onMounted(() => {
 }
 
 .page-container {
-  max-width: 1500px; /* 最大宽度 */
+  max-width: 1200px; /* 最大宽度 */
   min-width: 1200px; /* 设置最小宽度 */
   margin: 0 auto;
   padding: 20px;
@@ -484,6 +484,14 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   margin-bottom: 20px;
+  width: 920px; /* 设置为 80% 以与 .page-container 对齐 */
+  max-width: 920px; /* 最大宽度 */
+  min-width: 920px; /* 设置最小宽度 */
+  margin: 5px auto; /* 居中对齐 */
+  background-color: white; /* 设置背景颜色为白色 */
+  padding: 10px 20px; /* 添加内边距 */
+  border-radius: 4px; /* 添加圆角 */
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1); /* 添加阴影 */
 }
 
 .toolbar-left, .toolbar-right {
