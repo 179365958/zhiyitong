@@ -73,6 +73,7 @@
               <th class="amount-col">
                 <div>贷方金额</div>
               </th>
+              <th style="width: 40px">操作</th>
             </tr>
           </thead>
           <tbody>
@@ -128,9 +129,19 @@
                   @keydown.enter="focusNextInput($event, index + 1, 'summary')"
                 />
               </td>
+              <td>
+                <el-button type="danger" size="small" @click="removeEntry(index)">
+                  <el-icon><Delete /></el-icon>
+                </el-button>
+              </td>
             </tr>
           </tbody>
         </table>
+        <div class="add-entry-button">
+          <el-button type="primary" @click="addEntry">
+            <el-icon><Plus /></el-icon>增加分录
+          </el-button>
+        </div>
       </div>
 
       <!-- 底部信息 -->
@@ -156,7 +167,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Document, Plus, ArrowLeft, ArrowRight, Printer, Key } from '@element-plus/icons-vue'
+import { Document, Plus, ArrowLeft, ArrowRight, Printer, Key, Delete } from '@element-plus/icons-vue'
 import axios from 'axios'
 
 // 凭证表单数据
@@ -404,6 +415,27 @@ const generateVoucherNumber = () => {
   return `${year}${month}${day}-${random}`
 }
 
+// 增加分录
+const addEntry = () => {
+  voucherForm.value.entries.push({
+    summary: '',
+    subject: '',
+    debit: '',
+    credit: '',
+    debitFocused: false,
+    creditFocused: false
+  })
+}
+
+// 删除分录
+const removeEntry = (index) => {
+  if (voucherForm.value.entries.length > 1) {
+    voucherForm.value.entries.splice(index, 1)
+  } else {
+    ElMessage.warning('至少需要保留一条分录')
+  }
+}
+
 onMounted(() => {
   voucherForm.value.number = generateVoucherNumber()
 })
@@ -507,6 +539,11 @@ onMounted(() => {
   width: 200px;  /* 借方贷方列 */
 }
 
+.voucher-table th:nth-child(6),
+.voucher-table td:nth-child(6) {
+  width: 40px;  /* 操作列 */
+}
+
 .amount-cell {
   position: relative;
   padding: 0;
@@ -557,6 +594,33 @@ onMounted(() => {
   padding: 0 8px;
   border: none;
   background-color: transparent;
+}
+
+.voucher-table :deep(.el-select) {
+  width: 100%;
+}
+
+.voucher-table :deep(.el-select .el-input__inner) {
+  height: 48px;
+  line-height: 48px;
+  font-size: 13px;
+  padding: 0 8px;
+  border: none;
+  background-color: transparent;
+  box-shadow: none !important;
+  border-radius: 0;
+}
+
+.voucher-table :deep(.el-select .el-input__wrapper) {
+  height: 48px;
+  box-shadow: none !important;
+  border-radius: 0;
+  background-color: transparent;
+  border: none;
+}
+
+.voucher-table :deep(.el-select .el-input__suffix) {
+  display: none; /* 隐藏下拉箭头 */
 }
 
 .voucher-footer {
@@ -660,5 +724,32 @@ onMounted(() => {
   padding: 0 8px;
   font-size: 13px;
   background-color: transparent;
+}
+
+.voucher-table :deep(.el-button) {
+  height: 48px;
+  line-height: 48px;
+  padding: 0 10px;
+  font-size: 13px;
+  border-radius: 0;
+  box-shadow: none !important;
+}
+
+.voucher-table :deep(.el-button .el-icon) {
+  vertical-align: middle;
+}
+
+.add-entry-button {
+  text-align: right;
+  margin-top: 10px;
+}
+
+.add-entry-button .el-button {
+  height: 48px;
+  line-height: 48px;
+  padding: 0 15px;
+  font-size: 13px;
+  border-radius: 0;
+  box-shadow: none !important;
 }
 </style>
