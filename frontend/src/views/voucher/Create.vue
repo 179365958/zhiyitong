@@ -9,8 +9,8 @@
         <el-button @click="handleSave">
           <el-icon><Plus /></el-icon>保存
         </el-button>
-        <el-button>
-          <el-icon><ArrowLeft /></el-icon>打印
+        <el-button @click="handlePrint">
+          <el-icon><Printer /></el-icon>打印
         </el-button>
         <el-dropdown>
           <el-button>
@@ -18,15 +18,15 @@
           </el-button>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item>选项1</el-dropdown-item>
-              <el-dropdown-item>选项2</el-dropdown-item>
+              <el-dropdown-item @click="handleClear">清空凭证</el-dropdown-item>
+              <el-dropdown-item @click="handleExport">导出凭证</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
-      </div> 
+      </div>
       <div class="toolbar-right">
-        <el-button>
-          <el-icon><ArrowLeft /></el-icon>快捷键
+        <el-button @click="handleShortcut">
+          <el-icon><Key /></el-icon>快捷键
         </el-button>
         <el-button @click="handlePrev">
           <el-icon><ArrowLeft /></el-icon>上一页
@@ -51,6 +51,7 @@
             type="date"
             size="small"
             style="width: 120px;"
+            placeholder="选择日期"
           />
           <span class="attachment">附单据 {{ voucherForm.attachments }} 张</span>
         </div>
@@ -76,19 +77,19 @@
             <tr v-for="(entry, index) in voucherForm.entries" :key="index">
               <td>{{ index + 1 }}</td>
               <td>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   v-model="entry.summary"
                   class="text-input"
                   @keydown.enter="focusNextInput($event, index, 'subject')"
-                >
+                />
               </td>
               <td>
                 <el-select
                   v-model="entry.subject"
                   filterable
                   remote
-                  placeholder=""
+                  placeholder="选择科目"
                   :remote-method="handleSearchSubject"
                   @change="handleSubjectChange(entry)"
                   class="subject-select"
@@ -112,7 +113,7 @@
                   @focus="entry.debitFocused = true"
                   @blur="handleAmountBlur(entry, 'debit')"
                   @keydown.enter="focusNextInput($event, index, 'credit')"
-                >
+                />
               </td>
               <td class="amount-cell">
                 <input
@@ -123,7 +124,7 @@
                   @focus="entry.creditFocused = true"
                   @blur="handleAmountBlur(entry, 'credit')"
                   @keydown.enter="focusNextInput($event, index + 1, 'summary')"
-                >
+                />
               </td>
             </tr>
           </tbody>
@@ -151,17 +152,10 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { useRouter } from 'vue-router'
-import { 
-  Document,
-  Plus,
-  ArrowLeft,
-  ArrowRight
-} from '@element-plus/icons-vue'
-
-const router = useRouter()
+import { Document, Plus, ArrowLeft, ArrowRight, Printer, Key } from '@element-plus/icons-vue'
+import axios from 'axios'
 
 // 凭证表单数据
 const voucherForm = ref({
@@ -182,18 +176,7 @@ const voucherForm = ref({
 })
 
 // 科目选项数据
-const subjectOptions = ref([
-  { code: '1001', name: '库存现金', type: '资产' },
-  { code: '1002', name: '银行存款', type: '资产' },
-  { code: '1012', name: '其他货币资金', type: '资产' },
-  { code: '1101', name: '短期投资', type: '资产' },
-  { code: '1121', name: '应收票据', type: '资产' },
-  { code: '1122', name: '应收账款', type: '资产' },
-  { code: '1123', name: '预付账款', type: '资产' },
-  { code: '1131', name: '应收股利', type: '资产' },
-  { code: '1132', name: '应收利息', type: '资产' },
-  { code: '1221', name: '其他应收款', type: '资产' }
-])
+const subjectOptions = ref([])
 
 // 计算借方合计
 const totalDebit = computed(() => {
@@ -215,41 +198,36 @@ const amountInWords = computed(() => {
 })
 
 // 搜索科目
-const handleSearchSubject = (query) => {
+const handleSearchSubject = async (query) => {
   if (query) {
-    return subjectOptions.value.filter(item => 
-      item.code.includes(query) || 
-      item.name.includes(query) ||
-      item.type.includes(query)
-    )
+    const response = await axios.get('/api/subjects', { params: { query } })
+    subjectOptions.value = response.data
+  } else {
+    subjectOptions.value = []
   }
-  return subjectOptions.value
 }
 
 // 科目变更处理
-const handleSubjectChange = (row) => {
-  const subject = subjectOptions.value.find(item => item.code === row.subject)
+const handleSubjectChange = (entry) => {
+  const subject = subjectOptions.value.find(item => item.code === entry.subject)
   if (subject) {
     if (['资产', '费用'].includes(subject.type)) {
-      row.debit = row.debit || ''
-      row.credit = ''
+      entry.debit = entry.debit || ''
+      entry.credit = ''
     } else if (['负债', '收入', '所有者权益'].includes(subject.type)) {
-      row.credit = row.credit || ''
-      row.debit = ''
+      entry.credit = entry.credit || ''
+      entry.debit = ''
     }
   }
 }
 
 // 处理金额输入
 const formatAmount = (value) => {
-  // 移除非数字和小数点
   value = value.replace(/[^\d.]/g, '')
-  // 确保只有一个小数点
   const parts = value.split('.')
   if (parts.length > 2) {
     value = parts[0] + '.' + parts.slice(1).join('')
   }
-  // 限制小数位数为2位
   if (parts.length === 2 && parts[1].length > 2) {
     value = parts[0] + '.' + parts[1].slice(0, 2)
   }
@@ -269,7 +247,6 @@ const handleAmountInput = (event, index, type) => {
 const handleAmountBlur = (entry, type) => {
   let value = type === 'debit' ? entry.debit : entry.credit
   if (value) {
-    // 如果有值，确保有两位小数
     if (!value.includes('.')) {
       value = value + '.00'
     } else {
@@ -288,120 +265,6 @@ const handleAmountBlur = (entry, type) => {
   }
 }
 
-// 处理金额输入框聚焦
-const handleAmountFocus = (row, type) => {
-  if (type === 'debit') {
-    row.credit = ''
-  } else {
-    row.debit = ''
-  }
-}
-
-// 添加分录行
-const addEntry = () => {
-  voucherForm.value.entries.push({
-    summary: '',
-    subject: '',
-    debit: '',
-    credit: '',
-    debitFocused: false,
-    creditFocused: false
-  })
-}
-
-// 删除分录
-const removeEntry = (index) => {
-  if (voucherForm.value.entries.length <= 4) {
-    ElMessage.warning('至少保留4行分录')
-    return
-  }
-  voucherForm.value.entries.splice(index, 1)
-}
-
-// 快速填充摘要
-const fillSummary = (summary, row) => {
-  row.summary = summary
-}
-
-// 键盘导航和快捷键处理
-const handleKeyDown = (e, row, index, field) => {
-  if (e.key === 'Enter') {
-    e.preventDefault()
-    const nextField = getNextField(field)
-    if (nextField) {
-      focusField(index, nextField)
-    } else if (index < voucherForm.value.entries.length - 1) {
-      focusField(index + 1, 'summary')
-    } else {
-      addEntry()
-      focusField(index + 1, 'summary')
-    }
-  }
-  
-  if (e.key === 'Tab') {
-    e.preventDefault()
-    const nextField = getNextField(field)
-    if (nextField) {
-      focusField(index, nextField)
-    }
-  }
-  
-  if (e.key === 'ArrowUp' && index > 0) {
-    e.preventDefault()
-    focusField(index - 1, field)
-  }
-  if (e.key === 'ArrowDown' && index < voucherForm.value.entries.length - 1) {
-    e.preventDefault()
-    focusField(index + 1, field)
-  }
-}
-
-// 获取下一个字段
-const getNextField = (currentField) => {
-  const fields = ['summary', 'subject', 'debit', 'credit']
-  const currentIndex = fields.indexOf(currentField)
-  return fields[currentIndex + 1]
-}
-
-// 聚焦指定字段
-const focusField = (rowIndex, field) => {
-  nextTick(() => {
-    const el = document.querySelector(`#entry_${rowIndex}_${field}`)
-    if (el) {
-      el.focus()
-    }
-  })
-}
-
-// 下一个输入框焦点
-const focusNextInput = (event, currentIndex, nextField) => {
-  event.preventDefault()
-  const inputs = document.querySelectorAll('.voucher-table input, .voucher-table .el-select')
-  const currentInput = event.target
-  const nextInput = inputs[currentIndex + 1]
-  if (nextInput) {
-    nextInput.focus()
-  }
-}
-
-// 文件上传处理
-const handleFileChange = (file) => {
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf']
-  if (!allowedTypes.includes(file.raw.type)) {
-    ElMessage.error('只能上传图片或PDF文件')
-    return false
-  }
-  
-  if (file.raw.size > 10 * 1024 * 1024) {
-    ElMessage.error('文件大小不能超过10MB')
-    return false
-  }
-  
-  voucherForm.value.files.push(file)
-  voucherForm.value.attachments = voucherForm.value.files.length
-  return true
-}
-
 // 保存凭证
 const handleSave = () => {
   if (!voucherForm.value.date) {
@@ -413,7 +276,64 @@ const handleSave = () => {
     ElMessage.error('请至少填写一条分录')
     return false
   }
-  console.log(numberToChinese(totalDebit.value))
+
+  if (totalDebit.value !== totalCredit.value) {
+    ElMessage.error('借贷不平衡，请调整金额')
+    return false
+  }
+
+  // 保存逻辑
+  console.log('保存凭证:', voucherForm.value)
+  ElMessage.success('凭证保存成功')
+}
+
+// 保存并新增
+const handleSaveAndNew = () => {
+  handleSave()
+  voucherForm.value.entries = [
+    { summary: '', subject: '', debit: '', credit: '', debitFocused: false, creditFocused: false },
+    { summary: '', subject: '', debit: '', credit: '', debitFocused: false, creditFocused: false },
+    { summary: '', subject: '', debit: '', credit: '', debitFocused: false, creditFocused: false },
+    { summary: '', subject: '', debit: '', credit: '', debitFocused: false, creditFocused: false }
+  ]
+}
+
+// 打印凭证
+const handlePrint = () => {
+  window.print()
+}
+
+// 清空凭证
+const handleClear = () => {
+  voucherForm.value.entries = [
+    { summary: '', subject: '', debit: '', credit: '', debitFocused: false, creditFocused: false },
+    { summary: '', subject: '', debit: '', credit: '', debitFocused: false, creditFocused: false },
+    { summary: '', subject: '', debit: '', credit: '', debitFocused: false, creditFocused: false },
+    { summary: '', subject: '', debit: '', credit: '', debitFocused: false, creditFocused: false }
+  ]
+  ElMessage.success('凭证已清空')
+}
+
+// 导出凭证
+const handleExport = () => {
+  // 导出逻辑
+  console.log('导出凭证:', voucherForm.value)
+  ElMessage.success('凭证导出成功')
+}
+
+// 快捷键提示
+const handleShortcut = () => {
+  ElMessage.info('快捷键：Ctrl + S 保存，Ctrl + N 新增')
+}
+
+// 上一页
+const handlePrev = () => {
+  ElMessage.info('上一页')
+}
+
+// 下一页
+const handleNext = () => {
+  ElMessage.info('下一页')
 }
 
 // 格式化金额
@@ -423,62 +343,56 @@ const formatDecimal = (num) => {
 
 // 数字转中文
 const numberToChinese = (num) => {
-    const fraction = ['角', '分']
-    const digit = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖']
-    const unit = [
-      ['元', '万', '亿'],
-      ['', '拾', '佰', '仟']
-    ]
-    const head = num < 0 ? '欠' : ''
-    num = Math.abs(num)
+  const fraction = ['角', '分']
+  const digit = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖']
+  const unit = [
+    ['元', '万', '亿'],
+    ['', '拾', '佰', '仟']
+  ]
+  const head = num < 0 ? '欠' : ''
+  num = Math.abs(num)
 
-    let s = ''
-    const decimalPart = Math.floor(num * 100) % 100
-    if (decimalPart === 0) {
-      s = '整'
+  let s = ''
+  const decimalPart = Math.floor(num * 100) % 100
+  if (decimalPart === 0) {
+    s = '整'
+  } else {
+    const jiao = Math.floor(decimalPart / 10)
+    const fen = decimalPart % 10
+    if (jiao > 0) {
+      s += digit[jiao] + '角'
+      if (fen > 0) s += digit[fen] + '分'
     } else {
-      const jiao = Math.floor(decimalPart / 10)
-      const fen = decimalPart % 10
-      if (jiao > 0) {
-        s += digit[jiao] + '角'
-        if (fen > 0) s += digit[fen] + '分'
-      } else {
-        s += '零' + digit[fen] + '分'
-      }
+      s += '零' + digit[fen] + '分'
     }
-    num = Math.floor(num)
+  }
+  num = Math.floor(num)
 
-    for (let i = 0; i < unit[0].length && num > 0; i++) {
-      let p = ''
-      for (let j = 0; j < unit[1].length && num > 0; j++) {
-        p = digit[num % 10] + unit[1][j] + p
-        num = Math.floor(num / 10)
-      }
-      s = p.replace(/(零.)*零$/, '').replace(/^$/, '零') + unit[0][i] + s
+  for (let i = 0; i < unit[0].length && num > 0; i++) {
+    let p = ''
+    for (let j = 0; j < unit[1].length && num > 0; j++) {
+      p = digit[num % 10] + unit[1][j] + p
+      num = Math.floor(num / 10)
     }
+    s = p.replace(/(零.)*零$/, '').replace(/^$/, '零') + unit[0][i] + s
+  }
 
-    return head + s.replace(/(零.)*零元/, '元').replace(/(零.)+/g, '零').replace(/^整$/, '零元整')
-  } 
-
-// 获取借方金额数字
-const getDebitDigit = (entry, index) => {
-  if (!entry.debit || entry.debit === '') return ''
-  const value = entry.debit.toString().replace(/[^\d.]/g, '')
-  if (!value) return ''
-  const [intPart = '', decPart = ''] = value.split('.')
-  const digits = intPart.padStart(11, ' ')
-  return digits[index] || ' '
+  return head + s.replace(/(零.)*零元/, '元').replace(/(零.)+/g, '零').replace(/^整$/, '零元整')
 }
 
-// 获取贷方金额数字
-const getCreditDigit = (entry, index) => {
-  if (!entry.credit || entry.credit === '') return ''
-  const value = entry.credit.toString().replace(/[^\d.]/g, '')
-  if (!value) return ''
-  const [intPart = '', decPart = ''] = value.split('.')
-  const digits = intPart.padStart(11, ' ')
-  return digits[index] || ' '
+// 初始化凭证编号
+const generateVoucherNumber = () => {
+  const date = new Date()
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const random = Math.floor(Math.random() * 1000)
+  return `${year}${month}${day}-${random}`
 }
+
+onMounted(() => {
+  voucherForm.value.number = generateVoucherNumber()
+})
 </script>
 
 <style scoped>
