@@ -57,6 +57,8 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
+import axios from 'axios'
+import * as XLSX from 'xlsx'
 
 const queryForm = reactive({
   level: '0',
@@ -65,14 +67,25 @@ const queryForm = reactive({
 
 const tableData = ref([])
 
-const handleQuery = () => {
-  // TODO: 实现查询逻辑
-  console.log('Query with:', queryForm)
+const handleQuery = async () => {
+  try {
+    const response = await axios.get('/api/balance-sheet', {
+      params: {
+        level: queryForm.level,
+        period: queryForm.period
+      }
+    })
+    tableData.value = response.data
+  } catch (error) {
+    console.error('Failed to fetch data:', error)
+  }
 }
 
 const handleExport = () => {
-  // TODO: 实现导出逻辑
-  console.log('Export data')
+  const ws = XLSX.utils.json_to_sheet(tableData.value)
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, 'Balance Sheet')
+  XLSX.writeFile(wb, 'balance_sheet.xlsx')
 }
 </script>
 
