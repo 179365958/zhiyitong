@@ -455,9 +455,9 @@ onMounted(() => {
   font-size: 1.2em;
 }
 
-.date-attachment {
-  display: flex;
-  align-items: center;
+.date-container {
+  flex-grow: 1;
+  text-align: center;
 }
 
 .attachment {
@@ -486,6 +486,25 @@ onMounted(() => {
   box-sizing: border-box;
   vertical-align: middle;
   overflow: hidden;
+}
+
+.voucher-table th:nth-child(1),
+.voucher-table td:nth-child(1) {
+  width: 40px;  /* 序号列 */
+}
+
+.voucher-table th:nth-child(2),
+.voucher-table td:nth-child(2),
+.voucher-table th:nth-child(3),
+.voucher-table td:nth-child(3) {
+  width: 220px;  /* 摘要列和会计科目列 */
+}
+
+.voucher-table th:nth-child(4),
+.voucher-table td:nth-child(4),
+.voucher-table th:nth-child(5),
+.voucher-table td:nth-child(5) {
+  width: 200px;  /* 借方贷方列 */
 }
 
 .amount-cell {
@@ -538,28 +557,6 @@ onMounted(() => {
   padding: 0 8px;
   border: none;
   background-color: transparent;
-}
-
-.voucher-table th:nth-child(1),
-.voucher-table td:nth-child(1) {
-  width: 40px;  /* 序号列 */
-}
-
-.voucher-table th:nth-child(2),
-.voucher-table td:nth-child(2) {
-  width: 220px;  /* 摘要列 */
-}
-
-.voucher-table th:nth-child(3),
-.voucher-table td:nth-child(3) {
-  width: 300px;  /* 会计科目列 */
-}
-
-.voucher-table th:nth-child(4),
-.voucher-table td:nth-child(4),
-.voucher-table th:nth-child(5),
-.voucher-table td:nth-child(5) {
-  width: 200px;  /* 借方贷方列 */
 }
 
 .voucher-footer {
@@ -628,17 +625,6 @@ onMounted(() => {
   justify-content: center;
 }
 
-.voucher-table td {
-  border: 1px solid #000000;
-  padding: 0;
-  text-align: center;
-  position: relative;
-  height: 48px;
-  box-sizing: border-box;
-  vertical-align: middle;
-  overflow: hidden;
-}
-
 .text-input {
   width: 100%;
   height: 48px;
@@ -675,7 +661,4 @@ onMounted(() => {
   font-size: 13px;
   background-color: transparent;
 }
-
-
-
 </style>
