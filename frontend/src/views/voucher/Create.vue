@@ -64,17 +64,17 @@
         <table class="voucher-table">
           <thead>
             <tr>
-              <th style="width: 40px">操作</th>
+              <th style="width: 40px"></th>
               <th style="width: 40px">序号</th>
-              <th style="width: 120px">摘要</th>
-              <th style="width: 200px">会计科目</th>
+              <th style="width: 150px">摘要</th>
+              <th style="width: 220px">会计科目</th>
               <th class="amount-col">
                 <div>借方金额</div>
               </th>
               <th class="amount-col">
                 <div>贷方金额</div>
               </th>
-              <th style="width: 40px">操作</th>
+              <th style="width: 40px"></th>
             </tr>
           </thead>
           <tbody>
@@ -463,8 +463,8 @@ onMounted(() => {
 }
 
 .page-container {
-  max-width: 1500px;
-  min-width: 1200px;
+  max-width: 1500px; /* 最大宽度 */
+  min-width: 1200px; /* 设置最小宽度 */
   margin: 0 auto;
   padding: 20px;
 }
@@ -519,9 +519,41 @@ onMounted(() => {
   width: 100%; /* 确保表格宽度为 100% */
   border-collapse: collapse;
   margin-bottom: 15px;
-  table-layout: fixed;
+  table-layout: fixed; /* 固定布局 */
   border: 1px solid #000000;
   background-color: white;
+}
+
+.voucher-table th:nth-child(1),
+.voucher-table td:nth-child(1) {
+  width: 3%; /* 操作列 */
+}
+
+.voucher-table th:nth-child(2),
+.voucher-table td:nth-child(2) {
+  width: 3%; /* 序号列 */
+}
+
+.voucher-table th:nth-child(3),
+.voucher-table td:nth-child(3) {
+  width: 20%; /* 摘要列 */
+}
+
+.voucher-table th:nth-child(4),
+.voucher-table td:nth-child(4) {
+  width: 25%; /* 会计科目列 */
+}
+
+/*.voucher-table th:nth-child(5),
+.voucher-table td:nth-child(5),
+.voucher-table th:nth-child(6), */
+.voucher-table td:nth-child(6) {
+  width: 25%; /* 借方贷方列 */
+}
+
+/*.voucher-table th:nth-child(7), */
+.voucher-table td:nth-child(7) {
+  width: 5%; /* 操作列 */
 }
 
 .voucher-table td {
@@ -529,42 +561,10 @@ onMounted(() => {
   padding: 0;
   text-align: center;
   position: relative;
-  height: 48px;
+  height: 50px;
   box-sizing: border-box;
   vertical-align: middle;
   overflow: hidden;
-}
-
-.voucher-table th:nth-child(1),
-.voucher-table td:nth-child(1) {
-  width: 40px;  /* 操作列 */
-}
-
-.voucher-table th:nth-child(2),
-.voucher-table td:nth-child(2) {
-  width: 40px;  /* 序号列 */
-}
-
-.voucher-table th:nth-child(3),
-.voucher-table td:nth-child(3) {
-  width: 220px;  /* 摘要列 */
-}
-
-.voucher-table th:nth-child(4),
-.voucher-table td:nth-child(4) {
-  width: 200px;  /* 会计科目列 */
-}
-
-.voucher-table th:nth-child(5),
-.voucher-table td:nth-child(5),
-.voucher-table th:nth-child(6),
-.voucher-table td:nth-child(6) {
-  width: 200px;  /* 借方贷方列 */
-}
-
-.voucher-table th:nth-child(7),
-.voucher-table td:nth-child(7) {
-  width: 40px;  /* 操作列 */
 }
 
 .amount-cell {
