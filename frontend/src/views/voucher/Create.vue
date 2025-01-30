@@ -463,7 +463,8 @@ onMounted(() => {
 }
 
 .page-container {
-  max-width: 1200px;
+  max-width: 1500px;
+  min-width: 1200px;
   margin: 0 auto;
   padding: 20px;
 }
