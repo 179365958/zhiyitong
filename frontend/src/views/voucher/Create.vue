@@ -178,16 +178,22 @@ const voucherForm = ref({
   number: '',
   attachments: 0,
   files: [],
-  entries: [
-    { summary: '', subject: '', debit: '', credit: '', debitFocused: false, creditFocused: false },
-    { summary: '', subject: '', debit: '', credit: '', debitFocused: false, creditFocused: false },
-    { summary: '', subject: '', debit: '', credit: '', debitFocused: false, creditFocused: false },
-    { summary: '', subject: '', debit: '', credit: '', debitFocused: false, creditFocused: false }
-  ],
+  entries: [],
   creator: '当前用户',
   reviewer: '',
   bookkeeper: ''
 })
+
+// 初始化凭证条目，确保至少有四行
+const initializeEntries = () => {
+  const initialEntries = [
+    { summary: '', subject: '', debit: '', credit: '', debitFocused: false, creditFocused: false },
+    { summary: '', subject: '', debit: '', credit: '', debitFocused: false, creditFocused: false },
+    { summary: '', subject: '', debit: '', credit: '', debitFocused: false, creditFocused: false },
+    { summary: '', subject: '', debit: '', credit: '', debitFocused: false, creditFocused: false }
+  ]
+  voucherForm.value.entries = initialEntries
+}
 
 // 模拟科目选项数据
 const subjectOptions = ref([
@@ -316,12 +322,7 @@ const handleSave = () => {
 // 保存并新增
 const handleSaveAndNew = () => {
   handleSave()
-  voucherForm.value.entries = [
-    { summary: '', subject: '', debit: '', credit: '', debitFocused: false, creditFocused: false },
-    { summary: '', subject: '', debit: '', credit: '', debitFocused: false, creditFocused: false },
-    { summary: '', subject: '', debit: '', credit: '', debitFocused: false, creditFocused: false },
-    { summary: '', subject: '', debit: '', credit: '', debitFocused: false, creditFocused: false }
-  ]
+  initializeEntries()
 }
 
 // 打印凭证
@@ -331,12 +332,7 @@ const handlePrint = () => {
 
 // 清空凭证
 const handleClear = () => {
-  voucherForm.value.entries = [
-    { summary: '', subject: '', debit: '', credit: '', debitFocused: false, creditFocused: false },
-    { summary: '', subject: '', debit: '', credit: '', debitFocused: false, creditFocused: false },
-    { summary: '', subject: '', debit: '', credit: '', debitFocused: false, creditFocused: false },
-    { summary: '', subject: '', debit: '', credit: '', debitFocused: false, creditFocused: false }
-  ]
+  initializeEntries()
   ElMessage.success('凭证已清空')
 }
 
@@ -442,17 +438,19 @@ const addEntryBefore = (index) => {
 
 // 删除分录
 const removeEntry = (index) => {
-  if (voucherForm.value.entries.length > 1) {
+  if (voucherForm.value.entries.length > 4) {
     voucherForm.value.entries.splice(index, 1)
   } else {
-    ElMessage.warning('至少需要保留一条分录')
+  //  ElMessage.warning('至少需要保留四条分录')
   }
 }
 
 onMounted(() => {
   voucherForm.value.number = generateVoucherNumber()
+  initializeEntries()
 })
 </script>
+
 
 <style scoped>
 /* styles.css */
