@@ -64,9 +64,10 @@
         <table class="voucher-table">
           <thead>
             <tr>
+              <th style="width: 40px">操作</th>
               <th style="width: 40px">序号</th>
-              <th style="width: 220px">摘要</th>
-              <th style="width: 300px">会计科目</th>
+              <th style="width: 120px">摘要</th>
+              <th style="width: 200px">会计科目</th>
               <th class="amount-col">
                 <div>借方金额</div>
               </th>
@@ -78,6 +79,11 @@
           </thead>
           <tbody>
             <tr v-for="(entry, index) in voucherForm.entries" :key="index">
+              <td>
+                <el-button type="primary" size="small" @click="addEntryBefore(index)">
+                  <el-icon><Plus /></el-icon>
+                </el-button>
+              </td>
               <td>{{ index + 1 }}</td>
               <td>
                 <input
@@ -137,11 +143,6 @@
             </tr>
           </tbody>
         </table>
-        <div class="add-entry-button">
-          <el-button type="primary" @click="addEntry">
-            <el-icon><Plus /></el-icon>增加分录
-          </el-button>
-        </div>
       </div>
 
       <!-- 底部信息 -->
@@ -427,6 +428,18 @@ const addEntry = () => {
   })
 }
 
+// 在指定位置增加分录
+const addEntryBefore = (index) => {
+  voucherForm.value.entries.splice(index, 0, {
+    summary: '',
+    subject: '',
+    debit: '',
+    credit: '',
+    debitFocused: false,
+    creditFocused: false
+  })
+}
+
 // 删除分录
 const removeEntry = (index) => {
   if (voucherForm.value.entries.length > 1) {
@@ -460,8 +473,8 @@ onMounted(() => {
   padding: 20px;
   border-radius: 4px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 1000px;
+  width: 80%; /* 设置为 80% 以减小表格的整体宽度 */
+  max-width: 1000px; /* 保持最大宽度为 1000px */
   margin: 0 auto;
   box-sizing: border-box;
 }
@@ -498,10 +511,11 @@ onMounted(() => {
 
 .table-container {
   margin-bottom: 20px;
+/*  overflow-x: auto;  添加水平滚动条 */
 }
 
 .voucher-table {
-  width: 100%;
+  width: 100%; /* 确保表格宽度为 100% */
   border-collapse: collapse;
   margin-bottom: 15px;
   table-layout: fixed;
@@ -522,25 +536,33 @@ onMounted(() => {
 
 .voucher-table th:nth-child(1),
 .voucher-table td:nth-child(1) {
-  width: 40px;  /* 序号列 */
+  width: 40px;  /* 操作列 */
 }
 
 .voucher-table th:nth-child(2),
-.voucher-table td:nth-child(2),
+.voucher-table td:nth-child(2) {
+  width: 40px;  /* 序号列 */
+}
+
 .voucher-table th:nth-child(3),
 .voucher-table td:nth-child(3) {
-  width: 220px;  /* 摘要列和会计科目列 */
+  width: 220px;  /* 摘要列 */
 }
 
 .voucher-table th:nth-child(4),
-.voucher-table td:nth-child(4),
+.voucher-table td:nth-child(4) {
+  width: 200px;  /* 会计科目列 */
+}
+
 .voucher-table th:nth-child(5),
-.voucher-table td:nth-child(5) {
+.voucher-table td:nth-child(5),
+.voucher-table th:nth-child(6),
+.voucher-table td:nth-child(6) {
   width: 200px;  /* 借方贷方列 */
 }
 
-.voucher-table th:nth-child(6),
-.voucher-table td:nth-child(6) {
+.voucher-table th:nth-child(7),
+.voucher-table td:nth-child(7) {
   width: 40px;  /* 操作列 */
 }
 
