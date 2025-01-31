@@ -461,8 +461,8 @@ onMounted(() => {
 }
 
 .page-container {
-  max-width: 1200px; /* 最大宽度 */
-  min-width: 1200px; /* 设置最小宽度 */
+  max-width: 1100px; /* 最大宽度 */
+  min-width: 1000px; /* 设置最小宽度 */
   margin: 0 auto;  
   padding: 20px;
 }
@@ -482,9 +482,9 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   margin-bottom: 20px;
-  width: 80%; /* 设置为 80% 以与 .page-container 对齐 */
+  width: 960px; /* 设置为 80% 以与 .page-container 对齐 */
    /* max-width: 920px; /* 最大宽度 */
-  min-width: 920px; /* 设置最小宽度 */
+  min-width: 800px; /* 设置最小宽度 */
   margin: 5px auto; /* 居中对齐 */
   background-color: white; /* 设置背景颜色为白色 */
   padding: 10px 20px; /* 添加内边距 */
