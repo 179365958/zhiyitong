@@ -96,22 +96,20 @@
             >
             </el-tab-pane>
           </el-tabs>
-          <!-- 标签页操作按钮 -->
-          <div class="tabs-actions">
-            <el-dropdown @command="handleTabsCommand">
-              <el-button size="small">
-                标签操作
-                <el-icon class="el-icon--right"><arrow-down /></el-icon>
-              </el-button>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item command="closeOther">关闭其他</el-dropdown-item>
-                  <el-dropdown-item command="closeAll">关闭所有</el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-          </div>
+          <!-- AI按钮 -->
+          <el-button size="small" @click="showAISidebar = true">
+            AI
+          </el-button>
         </div>
+
+        <!-- AI侧边栏 -->
+        <el-aside :class="['ai-sidebar', showAISidebar ? 'show' : '']">
+          <el-button class="close-btn" @click="showAISidebar = false">关闭</el-button>
+          <div v-for="item in tabs" :key="item.path">
+            <div>{{ item.title }}</div>
+            <div>{{ item.path }}</div>
+          </div>
+        </el-aside>
 
         <!-- 路由视图 -->
         <el-main class="main-content">
@@ -138,7 +136,8 @@ export default {
   data() {
     return {
       selectedAccount: '',
-      accounts: []
+      accounts: [],
+      showAISidebar: false // 添加此行
     };
   },
   computed: {
@@ -147,25 +146,25 @@ export default {
       return userStore.userInfo;
     },
     roleName() {
-    const userRoles = this.userInfo?.roles || [];
-    
-    // 定义角色映射
-    const roleMapping = {
-      'super_admin': '超级管理员',
-      'admin': '管理员',
-      // 可以继续添加其他角色映射
-    };
+      const userRoles = this.userInfo?.roles || [];
+      
+      // 定义角色映射
+      const roleMapping = {
+        'super_admin': '超级管理员',
+        'admin': '管理员',
+        // 可以继续添加其他角色映射
+      };
 
-    // 检查用户的角色
-    for (const role of userRoles) {
-      if (role.code in roleMapping) {
-        return roleMapping[role.code];
+      // 检查用户的角色
+      for (const role of userRoles) {
+        if (role.code in roleMapping) {
+          return roleMapping[role.code];
+        }
       }
-    }
 
-    // 如果没有匹配到任何定义的角色，返回 '普通用户'
-    return '普通用户';
-  }
+      // 如果没有匹配到任何定义的角色，返回 '普通用户'
+      return '普通用户';
+    }
   },
   methods: {
     async fetchAccounts() {
@@ -227,14 +226,6 @@ export default {
         }
       } catch (error) {
         console.error('Error switching database:', error);
-      }
-    },
-    handleTabsCommand(command) {
-      if (command === 'closeOther') {
-        tabsStore.closeOtherTabs(route.path);
-      } else if (command === 'closeAll') {
-        tabsStore.closeAllTabs();
-        router.push('/dashboard');
       }
     },
     handleCommand(command) {
@@ -309,16 +300,6 @@ const removeTab = (targetPath) => {
   }
 }
 
-// 处理标签页操作
-const handleTabsCommand = (command) => {
-  if (command === 'closeOther') {
-    tabsStore.closeOtherTabs(route.path)
-  } else if (command === 'closeAll') {
-    tabsStore.closeAllTabs()
-    router.push('/dashboard')
-  }
-}
-
 // 处理用户下拉菜单操作
 const handleCommand = (command) => {
   if (command === 'logout') {
@@ -350,6 +331,7 @@ onMounted(async () => {
   }
 })
 </script>
+
 <style scoped>
 .layout-container {
   height: 100vh;
@@ -527,13 +509,33 @@ onMounted(async () => {
   background-color: transparent;
 }
 
-
-
 .account-select {
   width: 200px;
   margin-left: auto;  /* 添加这行，将账套选择推到右边 */
   margin-right: 20px; /* 添加这行，与用户信息保持间距 */
 }
 
-</style>
+.ai-sidebar {
+  width: 300px;
+  background-color: #fff;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  position: fixed;
+  top: 50px;
+  bottom: 0;
+  right: 0;
+  z-index: 1000;
+  transition: transform 0.3s;
+  transform: translateX(100%);
+}
 
+.ai-sidebar.show {
+  transform: translateX(0);
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+</style>
