@@ -456,14 +456,14 @@ onMounted(() => {
 /* styles.css */
 .container {
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 0 auto; 
   padding: 20px;
 }
 
 .page-container {
   max-width: 1200px; /* 最大宽度 */
   min-width: 1200px; /* 设置最小宽度 */
-  margin: 0 auto;
+  margin: 0 auto;  
   padding: 20px;
 }
 
@@ -472,7 +472,7 @@ onMounted(() => {
   padding: 20px;
   border-radius: 4px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-  width: 80%; /* 设置为 80% 以减小表格的整体宽度 */
+  width: 100%; /* 设置为 80% 以减小表格的整体宽度 */
   max-width: 1000px; /* 保持最大宽度为 1000px */
   margin: 0 auto;
   box-sizing: border-box;
@@ -482,8 +482,8 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   margin-bottom: 20px;
-  width: 920px; /* 设置为 80% 以与 .page-container 对齐 */
-  max-width: 920px; /* 最大宽度 */
+  width: 80%; /* 设置为 80% 以与 .page-container 对齐 */
+   /* max-width: 920px; /* 最大宽度 */
   min-width: 920px; /* 设置最小宽度 */
   margin: 5px auto; /* 居中对齐 */
   background-color: white; /* 设置背景颜色为白色 */
