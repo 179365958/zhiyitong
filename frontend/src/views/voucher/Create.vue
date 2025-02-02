@@ -170,6 +170,8 @@ import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Document, Plus, ArrowLeft, ArrowRight, Printer, Key, Delete } from '@element-plus/icons-vue'
 import axios from 'axios'
+import { getSubjects } from '@/api/subject';
+
 
 // 凭证表单数据
 const voucherForm = ref({
