@@ -78,7 +78,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(entry, index) in voucherForm.entries" :key="index" @mouseenter="showDropdown[index] = true" @mouseleave="showDropdown[index] = false">
+            <tr v-for="(entry, index) in voucherForm.entries" :key="index">
               <td>
                 <el-button type="primary" size="small" @click="addEntryBefore(index)">
                   <el-icon><Plus /></el-icon>
@@ -94,22 +94,13 @@
                 />
               </td>
               <td>
-                <el-dropdown trigger="click" @command="handleSelectSubject(entry, index)" v-if="showDropdown[index]" class="dropdown-right">
-  <el-button type="link" class="dropdown-button">
-    <el-icon><MoreFilled /></el-icon>
-  </el-button>
-  <template #dropdown>
-    <el-dropdown-menu>
-      <el-dropdown-item
-        v-for="item in subjectOptions"
-        :key="item.code"
-        :command="item.code"
-      >
-        <span style="font-family: SimSun, 宋体, serif">{{ item.code }} - {{ item.name }}</span>
-      </el-dropdown-item>
-    </el-dropdown-menu>
-  </template>
-</el-dropdown>
+                <el-button 
+                  type="link" 
+                  class="dropdown-button"
+                  @click="openSubjectDialog(entry, index)"
+                >
+                  {{ entry.subject ? `${entry.subject} - ${getSubjectName(entry.subject)}` : '选择科目' }}
+                </el-button>
               </td>
               <td class="amount-cell">
                 <input
@@ -166,7 +157,6 @@
       title="选择科目"
       v-model="subjectDialogVisible"
       width="50%"
-      :before-close="handleClose"
     >
       <el-input
         v-model="searchQuery"
@@ -186,7 +176,7 @@
         <el-option
           v-for="item in subjectOptions"
           :key="item.code"
-          :label="item.name"
+          :label="`${item.code} - ${item.name}`"
           :value="item.code"
         >
           <span style="font-family: SimSun, 宋体, serif">{{ item.code }} - {{ item.name }}</span>
@@ -527,7 +517,7 @@ const openSubjectDialog = (entry, index) => {
   currentEntry.value = entry
   currentIndex.value = index
   selectedSubject.value = entry.subject
-  searchQuery.value = ''
+  subjectDialogVisible.value = true
   fetchSubjectOptions()
 }
 
@@ -535,7 +525,18 @@ const openSubjectDialog = (entry, index) => {
 const selectSubject = () => {
   if (currentEntry.value && selectedSubject.value) {
     currentEntry.value.subject = selectedSubject.value
-    handleSubjectChange(currentEntry.value)
+    // 自动处理借贷方
+    const subject = subjectOptions.value.find(item => item.code === selectedSubject.value)
+    if (subject) {
+      if (['资产', '费用'].includes(subject.type)) {
+        currentEntry.value.debit = currentEntry.value.debit || '0.00'
+        currentEntry.value.credit = ''
+      } else {
+        currentEntry.value.credit = currentEntry.value.credit || '0.00'
+        currentEntry.value.debit = ''
+      }
+    }
+    subjectDialogVisible.value = false
   }
 }
 
