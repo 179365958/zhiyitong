@@ -172,7 +172,6 @@ import { Document, Plus, ArrowLeft, ArrowRight, Printer, Key, Delete } from '@el
 import axios from 'axios'
 import { getSubjects } from '@/api/subject';
 
-
 // 凭证表单数据
 const voucherForm = ref({
   date: new Date().toISOString().split('T')[0],
@@ -197,10 +196,14 @@ const initializeEntries = () => {
   voucherForm.value.entries = initialEntries
 }
 
+// 声明 subjectOptions 并初始化为空数组
+const subjectOptions = ref([])
+
+// 获取科目选项数据
 const fetchSubjectOptions = async () => {
   try {
     const response = await getSubjects(); // 假设 getSubjects 是一个从后台获取科目数据的 API
-    subjectOptions.value = response.data;
+    subjectOptions.value = response.data.data; // 确保从 response.data 中获取数据
   } catch (error) {
     console.error('获取科目选项失败:', error);
     ElMessage.error('获取科目选项失败，请重试');
@@ -229,16 +232,15 @@ const amountInWords = computed(() => {
 // 搜索科目
 const handleSearchSubject = async (query) => {
   if (query) {
-    const response = await axios.get('/api/subjects', { params: { query } })
-    subjectOptions.value = response.data
+    try {
+      const response = await axios.get('/api/subjects', { params: { query } });
+      subjectOptions.value = response.data.data; // 确保从 response.data 中获取数据
+    } catch (error) {
+      console.error('搜索科目失败:', error);
+      ElMessage.error('搜索科目失败，请重试');
+    }
   } else {
-    subjectOptions.value = [
-      { code: '1001', name: '现金', type: '资产' },
-      { code: '1002', name: '银行存款', type: '资产' },
-      { code: '2001', name: '短期借款', type: '负债' },
-      { code: '4001', name: '主营业务收入', type: '收入' },
-      { code: '5001', name: '实收资本', type: '所有者权益' }
-    ]
+    fetchSubjectOptions(); // 重新获取所有科目选项
   }
 }
 
