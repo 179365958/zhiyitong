@@ -197,14 +197,15 @@ const initializeEntries = () => {
   voucherForm.value.entries = initialEntries
 }
 
-// 模拟科目选项数据
-const subjectOptions = ref([
-  { code: '1001', name: '现金', type: '资产' },
-  { code: '1002', name: '银行存款', type: '资产' },
-  { code: '2001', name: '短期借款', type: '负债' },
-  { code: '4001', name: '主营业务收入', type: '收入' },
-  { code: '5001', name: '实收资本', type: '所有者权益' }
-])
+const fetchSubjectOptions = async () => {
+  try {
+    const response = await getSubjects(); // 假设 getSubjects 是一个从后台获取科目数据的 API
+    subjectOptions.value = response.data;
+  } catch (error) {
+    console.error('获取科目选项失败:', error);
+    ElMessage.error('获取科目选项失败，请重试');
+  }
+}
 
 // 计算借方合计
 const totalDebit = computed(() => {
@@ -450,6 +451,7 @@ const removeEntry = (index) => {
 onMounted(() => {
   voucherForm.value.number = generateVoucherNumber()
   initializeEntries()
+  fetchSubjectOptions()
 })
 </script>
 

@@ -70,7 +70,7 @@ router.post('/login', systemController.login, (err, req, res, next) => {
 });
 
 // 科目相关路由
-router.get('/subjects', subjectController.getSubjects, (err, req, res, next) => {
+router.get('/subjects', authMiddleware,subjectController.getSubjects, (err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something broke!');
 });
