@@ -95,7 +95,7 @@
               </td>
               <td>
                 <el-dropdown trigger="click" @command="handleSelectSubject(entry, index)" v-if="showDropdown[index]" class="dropdown-right">
-  <el-button type="text" class="dropdown-button">
+  <el-button type="link" class="dropdown-button">
     <el-icon><MoreFilled /></el-icon>
   </el-button>
   <template #dropdown>
