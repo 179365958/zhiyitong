@@ -78,7 +78,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(entry, index) in voucherForm.entries" :key="index">
+            <tr v-for="(entry, index) in voucherForm.entries" :key="index" @mouseenter="showDropdown[index] = true" @mouseleave="showDropdown[index] = false">
               <td>
                 <el-button type="primary" size="small" @click="addEntryBefore(index)">
                   <el-icon><Plus /></el-icon>
@@ -94,25 +94,22 @@
                 />
               </td>
               <td>
-                <el-select
-                  v-model="entry.subject"
-                  filterable
-                  remote
-                  placeholder="选择科目"
-                  :remote-method="handleSearchSubject"
-                  @change="handleSubjectChange(entry)"
-                  class="subject-select"
-                  :loading="loading"
-                >
-                  <el-option
-                    v-for="item in subjectOptions"
-                    :key="item.code"
-                    :label="item.name"
-                    :value="item.code"
-                  >
-                    <span style="font-family: SimSun, 宋体, serif">{{ item.code }} - {{ item.name }}</span>
-                  </el-option>
-                </el-select>
+                <el-dropdown trigger="click" @command="handleSelectSubject(entry, index)" v-if="showDropdown[index]" class="dropdown-right">
+  <el-button type="text" class="dropdown-button">
+    <el-icon><MoreFilled /></el-icon>
+  </el-button>
+  <template #dropdown>
+    <el-dropdown-menu>
+      <el-dropdown-item
+        v-for="item in subjectOptions"
+        :key="item.code"
+        :command="item.code"
+      >
+        <span style="font-family: SimSun, 宋体, serif">{{ item.code }} - {{ item.name }}</span>
+      </el-dropdown-item>
+    </el-dropdown-menu>
+  </template>
+</el-dropdown>
               </td>
               <td class="amount-cell">
                 <input
@@ -163,15 +160,71 @@
         </div>
       </div>
     </div>
+
+    <!-- 科目选择对话框 -->
+    <el-dialog
+      title="选择科目"
+      v-model="subjectDialogVisible"
+      width="50%"
+      :before-close="handleClose"
+    >
+      <el-input
+        v-model="searchQuery"
+        placeholder="搜索科目"
+        @input="handleSearchSubject"
+        style="margin-bottom: 10px;"
+      />
+      <el-select
+        v-model="selectedSubject"
+        filterable
+        remote
+        placeholder="选择科目"
+        :remote-method="handleSearchSubject"
+        :loading="loading"
+        style="width: 100%;"
+      >
+        <el-option
+          v-for="item in subjectOptions"
+          :key="item.code"
+          :label="item.name"
+          :value="item.code"
+        >
+          <span style="font-family: SimSun, 宋体, serif">{{ item.code }} - {{ item.name }}</span>
+        </el-option>
+      </el-select>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="subjectDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="selectSubject">确定</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Document, Plus, ArrowLeft, ArrowRight, Printer, Key, Delete } from '@element-plus/icons-vue'
+import { Document, Plus, ArrowLeft, ArrowRight, Printer, Key, Delete, MoreFilled } from '@element-plus/icons-vue'
 import axios from 'axios'
 import { getSubjects } from '@/api/subject';
+
+
+const subjectDialogVisible = ref(false)
+
+// 处理对话框关闭
+const handleClose = (done) => {
+  // 可以在这里添加关闭前的确认逻辑
+  subjectDialogVisible.value = false
+  done() // 必须调用 done() 来关闭对话框
+}
+
+// 修改 handleSelectSubject 方法（如果存在）
+const handleSelectSubject = (entry, index) => {
+  currentEntry.value = entry
+  currentIndex.value = index
+  subjectDialogVisible.value = true // 打开对话框
+}
 
 // 凭证表单数据
 const voucherForm = ref({
@@ -456,7 +509,43 @@ const removeEntry = (index) => {
   if (voucherForm.value.entries.length > 4) {
     voucherForm.value.entries.splice(index, 1)
   } else {
-  //  ElMessage.warning('至少需要保留四条分录')
+    ElMessage.warning('至少需要保留四条分录')
+  }
+}
+
+// 对话框相关变量
+const selectedSubject = ref('')
+const currentEntry = ref(null)
+const currentIndex = ref(null)
+const searchQuery = ref('')
+
+// 显示下拉菜单的状态
+const showDropdown = ref(voucherForm.value.entries.map(() => false))
+
+// 打开科目选择对话框
+const openSubjectDialog = (entry, index) => {
+  currentEntry.value = entry
+  currentIndex.value = index
+  selectedSubject.value = entry.subject
+  searchQuery.value = ''
+  fetchSubjectOptions()
+}
+
+// 选择科目
+const selectSubject = () => {
+  if (currentEntry.value && selectedSubject.value) {
+    currentEntry.value.subject = selectedSubject.value
+    handleSubjectChange(currentEntry.value)
+  }
+}
+
+// 聚焦下一个输入框
+const focusNextInput = (event, index, field) => {
+  const nextIndex = field === 'summary' ? index : index + 1
+  const nextField = field === 'summary' ? 'subject' : field === 'subject' ? 'debit' : 'summary'
+  const inputElement = document.querySelector(`input[data-index="${nextIndex}"][data-field="${nextField}"]`)
+  if (inputElement) {
+    inputElement.focus()
   }
 }
 
@@ -471,14 +560,14 @@ onMounted(() => {
 /* styles.css */
 .container {
   max-width: 1100px;
-  margin:  0 auto; 
+  margin: 0 auto;
   padding: 20px;
 }
 
 .page-container {
   max-width: 1050px; /* 最大宽度 */
   min-width: 1050px; /* 设置最小宽度 */
-  margin: 0 auto;  
+  margin: 0 auto;
   padding: 10px;
   background-color: #f9f9f9; /* 背景颜色 */
   border-radius: 8px; /* 圆角 */
@@ -487,21 +576,19 @@ onMounted(() => {
 
 .voucher-container {
   background-color: white;
-  margin: 10px ; 
+  margin: 10px;
   padding: 20px;
   border-radius: 4px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
- /* width: 100%; /* 设置为 80% 以减小表格的整体宽度 */
   max-width: 1000px; /* 保持最大宽度为 1000px */
   box-sizing: border-box;
 }
 
 .toolbar {
   display: flex;
-  margin: 10px ; 
+  margin: 10px;
   justify-content: space-between;
   margin-bottom: 10px;
- /*  width: 90%; /* 设置为 100% 以与 .page-container 对齐 */
   max-width: 960px;
   background-color: white; /* 设置背景颜色为白色 */
   padding: 10px 20px; /* 添加内边距 */
@@ -710,4 +797,31 @@ onMounted(() => {
   border-radius: 0;
   box-shadow: none !important;
 }
+
+.dropdown-button {
+  padding: 8px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  text-align: right; /* 使按钮靠右对齐 */
+}
+
+.dropdown-button .el-icon {
+  font-size: 16px;
+}
+
+.dropdown-right {
+  display: flex;
+  justify-content: flex-end; /* 使内容靠右对齐 */
+}
+
+.dropdown-button {
+  padding: 8px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  text-align: right; /* 使按钮靠右对齐 */
+  margin-left: auto; /* 使按钮靠右 */
+}
+
 </style>
