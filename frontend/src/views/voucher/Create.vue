@@ -102,6 +102,7 @@
                   :remote-method="handleSearchSubject"
                   @change="handleSubjectChange(entry)"
                   class="subject-select"
+                  :loading="loading"
                 >
                   <el-option
                     v-for="item in subjectOptions"
@@ -199,14 +200,38 @@ const initializeEntries = () => {
 // 声明 subjectOptions 并初始化为空数组
 const subjectOptions = ref([])
 
+// 加载状态
+const loading = ref(false)
+
 // 获取科目选项数据
 const fetchSubjectOptions = async () => {
   try {
+    loading.value = true
     const response = await getSubjects(); // 假设 getSubjects 是一个从后台获取科目数据的 API
     subjectOptions.value = response.data.data; // 确保从 response.data 中获取数据
   } catch (error) {
     console.error('获取科目选项失败:', error);
     ElMessage.error('获取科目选项失败，请重试');
+  } finally {
+    loading.value = false
+  }
+}
+
+// 搜索科目
+const handleSearchSubject = async (query) => {
+  if (query) {
+    try {
+      loading.value = true
+      const response = await axios.get('/api/subjects', { params: { query } });
+      subjectOptions.value = response.data.data; // 确保从 response.data 中获取数据
+    } catch (error) {
+      console.error('搜索科目失败:', error);
+      ElMessage.error('搜索科目失败，请重试');
+    } finally {
+      loading.value = false
+    }
+  } else {
+    fetchSubjectOptions(); // 重新获取所有科目选项
   }
 }
 
@@ -228,21 +253,6 @@ const totalCredit = computed(() => {
 const amountInWords = computed(() => {
   return numberToChinese(totalDebit.value)
 })
-
-// 搜索科目
-const handleSearchSubject = async (query) => {
-  if (query) {
-    try {
-      const response = await axios.get('/api/subjects', { params: { query } });
-      subjectOptions.value = response.data.data; // 确保从 response.data 中获取数据
-    } catch (error) {
-      console.error('搜索科目失败:', error);
-      ElMessage.error('搜索科目失败，请重试');
-    }
-  } else {
-    fetchSubjectOptions(); // 重新获取所有科目选项
-  }
-}
 
 // 科目变更处理
 const handleSubjectChange = (entry) => {
@@ -457,41 +467,42 @@ onMounted(() => {
 })
 </script>
 
-
 <style scoped>
 /* styles.css */
 .container {
-  max-width: 1200px;
-  margin: 0 auto; 
+  max-width: 1100px;
+  margin:  0 auto; 
   padding: 20px;
 }
 
 .page-container {
-  max-width: 1100px; /* 最大宽度 */
-  min-width: 1000px; /* 设置最小宽度 */
+  max-width: 1050px; /* 最大宽度 */
+  min-width: 1050px; /* 设置最小宽度 */
   margin: 0 auto;  
-  padding: 20px;
+  padding: 10px;
+  background-color: #f9f9f9; /* 背景颜色 */
+  border-radius: 8px; /* 圆角 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* 阴影 */
 }
 
 .voucher-container {
   background-color: white;
+  margin: 10px ; 
   padding: 20px;
   border-radius: 4px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-  width: 100%; /* 设置为 80% 以减小表格的整体宽度 */
+ /* width: 100%; /* 设置为 80% 以减小表格的整体宽度 */
   max-width: 1000px; /* 保持最大宽度为 1000px */
-  margin: 0 auto;
   box-sizing: border-box;
 }
 
 .toolbar {
   display: flex;
+  margin: 10px ; 
   justify-content: space-between;
-  margin-bottom: 20px;
-  width: 960px; /* 设置为 80% 以与 .page-container 对齐 */
-   /* max-width: 920px; /* 最大宽度 */
-  min-width: 800px; /* 设置最小宽度 */
-  margin: 5px auto; /* 居中对齐 */
+  margin-bottom: 10px;
+ /*  width: 90%; /* 设置为 100% 以与 .page-container 对齐 */
+  max-width: 960px;
   background-color: white; /* 设置背景颜色为白色 */
   padding: 10px 20px; /* 添加内边距 */
   border-radius: 4px; /* 添加圆角 */
@@ -507,10 +518,15 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   margin-bottom: 20px;
+  background-color: #f5f7fa; /* 背景颜色 */
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1); /* 阴影 */
 }
 
 .type-no {
   font-size: 1.2em;
+  font-weight: bold;
 }
 
 .date-container {
@@ -520,11 +536,12 @@ onMounted(() => {
 
 .attachment {
   margin-left: 10px;
+  font-size: 0.9em;
+  color: #606266;
 }
 
 .table-container {
   margin-bottom: 20px;
-/*  overflow-x: auto;  添加水平滚动条 */
 }
 
 .voucher-table {
@@ -536,36 +553,16 @@ onMounted(() => {
   background-color: white;
 }
 
-.voucher-table th:nth-child(1),
-.voucher-table td:nth-child(1) {
-  width: 3%; /* 操作列 */
-}
-
-.voucher-table th:nth-child(2),
-.voucher-table td:nth-child(2) {
-  width: 3%; /* 序号列 */
-}
-
-.voucher-table th:nth-child(3),
-.voucher-table td:nth-child(3) {
-  width: 20%; /* 摘要列 */
-}
-
-.voucher-table th:nth-child(4),
-.voucher-table td:nth-child(4) {
-  width: 25%; /* 会计科目列 */
-}
-
-/*.voucher-table th:nth-child(5),
-.voucher-table td:nth-child(5),
-.voucher-table th:nth-child(6), */
-.voucher-table td:nth-child(6) {
-  width: 25%; /* 借方贷方列 */
-}
-
-/*.voucher-table th:nth-child(7), */
-.voucher-table td:nth-child(7) {
-  width: 5%; /* 操作列 */
+.voucher-table th {
+  background-color: #f5f7fa;
+  height: 52px;
+  padding: 0;
+  text-align: center;
+  font-size: 13px;
+  font-weight: normal;
+  color: #606266;
+  border: 1px solid #000000;
+  box-sizing: border-box;
 }
 
 .voucher-table td {
@@ -602,24 +599,29 @@ onMounted(() => {
   line-height: 48px;
 }
 
-.amount-grid {
-  display: none;
+.text-input {
+  width: 100%;
+  height: 48px;
+  border: none;
+  outline: none;
+  padding: 0 8px;
+  font-size: 13px;
+  background-color: transparent;
+  box-sizing: border-box;
+  line-height: 48px;
 }
 
-.text-input,
-.amount-input,
+.text-input:focus,
+.amount-input:focus {
+  background-color: #f5f7fa;
+}
+
 .voucher-table :deep(.el-input__wrapper) {
+  height: 48px;
   box-shadow: none !important;
   border-radius: 0;
   background-color: transparent;
   border: none;
-  box-sizing: border-box;
-}
-
-.text-input:focus,
-.amount-input:focus,
-.voucher-table :deep(.el-input__wrapper.is-focus) {
-  background-color: #f5f7fa;
 }
 
 .voucher-table :deep(.el-input__inner) {
@@ -646,20 +648,16 @@ onMounted(() => {
   border-radius: 0;
 }
 
-.voucher-table :deep(.el-select .el-input__wrapper) {
-  height: 48px;
-  box-shadow: none !important;
-  border-radius: 0;
-  background-color: transparent;
-  border: none;
-}
-
 .voucher-table :deep(.el-select .el-input__suffix) {
-  display: none; /* 隐藏下拉箭头 */
+  display: block; /* 显示下拉箭头 */
 }
 
 .voucher-footer {
   margin-top: 20px;
+  background-color: #f5f7fa; /* 背景颜色 */
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1); /* 阴影 */
 }
 
 .total-row, .amount-row {
@@ -697,81 +695,6 @@ onMounted(() => {
 .approver-item:last-child {
   position: absolute;
   right: 80px;
-}
-
-.voucher-table th {
-  background-color: #f5f7fa;
-  height: 52px;
-  padding: 0;
-  text-align: center;
-  font-size: 13px;
-  font-weight: normal;
-  color: #606266;
-  border: 1px solid #000000;
-  box-sizing: border-box;
-}
-
-.amount-col {
-  position: relative;
-  height: 52px;
-}
-
-.amount-col > div {
-  height: 52px;
-  line-height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.text-input {
-  width: 100%;
-  height: 48px;
-  border: none;
-  outline: none;
-  padding: 0 8px;
-  font-size: 13px;
-  background-color: transparent;
-  box-sizing: border-box;
-  line-height: 48px;
-}
-
-.text-input:focus {
-  background-color: #f5f7fa;
-}
-
-.voucher-table :deep(.el-input) {
-  height: 48px;
-}
-
-.voucher-table :deep(.el-input__wrapper) {
-  height: 48px;
-  box-shadow: none !important;
-  border-radius: 0;
-  background-color: transparent;
-  border: none;
-}
-
-.voucher-table :deep(.el-input__inner) {
-  height: 48px;
-  line-height: 48px;
-  border: none;
-  padding: 0 8px;
-  font-size: 13px;
-  background-color: transparent;
-}
-
-.voucher-table :deep(.el-button) {
-  height: 48px;
-  line-height: 48px;
-  padding: 0 10px;
-  font-size: 13px;
-  border-radius: 0;
-  box-shadow: none !important;
-}
-
-.voucher-table :deep(.el-button .el-icon) {
-  vertical-align: middle;
 }
 
 .add-entry-button {
