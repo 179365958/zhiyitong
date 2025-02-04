@@ -1,17 +1,24 @@
 <template>
+  <!-- 这是 Vue 组件的模板部分，用于定义组件的 HTML 结构 -->
+
+  <!-- 页面容器 -->
   <div class="page-container">
-    <!-- 顶部工具栏 -->
+    <!-- 工具栏 -->
     <div class="toolbar">
       <div class="toolbar-left">
+        <!-- 保存并新增按钮 -->
         <el-button type="primary" @click="handleSaveAndNew">
           <el-icon><Document /></el-icon>保存并新增
         </el-button>
+        <!-- 保存按钮 -->
         <el-button @click="handleSave">
           <el-icon><Plus /></el-icon>保存
         </el-button>
+        <!-- 打印按钮 -->
         <el-button @click="handlePrint">
           <el-icon><Printer /></el-icon>打印
         </el-button>
+        <!-- 更多操作下拉菜单 -->
         <el-dropdown>
           <el-button>
             更多<i class="el-icon-arrow-down el-icon--right"></i>
@@ -25,12 +32,15 @@
         </el-dropdown>
       </div>
       <div class="toolbar-right">
+        <!-- 快捷键提示按钮 -->
         <el-button @click="handleShortcut">
           <el-icon><Key /></el-icon>快捷键
         </el-button>
+        <!-- 上一页按钮 -->
         <el-button @click="handlePrev">
           <el-icon><ArrowLeft /></el-icon>上一页
         </el-button>
+        <!-- 下一页按钮 -->
         <el-button @click="handleNext">
           <el-icon><ArrowRight /></el-icon>下一页
         </el-button>
@@ -46,6 +56,7 @@
           <span class="no">{{ voucherForm.number }}</span>
         </div>
         <div class="date-container">
+          <!-- 日期选择器 -->
           <el-date-picker
             v-model="voucherForm.date"
             type="date"
@@ -78,14 +89,17 @@
             </tr>
           </thead>
           <tbody>
+            <!-- 循环渲染凭证条目 -->
             <tr v-for="(entry, index) in voucherForm.entries" :key="index">
               <td>
+                <!-- 在当前行前面添加分录按钮 -->
                 <el-button type="primary" size="small" @click="addEntryBefore(index)">
                   <el-icon><Plus /></el-icon>
                 </el-button>
               </td>
               <td>{{ index + 1 }}</td>
               <td>
+                <!-- 摘要输入框 -->
                 <input
                   type="text"
                   v-model="entry.summary"
@@ -94,6 +108,7 @@
                 />
               </td>
               <td>
+                <!-- 选择科目按钮 -->
                 <el-button 
                   type="link" 
                   class="dropdown-button"
@@ -103,6 +118,7 @@
                 </el-button>
               </td>
               <td class="amount-cell">
+                <!-- 借方金额输入框 -->
                 <input
                   type="text"
                   v-model="entry.debit"
@@ -114,6 +130,7 @@
                 />
               </td>
               <td class="amount-cell">
+                <!-- 贷方金额输入框 -->
                 <input
                   type="text"
                   v-model="entry.credit"
@@ -125,6 +142,7 @@
                 />
               </td>
               <td>
+                <!-- 删除分录按钮 -->
                 <el-button type="danger" size="small" @click="removeEntry(index)">
                   <el-icon><Delete /></el-icon>
                 </el-button>
@@ -134,7 +152,7 @@
         </table>
       </div>
 
-      <!-- 底部信息 -->
+      <!-- 凭证底部信息 -->
       <div class="voucher-footer">
         <div class="total-row">
           <span>合计：</span>
@@ -152,45 +170,50 @@
       </div>
     </div>
 
-    <!-- 科目选择对话框 -->
-    <el-dialog
-      title="选择科目"
-      v-model="subjectDialogVisible"
-      width="50%"
+<!-- 科目选择对话框 -->
+<el-dialog
+  title="选择科目"
+  v-model="subjectDialogVisible"
+  width="50%"
+>
+  <!-- 搜索框 -->
+  <el-input
+    v-model="searchQuery"
+    placeholder="搜索科目"
+    @input="handleSearchSubject"
+    style="margin-bottom: 10px;"
+  />
+  <!-- 下拉选择框 -->
+  <el-select
+    v-model="selectedSubject"
+    filterable
+    remote
+    placeholder="选择科目"
+    :remote-method="handleSearchSubject"
+    :loading="loading"
+    style="width: 100%;"
+  >
+    <!-- 科目选项 -->
+    <el-option
+      v-for="item in subjectOptions"
+      :key="item.code"
+      :label="`${item.code} - ${item.name}`"
+      :value="item.code"
     >
-      <el-input
-        v-model="searchQuery"
-        placeholder="搜索科目"
-        @input="handleSearchSubject"
-        style="margin-bottom: 10px;"
-      />
-      <el-select
-        v-model="selectedSubject"
-        filterable
-        remote
-        placeholder="选择科目"
-        :remote-method="handleSearchSubject"
-        :loading="loading"
-        style="width: 100%;"
-      >
-        <el-option
-          v-for="item in subjectOptions"
-          :key="item.code"
-          :label="`${item.code} - ${item.name}`"
-          :value="item.code"
-        >
-          <span style="font-family: SimSun, 宋体, serif">{{ item.code }} - {{ item.name }}</span>
-        </el-option>
-      </el-select>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="subjectDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="selectSubject">确定</el-button>
-        </span>
-      </template>
+      <span style="font-family: SimSun, 宋体, serif">{{ item.code }} - {{ item.name }}</span>
+    </el-option>
+  </el-select>
+  <!-- 对话框底部按钮 -->
+  <template #footer>
+    <span class="dialog-footer">
+      <el-button @click="subjectDialogVisible = false">取消</el-button>
+      <el-button type="primary" @click="selectSubject">确定</el-button>
+    </span>
+  </template>
     </el-dialog>
   </div>
 </template>
+
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
