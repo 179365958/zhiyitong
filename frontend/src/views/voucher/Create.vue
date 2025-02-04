@@ -108,14 +108,27 @@
                 />
               </td>
               <td>
-                <!-- 选择科目按钮 -->
-                <el-button 
-                  type="link" 
-                  class="dropdown-button"
-                  @click="openSubjectDialog(entry, index)"
+                <!-- 选择科目下拉框 -->
+                <el-select
+                  v-model="entry.subject"
+                  filterable
+                  remote
+                  placeholder="选择科目"
+                  :remote-method="handleSearchSubject"
+                  :loading="loading"
+                  style="width: 100%;"
+                  @change="handleSubjectChange(entry)"
                 >
-                  {{ entry.subject ? `${entry.subject} - ${getSubjectName(entry.subject)}` : '选择科目' }}
-                </el-button>
+                  <!-- 科目选项 -->
+                  <el-option
+                    v-for="item in subjectOptions"
+                    :key="item.code"
+                    :label="`${item.code} - ${item.name}`"
+                    :value="item.code"
+                  >
+                    <span style="font-family: SimSun, 宋体, serif">{{ item.code }} - {{ item.name }}</span>
+                  </el-option>
+                </el-select>
               </td>
               <td class="amount-cell">
                 <!-- 借方金额输入框 -->
@@ -169,75 +182,15 @@
         </div>
       </div>
     </div>
-
-<!-- 科目选择对话框 -->
-<el-dialog
-  title="选择科目"
-  v-model="subjectDialogVisible"
-  width="50%"
->
-  <!-- 搜索框 -->
-  <el-input
-    v-model="searchQuery"
-    placeholder="搜索科目"
-    @input="handleSearchSubject"
-    style="margin-bottom: 10px;"
-  />
-  <!-- 下拉选择框 -->
-  <el-select
-    v-model="selectedSubject"
-    filterable
-    remote
-    placeholder="选择科目"
-    :remote-method="handleSearchSubject"
-    :loading="loading"
-    style="width: 100%;"
-  >
-    <!-- 科目选项 -->
-    <el-option
-      v-for="item in subjectOptions"
-      :key="item.code"
-      :label="`${item.code} - ${item.name}`"
-      :value="item.code"
-    >
-      <span style="font-family: SimSun, 宋体, serif">{{ item.code }} - {{ item.name }}</span>
-    </el-option>
-  </el-select>
-  <!-- 对话框底部按钮 -->
-  <template #footer>
-    <span class="dialog-footer">
-      <el-button @click="subjectDialogVisible = false">取消</el-button>
-      <el-button type="primary" @click="selectSubject">确定</el-button>
-    </span>
-  </template>
-    </el-dialog>
   </div>
 </template>
-
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Document, Plus, ArrowLeft, ArrowRight, Printer, Key, Delete, MoreFilled } from '@element-plus/icons-vue'
 import axios from 'axios'
-import { getSubjects } from '@/api/subject';
-
-
-const subjectDialogVisible = ref(false)
-
-// 处理对话框关闭
-const handleClose = (done) => {
-  // 可以在这里添加关闭前的确认逻辑
-  subjectDialogVisible.value = false
-  done() // 必须调用 done() 来关闭对话框
-}
-
-// 修改 handleSelectSubject 方法（如果存在）
-const handleSelectSubject = (entry, index) => {
-  currentEntry.value = entry
-  currentIndex.value = index
-  subjectDialogVisible.value = true // 打开对话框
-}
+import { getSubjects } from '@/api/subject'
 
 // 凭证表单数据
 const voucherForm = ref({
@@ -325,10 +278,10 @@ const handleSubjectChange = (entry) => {
   const subject = subjectOptions.value.find(item => item.code === entry.subject)
   if (subject) {
     if (['资产', '费用'].includes(subject.type)) {
-      entry.debit = entry.debit || ''
+      entry.debit = entry.debit || '0.00'
       entry.credit = ''
     } else if (['负债', '收入', '所有者权益'].includes(subject.type)) {
-      entry.credit = entry.credit || ''
+      entry.credit = entry.credit || '0.00'
       entry.debit = ''
     }
   }
@@ -523,43 +476,6 @@ const removeEntry = (index) => {
     voucherForm.value.entries.splice(index, 1)
   } else {
     ElMessage.warning('至少需要保留四条分录')
-  }
-}
-
-// 对话框相关变量
-const selectedSubject = ref('')
-const currentEntry = ref(null)
-const currentIndex = ref(null)
-const searchQuery = ref('')
-
-// 显示下拉菜单的状态
-const showDropdown = ref(voucherForm.value.entries.map(() => false))
-
-// 打开科目选择对话框
-const openSubjectDialog = (entry, index) => {
-  currentEntry.value = entry
-  currentIndex.value = index
-  selectedSubject.value = entry.subject
-  subjectDialogVisible.value = true
-  fetchSubjectOptions()
-}
-
-// 选择科目
-const selectSubject = () => {
-  if (currentEntry.value && selectedSubject.value) {
-    currentEntry.value.subject = selectedSubject.value
-    // 自动处理借贷方
-    const subject = subjectOptions.value.find(item => item.code === selectedSubject.value)
-    if (subject) {
-      if (['资产', '费用'].includes(subject.type)) {
-        currentEntry.value.debit = currentEntry.value.debit || '0.00'
-        currentEntry.value.credit = ''
-      } else {
-        currentEntry.value.credit = currentEntry.value.credit || '0.00'
-        currentEntry.value.debit = ''
-      }
-    }
-    subjectDialogVisible.value = false
   }
 }
 
