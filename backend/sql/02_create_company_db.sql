@@ -550,6 +550,18 @@ CREATE TABLE IF NOT EXISTS voucher_template (
     UNIQUE KEY uk_template_code (template_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='常用凭证模板表';
 
+CREATE TABLE IF NOT EXISTS accounting_summary (
+    id              INT PRIMARY KEY AUTO_INCREMENT,
+    summary_code    VARCHAR(50) NOT NULL,           -- 摘要编码
+    summary_name    VARCHAR(200) NOT NULL,          -- 摘要名称
+    description     TEXT,                           -- 描述
+    created_at      DATETIME NOT NULL,              -- 创建时间
+    created_by      INT NOT NULL,                   -- 创建人
+    updated_at      DATETIME,                       -- 更新时间
+    updated_by      INT,                            -- 更新人
+    UNIQUE KEY uk_summary_code (summary_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会计常用摘要表';
+
 -- 结账记录表
 CREATE TABLE IF NOT EXISTS closing_record (
     id              INT PRIMARY KEY AUTO_INCREMENT,      -- 主键ID
