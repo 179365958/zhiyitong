@@ -99,6 +99,7 @@
               </td>
               <td>{{ index + 1 }}</td>
               <td>
+                <!-- 选择摘要下拉框 -->
                 <el-select
                   v-model="entry.summary"
                   filterable
@@ -107,8 +108,9 @@
                   :remote-method="handleSearchSummary"
                   :loading="summaryLoading"
                   style="width: 100%;"
+                  @change="handleSummaryChange(entry)"
+                  class="rounded-select" 
                 >
-                  <!-- 摘要选项 -->
                   <el-option
                     v-for="item in summaryOptions"
                     :key="item.value"
