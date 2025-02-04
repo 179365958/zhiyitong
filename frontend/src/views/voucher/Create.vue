@@ -99,13 +99,23 @@
               </td>
               <td>{{ index + 1 }}</td>
               <td>
-                <!-- 摘要输入框 -->
-                <input
-                  type="text"
+                <el-select
                   v-model="entry.summary"
-                  class="text-input"
-                  @keydown.enter="focusNextInput($event, index, 'subject')"
-                />
+                  filterable
+                  remote
+                  placeholder="选择摘要"
+                  :remote-method="handleSearchSummary"
+                  :loading="summaryLoading"
+                  style="width: 100%;"
+                >
+                  <!-- 摘要选项 -->
+                  <el-option
+                    v-for="item in summaryOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select>
               </td>
               <td>
                 <!-- 选择科目下拉框 -->
@@ -221,6 +231,41 @@ const subjectOptions = ref([])
 
 // 加载状态
 const loading = ref(false)
+
+// 摘要选项数据
+const summaryOptions = ref([
+  { value: '摘要1', label: '摘要1' },
+  { value: '摘要2', label: '摘要2' },
+  { value: '摘要3', label: '摘要3' },
+]);
+
+// 摘要加载状态
+const summaryLoading = ref(false);
+
+// 搜索摘要
+const handleSearchSummary = async (query) => {
+  if (query) {
+    try {
+      summaryLoading.value = true;
+      // 模拟异步搜索
+      const response = await axios.get('/api/summaries', { params: { query } });
+      summaryOptions.value = response.data.data; // 假设从 API 返回的数据格式为 { data: [{ value: '摘要1', label: '摘要1' }, ...] }
+    } catch (error) {
+      console.error('搜索摘要失败:', error);
+      ElMessage.error('搜索摘要失败，请重试');
+    } finally {
+      summaryLoading.value = false;
+    }
+  } else {
+    // 如果查询为空，重置为默认摘要选项
+    summaryOptions.value = [
+      { value: '摘要1', label: '摘要1' },
+      { value: '摘要2', label: '摘要2' },
+      { value: '摘要3', label: '摘要3' },
+    ];
+  }
+};
+
 
 // 获取科目选项数据
 const fetchSubjectOptions = async () => {
