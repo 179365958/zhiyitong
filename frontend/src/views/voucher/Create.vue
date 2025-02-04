@@ -225,14 +225,27 @@ const loading = ref(false)
 // 获取科目选项数据
 const fetchSubjectOptions = async () => {
   try {
-    loading.value = true
+    loading.value = true;
     const response = await getSubjects(); // 假设 getSubjects 是一个从后台获取科目数据的 API
-    subjectOptions.value = response.data.data; // 确保从 response.data 中获取数据
+    console.log('API Response:', response); // 调试信息
+    
+    if (response && response.success && Array.isArray(response.data)) {
+      const data = response.data.map(item => ({
+        value: item.code,
+        label: `${item.code} - ${item.name}`,
+        ...item // 如果需要保留其他属性
+      }));
+      console.log('Fetched subjects:', data); // 调试信息
+      subjectOptions.value = data;
+    } else {
+      console.error('Invalid response format:', response);
+      ElMessage.error('获取科目选项失败，请检查API响应格式');
+    }
   } catch (error) {
     console.error('获取科目选项失败:', error);
     ElMessage.error('获取科目选项失败，请重试');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
