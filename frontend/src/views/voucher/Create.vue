@@ -783,7 +783,7 @@ onMounted(() => {
 .el-select {
   width: 100%;
   box-sizing: border-box;
-  border: 1px solid #ccc;
+  border: 0px solid #ccc;
   border-radius: 0px;
   outline: none;
   margin: 0; /* 移除外边距 */
@@ -804,54 +804,6 @@ onMounted(() => {
   display: block; /* 显示下拉箭头 */
 }
 
-.el-select .el-input__suffix .el-select__caret {
-  color: #606266;
-}
-
-.el-select .el-input__inner:focus {
-  border-color: #66afe9;
-}
-
-.el-select .el-input__suffix .el-select__caret {
-  transition: transform 0.3s;
-}
-
-.el-select .el-input__inner:focus + .el-input__suffix .el-select__caret,
-.el-select:hover .el-input__suffix .el-select__caret {
-  transform: rotate(180deg);
-}
-
-.el-select .el-input__inner:focus + .el-input__suffix + .el-select-dropdown,
-.el-select:hover .el-select-dropdown {
-  display: block;
-}
-
-/* 覆盖 el-dropdown 的样式 */
-.el-select-dropdown {
-  display: none;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  min-height: 100px;
-  max-height: 200px;
-  overflow: auto;
-  border: 1px solid #ccc;
-  border-top: none;
-  border-radius: 0 0 4px 4px;
-  background-color: #fff;
-  z-index: 1000;
-  resize: both; /* 允许自由调整大小 */
-}
-
-.el-select-dropdown__item {
-  padding: 10px;
-  cursor: pointer;
-}
-
-.el-select-dropdown__item:hover {
-  background-color: #f1f1f1;
-}
 
 /* 输入框样式 */
 .el-input__inner {
