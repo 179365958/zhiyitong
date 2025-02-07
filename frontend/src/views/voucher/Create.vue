@@ -103,6 +103,7 @@
                 <el-select
                   v-model="entry.summary"
                   filterable
+                  size="large"
                   remote
                   placeholder="选择摘要"
                   :remote-method="handleSearchSummary"
@@ -124,6 +125,7 @@
                 <el-select
                   v-model="entry.subject"
                   filterable
+                  size="large"
                   remote
                   placeholder="选择科目"
                   :remote-method="handleSearchSubject"
@@ -666,7 +668,7 @@ onMounted(() => {
   padding: 0;
   text-align: center;
   position: relative;
-  height: 50px;
+  height: 40px;
   box-sizing: border-box;
   vertical-align: middle;
   overflow: hidden;
@@ -690,7 +692,7 @@ onMounted(() => {
   text-align: right;
   background-color: transparent;
   font-family: inherit;
-  font-size: 13px;
+  font-size: 16px;
   box-sizing: border-box;
   line-height: 48px;
 }
@@ -817,7 +819,7 @@ onMounted(() => {
 /* 输入框样式 */
 .el-input__inner {
   width: 100%;
-  padding: 8px;
+  padding: 0px;
   box-sizing: border-box;
   border: 1px solid #ccc;
   border-radius: 0px;
