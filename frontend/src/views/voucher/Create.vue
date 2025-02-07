@@ -314,6 +314,8 @@ const handleSearchSubject = async (query) => {
   }
 }
 
+
+
 // 计算借方合计
 const totalDebit = computed(() => {
   return voucherForm.value.entries.reduce((sum, entry) => {
@@ -361,14 +363,21 @@ const formatAmount = (value) => {
 }
 
 const handleAmountInput = (event, index, type) => {
-  const value = formatAmount(event.target.value)
-  event.target.value = value
+  const value = formatAmount(event.target.value);
+  event.target.value = value;
+
   if (type === 'debit') {
-    voucherForm.value.entries[index].debit = value
+    voucherForm.value.entries[index].debit = value;
+    if (value && voucherForm.value.entries[index].credit) {
+      voucherForm.value.entries[index].credit = '';
+    }
   } else {
-    voucherForm.value.entries[index].credit = value
+    voucherForm.value.entries[index].credit = value;
+    if (value && voucherForm.value.entries[index].debit) {
+      voucherForm.value.entries[index].debit = '';
+    }
   }
-}
+};
 
 const handleAmountBlur = (entry, type) => {
   let value = type === 'debit' ? entry.debit : entry.credit
