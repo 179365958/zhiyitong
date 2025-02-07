@@ -60,8 +60,8 @@
           <el-date-picker
             v-model="voucherForm.date"
             type="date"
-            size="small"
-            style="width: 120px;"
+            size="default"
+            style="width: 130px;"
             placeholder="选择日期"
           />
         </div>
@@ -621,8 +621,8 @@ onMounted(() => {
 }
 
 .type-no {
-  font-size: 1.2em;
-  font-weight: bold;
+  font-size: 0.9em;
+
 }
 
 .date-container {
@@ -828,4 +828,15 @@ onMounted(() => {
 .el-input__inner:focus {
   border-color: #66afe9;
 }
+
+/* 自定义日期选择器的字体大小 */
+.custom-date-picker .el-input__inner {
+  font-size: 16px; /* 设置你想要的字体大小 */
+}
+
+.custom-date-picker .el-input__prefix,
+.custom-date-picker .el-input__suffix {
+  font-size: 16px; /* 调整图标大小以匹配字体 */
+}
+
 </style>
