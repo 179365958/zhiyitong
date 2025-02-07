@@ -182,12 +182,12 @@
       <!-- 凭证底部信息 -->
       <div class="voucher-footer">
         <div class="total-row">
-          <span>合计：</span>
-          <span class="amount-words">{{ amountInWords }}</span>
-        </div>
-        <div class="amount-row">
-          <span>借方：{{ formatDecimal(totalDebit) }}</span>
-          <span>贷方：{{ formatDecimal(totalCredit) }}</span>
+          <span class="amount-label">合计：</span>
+          <span class="amount-value">{{ amountInWords }}</span>
+          <span class="amount-label">借方：</span>
+          <span class="amount-value">{{ formatDecimal(totalDebit) }}</span>
+          <span class="amount-label">贷方：</span>
+          <span class="amount-value">{{ formatDecimal(totalCredit) }}</span>
         </div>
         <div class="approver-row">
           <div class="approver-item">制单人：{{ voucherForm.creator }}</div>
@@ -757,6 +757,21 @@ onMounted(() => {
 .approver-item:last-child {
   position: absolute;
   right: 80px;
+}
+
+.amount-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.amount-label {
+  width: 40px; /* 与表格列宽一致 */
+  text-align: right;
+}
+
+.amount-value {
+  width: 100px; /* 根据需要调整 */
+  text-align: right;
 }
 
 .add-entry-button {
