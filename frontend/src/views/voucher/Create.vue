@@ -190,12 +190,7 @@
       <!-- 凭证底部信息 -->
       <div class="voucher-footer">
         <div class="total-row">
-          <span class="amount-label">合计：</span>
-          <span class="amount-value">{{ amountInWords }}</span>
-          <span class="amount-label">借方：</span>
-          <span class="amount-value">{{ formatDecimal(totalDebit) }}</span>
-          <span class="amount-label">贷方：</span>
-          <span class="amount-value">{{ formatDecimal(totalCredit) }}</span>
+
         </div>
         <div class="approver-row">
           <div class="approver-item">制单人：{{ voucherForm.creator }}</div>
