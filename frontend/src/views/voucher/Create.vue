@@ -177,14 +177,13 @@
             </tr>
           </tbody>
           <tfoot>
-            <tr>
-              <td colspan="3">合计</td>
-              <td></td>
-              <td class="amount-cell">{{ formatDecimal(totalDebit) }}</td>
-              <td class="amount-cell">{{ formatDecimal(totalCredit) }}</td>
+          <tr>
+              <td colspan="4" class="total-left">合计</td>
+              <td class="amount-cell total-right">{{ formatDecimal(totalDebit) }}</td>
+              <td class="amount-cell total-right">{{ formatDecimal(totalCredit) }}</td>
               <td></td>
             </tr>
-          </tfoot>
+        </tfoot>
         </table>
       </div>
 
@@ -865,4 +864,13 @@ onMounted(() => {
   font-size: 16px; /* 调整图标大小以匹配字体 */
 }
 
+.total-left {
+  text-align: left;
+
+}
+
+.total-right {
+  text-align: right;
+
+}
 </style>
