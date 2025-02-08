@@ -178,7 +178,7 @@
           </tbody>
           <tfoot>
           <tr>
-              <td colspan="4" class="total-left">合计</td>
+              <td colspan="4" class="total-left">合计：{{ amountInWords }}</td>
               <td class="amount-cell total-right">{{ formatDecimal(totalDebit) }}</td>
               <td class="amount-cell total-right">{{ formatDecimal(totalCredit) }}</td>
               <td></td>
@@ -367,8 +367,28 @@ const formatAmount = (value) => {
   return value
 }
 
+const MAX_AMOUNT = 999999999999.99;
+
 const handleAmountInput = (event, index, type) => {
-  const value = formatAmount(event.target.value);
+  let value = event.target.value.replace(/[^\d.]/g, '');
+  
+  // 确保只允许一个小数点
+  const parts = value.split('.');
+  if (parts.length > 2) {
+    value = parts[0] + '.' + parts.slice(1).join('');
+  }
+
+  // 确保小数部分不超过两位
+  if (parts.length === 2 && parts[1].length > 2) {
+    value = parts[0] + '.' + parts[1].slice(0, 2);
+  }
+
+  // 转换为数值并限制最大值
+  const numValue = parseFloat(value);
+  if (!isNaN(numValue) && numValue > MAX_AMOUNT) {
+    value = MAX_AMOUNT.toFixed(2);
+  }
+
   event.target.value = value;
 
   if (type === 'debit') {
@@ -490,10 +510,10 @@ const numberToChinese = (num) => {
     const jiao = Math.floor(decimalPart / 10)
     const fen = decimalPart % 10
     if (jiao > 0) {
-      s += digit[jiao] + '角'
-      if (fen > 0) s += digit[fen] + '分'
-    } else {
-      s += '零' + digit[fen] + '分'
+      s += digit[jiao] + fraction[0] // 角
+      if (fen > 0) s += digit[fen] + fraction[1] // 分
+    } else if (fen > 0) {
+      s += digit[fen] + fraction[1] // 分
     }
   }
   num = Math.floor(num)
@@ -507,9 +527,13 @@ const numberToChinese = (num) => {
     s = p.replace(/(零.)*零$/, '').replace(/^$/, '零') + unit[0][i] + s
   }
 
+  // 如果整数部分为零且小数部分不为零，去掉“元”
+  if (s.startsWith('零')) {
+    s = s.slice(1)
+  }
+
   return head + s.replace(/(零.)*零元/, '元').replace(/(零.)+/g, '零').replace(/^整$/, '零元整')
 }
-
 // 初始化凭证编号
 const generateVoucherNumber = () => {
   const date = new Date()
@@ -867,6 +891,19 @@ onMounted(() => {
 .voucher-table td.total-right {
   text-align: right !important; /* 强制靠右 */
   padding-right: 8px; /* 可选：增加右边距使数字更靠右 */
+}
+
+.voucher-table tfoot tr td {
+  font-size: 16px; /* 根据需要调整字体大小 */
+}
+
+/* 如果需要单独设置合计文字和金额的字体大小 */
+.voucher-table tfoot tr td.total-left {
+  font-size: 16px; /* 合计文字的字体大小 */
+}
+
+.voucher-table tfoot tr td.total-right {
+  font-size: 16px; /* 合计金额的字体大小 */
 }
 
 </style>
