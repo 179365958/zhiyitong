@@ -176,6 +176,15 @@
               </td>
             </tr>
           </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3">合计</td>
+              <td></td>
+              <td class="amount-cell">{{ formatDecimal(totalDebit) }}</td>
+              <td class="amount-cell">{{ formatDecimal(totalCredit) }}</td>
+              <td></td>
+            </tr>
+          </tfoot>
         </table>
       </div>
 
