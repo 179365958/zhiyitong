@@ -859,13 +859,14 @@ onMounted(() => {
   font-size: 16px; /* 调整图标大小以匹配字体 */
 }
 
-.total-left {
-  text-align: left;
-
+.voucher-table td.total-left {
+  text-align: left !important; /* 强制靠左 */
+  padding-left: 8px; /* 可选：增加左边距使文字更靠左 */
 }
 
-.total-right {
-  text-align: right;
-
+.voucher-table td.total-right {
+  text-align: right !important; /* 强制靠右 */
+  padding-right: 8px; /* 可选：增加右边距使数字更靠右 */
 }
+
 </style>
