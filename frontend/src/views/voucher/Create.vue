@@ -208,6 +208,12 @@ import { ElMessage } from 'element-plus'
 import { Document, Plus, ArrowLeft, ArrowRight, Printer, Key, Delete, MoreFilled } from '@element-plus/icons-vue'
 import axios from 'axios'
 import { getSubjects } from '@/api/subject'
+import { useUserStore } from '@/stores/user'; // 导入用户状态管理
+
+
+
+const userStore = useUserStore(); // 获取用户状态管理
+const userInfo = computed(() => userStore.userInfo); // 获取当前用户信息
 
 // 凭证表单数据
 const voucherForm = ref({
@@ -217,7 +223,7 @@ const voucherForm = ref({
   attachments: 0,
   files: [],
   entries: [],
-  creator: '当前用户',
+  creator: userInfo.value?.username || userInfo.value?.name || '未登录',
   reviewer: '',
   bookkeeper: ''
 })
