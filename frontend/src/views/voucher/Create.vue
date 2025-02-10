@@ -597,14 +597,14 @@ onMounted(() => {
 <style scoped>
 /* styles.css */
 .container {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
 }
 
 .page-container {
-  max-width: 1050px; /* 最大宽度 */
-  min-width: 1050px; /* 设置最小宽度 */
+  max-width: 1000px; /* 最大宽度 */
+  min-width: 1000px; /* 设置最小宽度 */
   margin: 0 auto;
   padding: 10px;
   background-color: #f9f9f9; /* 背景颜色 */
@@ -614,7 +614,8 @@ onMounted(() => {
 
 .voucher-container {
   background-color: white;
-  margin: 10px;
+  margin: 2px;
+  margin-top: 3px;
   padding: 20px;
   border-radius: 4px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
@@ -624,9 +625,9 @@ onMounted(() => {
 
 .toolbar {
   display: flex;
-  margin: 10px;
+  margin: 0px;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 0px;
   max-width: 960px;
   background-color: white; /* 设置背景颜色为白色 */
   padding: 10px 20px; /* 添加内边距 */
