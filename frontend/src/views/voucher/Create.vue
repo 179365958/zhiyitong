@@ -67,6 +67,8 @@
         </div>
         <div class="attachment">
           附单据 {{ voucherForm.attachments }} 张
+          <!-- 附件上传链接 -->
+          <a href="javascript:void(0);" @click="openUploadDialog">附件</a>
         </div>
       </div>
 
@@ -177,13 +179,13 @@
             </tr>
           </tbody>
           <tfoot>
-          <tr>
+            <tr>
               <td colspan="4" class="total-left">合计：{{ amountInWords }}</td>
               <td class="amount-cell total-right">{{ formatDecimal(totalDebit) }}</td>
               <td class="amount-cell total-right">{{ formatDecimal(totalCredit) }}</td>
               <td></td>
             </tr>
-        </tfoot>
+          </tfoot>
         </table>
       </div>
 
@@ -199,6 +201,26 @@
         </div>
       </div>
     </div>
+
+    <!-- 附件上传弹出窗口 -->
+    <el-dialog title="上传附件" v-model="uploadDialogVisible" width="30%">
+      <el-upload
+        action="/api/upload" 
+        :on-success="handleUploadSuccess"
+        :on-remove="handleUploadRemove"
+        :before-upload="beforeUpload"
+        :file-list="fileList"
+        :show-file-list="true"
+        style="display: inline-block; margin-left: 10px;"
+      >
+        <el-button type="primary" :icon="Plus">上传附件</el-button>
+      </el-upload>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="uploadDialogVisible = false">关闭</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -208,12 +230,10 @@ import { ElMessage } from 'element-plus'
 import { Document, Plus, ArrowLeft, ArrowRight, Printer, Key, Delete, MoreFilled } from '@element-plus/icons-vue'
 import axios from 'axios'
 import { getSubjects } from '@/api/subject'
-import { useUserStore } from '@/stores/user'; // 导入用户状态管理
+import { useUserStore } from '@/stores/user' // 导入用户状态管理
 
-
-
-const userStore = useUserStore(); // 获取用户状态管理
-const userInfo = computed(() => userStore.userInfo); // 获取当前用户信息
+const userStore = useUserStore() // 获取用户状态管理
+const userInfo = computed(() => userStore.userInfo) // 获取当前用户信息
 
 // 凭证表单数据
 const voucherForm = ref({
@@ -250,60 +270,53 @@ const summaryOptions = ref([
   { value: '摘要1', label: '摘要1' },
   { value: '摘要2', label: '摘要2' },
   { value: '摘要3', label: '摘要3' },
-]);
+])
 
 // 摘要加载状态
-const summaryLoading = ref(false);
+const summaryLoading = ref(false)
 
 // 搜索摘要
 const handleSearchSummary = async (query) => {
   if (query) {
     try {
-      summaryLoading.value = true;
-      // 模拟异步搜索
-      const response = await axios.get('/api/summaries', { params: { query } });
-      summaryOptions.value = response.data.data; // 假设从 API 返回的数据格式为 { data: [{ value: '摘要1', label: '摘要1' }, ...] }
+      summaryLoading.value = true
+      const response = await axios.get('/api/summaries', { params: { query } })
+      summaryOptions.value = response.data.data
     } catch (error) {
-      console.error('搜索摘要失败:', error);
-      ElMessage.error('搜索摘要失败，请重试');
+      console.error('搜索摘要失败:', error)
+      ElMessage.error('搜索摘要失败，请重试')
     } finally {
-      summaryLoading.value = false;
+      summaryLoading.value = false
     }
   } else {
-    // 如果查询为空，重置为默认摘要选项
     summaryOptions.value = [
       { value: '摘要1', label: '摘要1' },
       { value: '摘要2', label: '摘要2' },
       { value: '摘要3', label: '摘要3' },
-    ];
+    ]
   }
-};
-
+}
 
 // 获取科目选项数据
 const fetchSubjectOptions = async () => {
   try {
-    loading.value = true;
-    const response = await getSubjects(); // 假设 getSubjects 是一个从后台获取科目数据的 API
-    console.log('API Response:', response); // 调试信息
-    
+    loading.value = true
+    const response = await getSubjects()
     if (response && response.success && Array.isArray(response.data)) {
-      const data = response.data.map(item => ({
+      subjectOptions.value = response.data.map(item => ({
         value: item.code,
         label: `${item.code} - ${item.name}`,
-        ...item // 如果需要保留其他属性
-      }));
-      console.log('Fetched subjects:', data); // 调试信息
-      subjectOptions.value = data;
+        ...item
+      }))
     } else {
-      console.error('Invalid response format:', response);
-      ElMessage.error('获取科目选项失败，请检查API响应格式');
+      console.error('Invalid response format:', response)
+      ElMessage.error('获取科目选项失败，请检查API响应格式')
     }
   } catch (error) {
-    console.error('获取科目选项失败:', error);
-    ElMessage.error('获取科目选项失败，请重试');
+    console.error('获取科目选项失败:', error)
+    ElMessage.error('获取科目选项失败，请重试')
   } finally {
-    loading.value = false;
+    loading.value = false
   }
 }
 
@@ -312,20 +325,18 @@ const handleSearchSubject = async (query) => {
   if (query) {
     try {
       loading.value = true
-      const response = await axios.get('/api/subjects', { params: { query } });
-      subjectOptions.value = response.data.data; // 确保从 response.data 中获取数据
+      const response = await axios.get('/api/subjects', { params: { query } })
+      subjectOptions.value = response.data.data
     } catch (error) {
-      console.error('搜索科目失败:', error);
-      ElMessage.error('搜索科目失败，请重试');
+      console.error('搜索科目失败:', error)
+      ElMessage.error('搜索科目失败，请重试')
     } finally {
       loading.value = false
     }
   } else {
-    fetchSubjectOptions(); // 重新获取所有科目选项
+    fetchSubjectOptions()
   }
 }
-
-
 
 // 计算借方合计
 const totalDebit = computed(() => {
@@ -361,8 +372,8 @@ const handleSubjectChange = (entry) => {
 }
 
 // 处理金额输入
-const formatAmount = (value) => {
-  value = value.replace(/[^\d.]/g, '')
+const handleAmountInput = (event, index, type) => {
+  let value = event.target.value.replace(/[^\d.]/g, '')
   const parts = value.split('.')
   if (parts.length > 2) {
     value = parts[0] + '.' + parts.slice(1).join('')
@@ -370,45 +381,24 @@ const formatAmount = (value) => {
   if (parts.length === 2 && parts[1].length > 2) {
     value = parts[0] + '.' + parts[1].slice(0, 2)
   }
-  return value
-}
-
-const MAX_AMOUNT = 999999999999.99;
-
-const handleAmountInput = (event, index, type) => {
-  let value = event.target.value.replace(/[^\d.]/g, '');
-  
-  // 确保只允许一个小数点
-  const parts = value.split('.');
-  if (parts.length > 2) {
-    value = parts[0] + '.' + parts.slice(1).join('');
+  const numValue = parseFloat(value)
+  if (!isNaN(numValue) && numValue > 999999999999.99) {
+    value = '999999999999.99'
   }
-
-  // 确保小数部分不超过两位
-  if (parts.length === 2 && parts[1].length > 2) {
-    value = parts[0] + '.' + parts[1].slice(0, 2);
-  }
-
-  // 转换为数值并限制最大值
-  const numValue = parseFloat(value);
-  if (!isNaN(numValue) && numValue > MAX_AMOUNT) {
-    value = MAX_AMOUNT.toFixed(2);
-  }
-
-  event.target.value = value;
+  event.target.value = value
 
   if (type === 'debit') {
-    voucherForm.value.entries[index].debit = value;
+    voucherForm.value.entries[index].debit = value
     if (value && voucherForm.value.entries[index].credit) {
-      voucherForm.value.entries[index].credit = '';
+      voucherForm.value.entries[index].credit = ''
     }
   } else {
-    voucherForm.value.entries[index].credit = value;
+    voucherForm.value.entries[index].credit = value
     if (value && voucherForm.value.entries[index].debit) {
-      voucherForm.value.entries[index].debit = '';
+      voucherForm.value.entries[index].debit = ''
     }
   }
-};
+}
 
 const handleAmountBlur = (entry, type) => {
   let value = type === 'debit' ? entry.debit : entry.credit
@@ -437,18 +427,14 @@ const handleSave = () => {
     ElMessage.error('请选择凭证日期')
     return false
   }
-
   if (!voucherForm.value.entries.some(entry => entry.summary || entry.subject || entry.debit || entry.credit)) {
     ElMessage.error('请至少填写一条分录')
     return false
   }
-
   if (totalDebit.value !== totalCredit.value) {
     ElMessage.error('借贷不平衡，请调整金额')
     return false
   }
-
-  // 保存逻辑
   console.log('保存凭证:', voucherForm.value)
   ElMessage.success('凭证保存成功')
 }
@@ -472,7 +458,6 @@ const handleClear = () => {
 
 // 导出凭证
 const handleExport = () => {
-  // 导出逻辑
   console.log('导出凭证:', voucherForm.value)
   ElMessage.success('凭证导出成功')
 }
@@ -516,10 +501,10 @@ const numberToChinese = (num) => {
     const jiao = Math.floor(decimalPart / 10)
     const fen = decimalPart % 10
     if (jiao > 0) {
-      s += digit[jiao] + fraction[0] // 角
-      if (fen > 0) s += digit[fen] + fraction[1] // 分
+      s += digit[jiao] + fraction[0]
+      if (fen > 0) s += digit[fen] + fraction[1]
     } else if (fen > 0) {
-      s += digit[fen] + fraction[1] // 分
+      s += digit[fen] + fraction[1]
     }
   }
   num = Math.floor(num)
@@ -533,13 +518,13 @@ const numberToChinese = (num) => {
     s = p.replace(/(零.)*零$/, '').replace(/^$/, '零') + unit[0][i] + s
   }
 
-  // 如果整数部分为零且小数部分不为零，去掉“元”
   if (s.startsWith('零')) {
     s = s.slice(1)
   }
 
   return head + s.replace(/(零.)*零元/, '元').replace(/(零.)+/g, '零').replace(/^整$/, '零元整')
 }
+
 // 初始化凭证编号
 const generateVoucherNumber = () => {
   const date = new Date()
@@ -591,6 +576,40 @@ const focusNextInput = (event, index, field) => {
   if (inputElement) {
     inputElement.focus()
   }
+}
+
+// 弹出窗口状态
+const uploadDialogVisible = ref(false)
+
+// 打开上传对话框
+const openUploadDialog = () => {
+  uploadDialogVisible.value = true
+}
+
+// 文件列表
+const fileList = ref([])
+
+// 上传成功处理
+const handleUploadSuccess = (response, file, fileList) => {
+  console.log('上传成功:', response, file, fileList)
+  voucherForm.value.attachments = fileList.length
+  voucherForm.value.files.push(file)
+}
+
+// 上传移除处理
+const handleUploadRemove = (file, fileList) => {
+  console.log('文件移除:', file, fileList)
+  voucherForm.value.attachments = fileList.length
+  voucherForm.value.files = fileList.map(f => f.raw)
+}
+
+// 上传前处理
+const beforeUpload = (file) => {
+  const isLt2M = file.size / 1024 / 1024 < 2
+  if (!isLt2M) {
+    ElMessage.error('上传文件大小不能超过 2MB!')
+  }
+  return isLt2M
 }
 
 onMounted(() => {
