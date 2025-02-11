@@ -205,23 +205,38 @@
     </div>
 
     <!-- 附件上传弹出窗口 -->
-    <el-dialog title="上传附件" v-model="uploadDialogVisible" width="30%">
+    <el-dialog title="上传附件" v-model="uploadDialogVisible" width="50%">
       <el-upload
-        action="/api/upload" 
+        action="/api/upload"
         :on-success="handleUploadSuccess"
         :on-remove="handleUploadRemove"
         :before-upload="beforeUpload"
         :file-list="fileList"
-        :show-file-list="true"
+        :show-file-list="false"
         style="display: inline-block; margin-left: 10px;"
       >
         <el-button type="primary" :icon="Plus">上传附件</el-button>
       </el-upload>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="uploadDialogVisible = false">关闭</el-button>
-        </span>
-      </template>
+      <div style="margin-top: 20px;">
+        <el-table :data="fileList" style="width: 100%">
+          <el-table-column prop="name" label="名称" width="200"></el-table-column>
+          <el-table-column prop="size" label="文件大小" width="120">
+            <template #default="scope">
+              {{ formatFileSize(scope.row.size) }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="uploadTime" label="上传日期" width="150">
+            <template #default="scope">
+              {{ formatUploadTime(scope.row.uploadTime) }}
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="100">
+            <template #default="scope">
+              <el-button type="text" @click="removeFile(scope.$index)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
     </el-dialog>
   </div>
 </template>
