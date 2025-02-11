@@ -33,8 +33,8 @@ app.use(session({
 // 配置 CORS
 const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',')
-  //: ['http://localhost:5173'];
-  : ['http://0.0.0.0'];
+  : ['http://localhost:5173'];
+
 
 app.use(cors({
   origin: (origin, callback) => {
