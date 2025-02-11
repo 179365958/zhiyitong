@@ -95,8 +95,4 @@ router.get('/subjects/export', authMiddleware, subjectController.exportSubjects,
     res.status(500).send('Something broke!');
 });
 
-
-// 创建凭证
-//router.post('/vouchers', authMiddleware, voucherController.createVoucher);
-
 module.exports = router;

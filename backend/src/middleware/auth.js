@@ -1,5 +1,5 @@
 // backend/src/middleware/auth.js
-//require('dotenv').config();
+require('dotenv').config();
 const jwt = require('jsonwebtoken');
 
 const authMiddleware = (req, res, next) => {
@@ -11,17 +11,12 @@ const authMiddleware = (req, res, next) => {
 
     const token = authHeader.split(' ')[1];
 
+    // 使用环境变量中的密钥进行验证
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
             return res.status(403).json({ message: '无效的令牌' });
         }
-        req.user = decoded;
-
-        // 检查用户是否有创建凭证的权限
-        if (!req.user.roles.includes('admin') && !req.user.roles.includes('accountant')) {
-            return res.status(403).json({ message: '没有足够的权限' });
-        }
-
+        req.user = decoded; // 将解码后的用户信息附加到请求对象上
         next();
     });
 };
