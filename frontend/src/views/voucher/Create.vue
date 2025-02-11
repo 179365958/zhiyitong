@@ -66,7 +66,9 @@
           />
         </div>
         <div class="attachment">
-          附单据 {{ voucherForm.attachments }} 张
+          <label for="attachments">附单据:</label>
+          <input type="number" id="attachments" v-model="voucherForm.attachments" min="0" class="attachment-input" />
+          <span class="attachment-unit">张</span>
           <!-- 附件上传链接 -->
           <a href="javascript:void(0);" @click="openUploadDialog">附件</a>
         </div>
@@ -930,6 +932,26 @@ onMounted(() => {
 
 .voucher-table tfoot tr td.total-right {
   font-size: 16px; /* 合计金额的字体大小 */
+}
+
+
+
+.attachment {
+  display: flex;
+  align-items: center;
+}
+
+.attachment-input {
+  width: 50px; /* 根据需要调整宽度 */
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: center;
+  margin-right: 5px; /* 根据需要调整与右侧的距离 */
+}
+
+.attachment-unit {
+  margin-right: 40px; /* 根据需要调整与右侧链接的距离 */
 }
 
 </style>
