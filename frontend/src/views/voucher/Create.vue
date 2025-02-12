@@ -79,7 +79,7 @@
         <table class="voucher-table">
           <thead>
             <tr>
-              <th style="width: 40px">操作</th>
+              <th style="width: 40px">增行</th>
               <th style="width: 40px">序号</th>
               <th style="width: 150px">摘要</th>
               <th style="width: 220px">会计科目</th>
@@ -89,7 +89,7 @@
               <th class="amount-col">
                 <div>贷方金额</div>
               </th>
-              <th style="width: 40px">操作</th>
+              <th style="width: 40px">删除</th>
             </tr>
           </thead>
           <tbody>
@@ -97,7 +97,7 @@
             <tr v-for="(entry, index) in voucherForm.entries" :key="index">
               <td>
                 <!-- 在当前行前面添加分录按钮 -->
-                <el-button type="primary" size="small" @click="addEntryBefore(index)">
+                <el-button type="primary" class="custom-mini-button" @click="addEntryBefore(index)">
                   <el-icon><Plus /></el-icon>
                 </el-button>
               </td>
@@ -174,7 +174,7 @@
               </td>
               <td>
                 <!-- 删除分录按钮 -->
-                <el-button type="danger" size="small" @click="removeEntry(index)">
+                <el-button type="danger" class="custom-mini-button" @click="removeEntry(index)">
                   <el-icon><Delete /></el-icon>
                 </el-button>
               </td>
@@ -967,6 +967,13 @@ onMounted(() => {
 
 .attachment-unit {
   margin-right: 40px; /* 根据需要调整与右侧链接的距离 */
+}
+
+.custom-mini-button {
+  padding: 4px 6px !important; /* 调整内边距 */
+  font-size: 12px !important; /* 调整字体大小 */
+  min-width: 24px !important; /* 设置最小宽度 */
+  height: 24px !important; /* 设置高度 */
 }
 
 </style>
