@@ -248,6 +248,8 @@ import { Document, Plus, ArrowLeft, ArrowRight, Printer, Key, Delete, MoreFilled
 import axios from 'axios'
 import { getSubjects } from '@/api/subject'
 import { useUserStore } from '@/stores/user' // 导入用户状态管理
+import { getVoucherNumber } from '@/api/voucher' 
+
 
 const userStore = useUserStore() // 获取用户状态管理
 const userInfo = computed(() => userStore.userInfo) // 获取当前用户信息
@@ -542,14 +544,16 @@ const numberToChinese = (num) => {
   return head + s.replace(/(零.)*零元/, '元').replace(/(零.)+/g, '零').replace(/^整$/, '零元整')
 }
 
-// 初始化凭证编号
-const generateVoucherNumber = () => {
-  const date = new Date()
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  const random = Math.floor(Math.random() * 1000)
-  return `${year}${month}${day}-${random}`
+// 生成凭证编号
+const generateVoucherNumber = async () => {
+  try {
+    const maxNumber = await getVoucherNumber()
+    const nextNumber = maxNumber ? parseInt(maxNumber) + 1 : 1
+    voucherForm.value.number = nextNumber.toString().padStart(6, '0') // 假设凭证编号是6位数字
+  } catch (error) {
+    console.error('生成凭证编号失败:', error)
+    ElMessage.error('生成凭证编号失败，请重试')
+  }
 }
 
 // 增加分录

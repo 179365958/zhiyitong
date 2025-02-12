@@ -1,5 +1,14 @@
 import request from '../utils/request'
 
+// 获取凭证号
+export function getVoucherNumber(params) {
+  return request({
+    url: '/vouchers/number',
+    method: 'get',
+    params
+  })
+}
+
 // 获取凭证列表
 export function getVoucherList(params) {
   return request({
