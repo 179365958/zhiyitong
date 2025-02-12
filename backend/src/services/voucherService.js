@@ -1,10 +1,11 @@
 const { getConnection } = require('../utils/db');
 
-async function createVoucher(voucherData, entries) {
+// 创建凭证
+async function createVoucher(database, voucherData, entries) {
   let connection;
 
   try {
-    connection = await pool.getConnection();
+    connection = await database.getConnection();
     await connection.beginTransaction();
 
     // 1. 插入凭证记录
@@ -66,6 +67,7 @@ async function createVoucher(voucherData, entries) {
       await connection.rollback();
       console.error('Transaction rolled back due to error:', error);
     }
+    throw error; // 抛出错误，由控制器处理
   } finally {
     if (connection) {
       connection.release();
@@ -73,6 +75,222 @@ async function createVoucher(voucherData, entries) {
   }
 }
 
+// 获取凭证列表
+async function getVoucherList(database) {
+  const connection = await database.getConnection();
+  try {
+    const [vouchers] = await connection.execute('SELECT * FROM voucher');
+    return vouchers;
+  } finally {
+    connection.release();
+  }
+}
+
+// 获取凭证详情
+async function getVoucherDetail(database, voucherId) {
+  const connection = await database.getConnection();
+  try {
+    const [voucher] = await connection.execute('SELECT * FROM voucher WHERE id = ?', [voucherId]);
+    if (voucher.length > 0) {
+      const [entries] = await connection.execute('SELECT * FROM voucher_entry WHERE voucher_id = ?', [voucherId]);
+      return { ...voucher[0], entries };
+    }
+    return null;
+  } finally {
+    connection.release();
+  }
+}
+
+// 更新凭证
+async function updateVoucher(database, voucherId, voucherData, entries) {
+  let connection;
+  try {
+    connection = await database.getConnection();
+    await connection.beginTransaction();
+
+    // 1. 更新凭证记录
+    await connection.execute(
+      'UPDATE voucher SET period_id = ?, voucher_type = ?, voucher_no = ?, voucher_date = ?, summary = ?, total_debit = ?, total_credit = ? WHERE id = ?',
+      [
+        voucherData.period_id,
+        voucherData.voucher_type,
+        voucherData.voucher_no,
+        voucherData.voucher_date,
+        voucherData.summary,
+        voucherData.total_debit,
+        voucherData.total_credit,
+        voucherId
+      ]
+    );
+
+    // 2. 删除旧的分录记录
+    await connection.execute('DELETE FROM voucher_entry WHERE voucher_id = ?', [voucherId]);
+
+    // 3. 插入新的分录记录
+    for (const entry of entries) {
+      await connection.execute(
+        'INSERT INTO voucher_entry (voucher_id, subject_id, summary, currency_id, exchange_rate, debit_amount, credit_amount, entry_order, created_at, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [
+          voucherId,
+          entry.subject_id,
+          entry.summary,
+          entry.currency_id,
+          entry.exchange_rate,
+          entry.debit_amount,
+          entry.credit_amount,
+          entry.entry_order,
+          new Date(),
+          entry.created_by
+        ]
+      );
+    }
+
+    // 提交事务
+    await connection.commit();
+  } catch (error) {
+    if (connection) {
+      await connection.rollback();
+    }
+    throw error;
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+}
+
+// 删除凭证
+async function deleteVoucher(database, voucherId) {
+  const connection = await database.getConnection();
+  try {
+    await connection.execute('DELETE FROM voucher WHERE id = ?', [voucherId]);
+  } finally {
+    connection.release();
+  }
+}
+
+// 提交凭证审核
+async function submitVoucherReview(database, voucherId) {
+  const connection = await database.getConnection();
+  try {
+    await connection.execute('UPDATE voucher SET status = "submitted" WHERE id = ?', [voucherId]);
+  } finally {
+    connection.release();
+  }
+}
+
+// 审核凭证
+async function reviewVoucher(database, voucherId, reviewData) {
+  const connection = await database.getConnection();
+  try {
+    await connection.execute('UPDATE voucher SET status = ?, reviewed_by = ?, reviewed_at = ? WHERE id = ?', [
+      reviewData.status,
+      reviewData.reviewed_by,
+      new Date(),
+      voucherId
+    ]);
+  } finally {
+    connection.release();
+  }
+}
+
+// 批量审核凭证
+async function batchReviewVouchers(database, voucherIds, reviewData) {
+  const connection = await database.getConnection();
+  try {
+    await connection.execute(
+      'UPDATE voucher SET status = ?, reviewed_by = ?, reviewed_at = ? WHERE id IN (?)',
+      [reviewData.status, reviewData.reviewed_by, new Date(), voucherIds]
+    );
+  } finally {
+    connection.release();
+  }
+}
+
+// 获取下一个凭证号
+async function getNextVoucherNumber(database) {
+  const connection = await database.getConnection();
+  try {
+    const [result] = await connection.execute('SELECT MAX(voucher_no) AS maxVoucherNo FROM voucher');
+    const nextVoucherNumber = result[0].maxVoucherNo ? parseInt(result[0].maxVoucherNo) + 1 : 1;
+    return nextVoucherNumber;
+  } finally {
+    connection.release();
+  }
+}
+
+// 获取科目列表
+async function getAccountSubjects(database) {
+  const connection = await database.getConnection();
+  try {
+    const [subjects] = await connection.execute('SELECT * FROM subject');
+    return subjects;
+  } finally {
+    connection.release();
+  }
+}
+
+// 获取常用摘要
+async function getCommonAbstracts(database) {
+  const connection = await database.getConnection();
+  try {
+    const [abstracts] = await connection.execute('SELECT * FROM common_abstract');
+    return abstracts;
+  } finally {
+    connection.release();
+  }
+}
+
+// 保存常用摘要
+async function saveCommonAbstract(database, abstractData) {
+  const connection = await database.getConnection();
+  try {
+    await connection.execute('INSERT INTO common_abstract (content, created_by) VALUES (?, ?)', [
+      abstractData.content,
+      abstractData.created_by
+    ]);
+  } finally {
+    connection.release();
+  }
+}
+
+// 获取辅助核算项目
+async function getAuxiliaryItems(database) {
+  const connection = await database.getConnection();
+  try {
+    const [items] = await connection.execute('SELECT * FROM auxiliary_item');
+    return items;
+  } finally {
+    connection.release();
+  }
+}
+
+// 导出凭证
+async function exportVouchers(database) {
+  // 实现导出逻辑，返回文件路径
+  return '/path/to/exported/file.csv';
+}
+
+// 导入凭证
+async function importVouchers(database, file) {
+  // 实现导入逻辑
+  console.log('Importing vouchers from file:', file.path);
+}
+
 module.exports = {
-  createVoucher
+  createVoucher,
+  getVoucherList,
+  getVoucherDetail,
+  updateVoucher,
+  deleteVoucher,
+  submitVoucherReview,
+  reviewVoucher,
+  batchReviewVouchers,
+  getNextVoucherNumber,
+  getAccountSubjects,
+  getCommonAbstracts,
+  saveCommonAbstract,
+  getAuxiliaryItems,
+  exportVouchers,
+  importVouchers
 };
