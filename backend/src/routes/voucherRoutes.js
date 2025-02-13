@@ -1,4 +1,4 @@
-// backend/src/routes/voucherRoutes.js
+// voucherRoutes.js
 const express = require('express');
 const router = express.Router();
 const voucherController = require('../controllers/voucherController');
@@ -28,8 +28,8 @@ const voucherValidation = [
 
 // 创建凭证
 router.post(
-    '/vouchers',
-    authMiddleware,
+    '/',
+    // authMiddleware, // 注释掉这行以暂时关闭认证
     voucherValidation,
     (req, res, next) => {
         const errors = validationResult(req);
@@ -42,45 +42,45 @@ router.post(
 );
 
 // 获取凭证列表
-router.get('/vouchers', authMiddleware, voucherController.getVoucherList);
+router.get('/', authMiddleware, voucherController.getVoucherList);
 
 // 获取凭证详情
-router.get('/vouchers/:id', authMiddleware, voucherController.getVoucherDetail);
+router.get('/:id', authMiddleware, voucherController.getVoucherDetail);
 
 // 更新凭证
-router.put('/vouchers/:id', authMiddleware, voucherController.updateVoucher);
+router.put('/:id', authMiddleware, voucherController.updateVoucher);
 
 // 删除凭证
-router.delete('/vouchers/:id', authMiddleware, voucherController.deleteVoucher);
+router.delete('/:id', authMiddleware, voucherController.deleteVoucher);
 
 // 提交凭证审核
-router.post('/vouchers/:id/submit', authMiddleware, voucherController.submitVoucherReview);
+router.post('/:id/submit', authMiddleware, voucherController.submitVoucherReview);
 
 // 审核凭证
-router.post('/vouchers/:id/review', authMiddleware, voucherController.reviewVoucher);
+router.post('/:id/review', authMiddleware, voucherController.reviewVoucher);
 
 // 批量审核凭证
-router.post('/vouchers/batch-review', authMiddleware, voucherController.batchReviewVouchers);
+router.post('/batch-review', authMiddleware, voucherController.batchReviewVouchers);
 
 // 获取下一个凭证号
-router.get('/vouchers/number', authMiddleware, voucherController.getNextVoucherNumber);
+router.get('/number', voucherController.getNextVoucherNumber); // 移除 authMiddleware
 
 // 获取科目列表
 router.get('/account-subjects', authMiddleware, voucherController.getAccountSubjects);
 
 // 获取常用摘要
-router.get('/vouchers/common-abstracts', authMiddleware, voucherController.getCommonAbstracts);
+router.get('/common-abstracts', authMiddleware, voucherController.getCommonAbstracts);
 
 // 保存常用摘要
-router.post('/vouchers/common-abstracts', authMiddleware, voucherController.saveCommonAbstract);
+router.post('/common-abstracts', authMiddleware, voucherController.saveCommonAbstract);
 
 // 获取辅助核算项目
 router.get('/auxiliary-items', authMiddleware, voucherController.getAuxiliaryItems);
 
 // 导出凭证
-router.get('/vouchers/export', authMiddleware, voucherController.exportVouchers);
+router.get('/export', authMiddleware, voucherController.exportVouchers);
 
 // 导入凭证
-router.post('/vouchers/import', authMiddleware, voucherController.importVouchers);
+router.post('/import', authMiddleware, voucherController.importVouchers);
 
 module.exports = router;
