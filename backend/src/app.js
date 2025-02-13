@@ -64,11 +64,23 @@ app.use('/api/', voucherRoutes);
 // 静态文件服务
 app.use(express.static(path.join(__dirname, '../public')));
 
+
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ 
+      success: false,
+      error: 'API endpoint not found'
+    })
+  }
+  next();
+});
+
 // 所有其他路由返回 index.html
+/*
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/index.html'));
 });
-
+*/
 // 错误处理中间件
 app.use((err, req, res, next) => {
     logger.error('应用错误:', err);
