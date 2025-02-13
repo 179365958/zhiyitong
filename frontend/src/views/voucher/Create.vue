@@ -248,7 +248,7 @@ import { Document, Plus, ArrowLeft, ArrowRight, Printer, Key, Delete, MoreFilled
 import axios from 'axios'
 import { getSubjects } from '@/api/subject'
 import { useUserStore } from '@/stores/user' // 导入用户状态管理
-import { getVoucherNumber } from '@/api/voucher' 
+import { getNextVoucherNumber } from '@/api/voucher' 
 
 
 const userStore = useUserStore() // 获取用户状态管理
@@ -547,7 +547,7 @@ const numberToChinese = (num) => {
 // 生成凭证编号
 const generateVoucherNumber = async () => {
   try {
-    const maxNumber = await getVoucherNumber()
+    const maxNumber = await getNextVoucherNumber()
     const nextNumber = maxNumber ? parseInt(maxNumber) + 1 : 1
     voucherForm.value.number = nextNumber.toString().padStart(6, '0') // 假设凭证编号是6位数字
   } catch (error) {

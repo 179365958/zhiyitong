@@ -1,7 +1,7 @@
 import request from '../utils/request'
 
 // 获取凭证号
-export function getVoucherNumber(params) {
+export function getNextVoucherNumber(params) {
   return request({
     url: '/api/vouchers/number', // 添加 /api 前缀
     method: 'get',
@@ -75,15 +75,6 @@ export function batchReviewVouchers(data) {
     url: '/api/vouchers/batch-review', // 添加 /api 前缀
     method: 'post',
     data
-  })
-}
-
-// 获取凭证号
-export function getNextVoucherNumber(params) {
-  return request({
-    url: '/api/vouchers/next-number', // 添加 /api 前缀
-    method: 'get',
-    params
   })
 }
 
