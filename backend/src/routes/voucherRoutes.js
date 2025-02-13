@@ -63,7 +63,7 @@ router.post('/vouchers/:id/review', authMiddleware, voucherController.reviewVouc
 router.post('/vouchers/batch-review', authMiddleware, voucherController.batchReviewVouchers);
 
 // 获取下一个凭证号
-router.get('/vouchers/next-number', authMiddleware, voucherController.getNextVoucherNumber);
+router.get('/vouchers/number', authMiddleware, voucherController.getNextVoucherNumber);
 
 // 获取科目列表
 router.get('/account-subjects', authMiddleware, voucherController.getAccountSubjects);
