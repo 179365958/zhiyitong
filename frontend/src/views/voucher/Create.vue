@@ -547,12 +547,12 @@ const numberToChinese = (num) => {
 // 生成凭证编号
 const generateVoucherNumber = async () => {
   try {
-    const maxNumber = await getNextVoucherNumber()
-    const nextNumber = maxNumber ? parseInt(maxNumber) + 1 : 1
-    voucherForm.value.number = nextNumber.toString().padStart(6, '0') // 假设凭证编号是6位数字
+    const maxNumber = await getNextVoucherNumber();
+    const nextNumber = maxNumber ? parseInt(maxNumber) + 1 : 1;
+    voucherForm.value.number = nextNumber.toString().padStart(6, '0'); // 假设凭证编号是6位数字
   } catch (error) {
-    console.error('生成凭证编号失败:', error)
-    ElMessage.error('生成凭证编号失败，请重试')
+    console.error('生成凭证编号失败:', error);
+    ElMessage.error('生成凭证编号失败，请重试');
   }
 }
 
@@ -633,10 +633,16 @@ const beforeUpload = (file) => {
   return isLt2M
 }
 
-onMounted(() => {
-  voucherForm.value.number = generateVoucherNumber()
+// 定义异步初始化函数
+const initializeComponent = async () => {
+  await generateVoucherNumber();
   initializeEntries()
-  fetchSubjectOptions()
+  await fetchSubjectOptions()
+}
+
+// 使用 onMounted 调用异步初始化函数
+onMounted(() => {
+  initializeComponent()
 })
 </script>
 
