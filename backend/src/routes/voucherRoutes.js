@@ -29,7 +29,7 @@ const voucherValidation = [
 // 创建凭证
 router.post(
     '/',
-    // authMiddleware, // 注释掉这行以暂时关闭认证
+     authMiddleware, // 注释掉这行以暂时关闭认证
     voucherValidation,
     (req, res, next) => {
         const errors = validationResult(req);
@@ -43,6 +43,9 @@ router.post(
 
 // 获取凭证列表
 router.get('/', authMiddleware, voucherController.getVoucherList);
+
+// 获取下一个凭证号
+router.get('/number',authMiddleware,  voucherController.getNextVoucherNumber); // 移除 authMiddleware
 
 // 获取凭证详情
 router.get('/:id', authMiddleware, voucherController.getVoucherDetail);
@@ -62,8 +65,7 @@ router.post('/:id/review', authMiddleware, voucherController.reviewVoucher);
 // 批量审核凭证
 router.post('/batch-review', authMiddleware, voucherController.batchReviewVouchers);
 
-// 获取下一个凭证号
-router.get('/number', voucherController.getNextVoucherNumber); // 移除 authMiddleware
+
 
 // 获取科目列表
 router.get('/account-subjects', authMiddleware, voucherController.getAccountSubjects);
