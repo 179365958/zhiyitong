@@ -43,9 +43,9 @@ export const getCompanyList = (params) => {
   return request({
     url: '/api/system/companies', // 确保URL格式正确
     method: 'get',
-    headers: {
+/*    headers: {
       Authorization: `Bearer ${getToken()}`, // 使用 auth.js 中的 getToken 方法
-    },
+    },  */
     params
   }).then(response => {
     console.log('getCompanyList response:', response); // 添加日志输出
@@ -66,10 +66,10 @@ export const switchDatabase = (data) => {
   return request({
     url: '/api/system/switch-database',
     method: 'post',
-    headers: {
+/*    headers: {
       Authorization: `Bearer ${getToken()}`,
       'Content-Type': 'application/json'
-    },
+    },  */
     data
   }).then(response => {
     console.log('switchDatabase response:', response);
@@ -90,10 +90,10 @@ export const createCompany = (data) => {
   return request({
     url: '/api/system/createCompany', // 修改这里的 URL
     method: 'post',
-    headers: {
+/*    headers: {
       Authorization: `Bearer ${getToken()}`,
       'Content-Type': 'application/json'
-    },
+    },  */
     data
   }).then(response => {
     console.log('createCompany response:', response);
@@ -113,10 +113,10 @@ export const updateCompany = (id, data) => {
   return request({
     url: `/api/system/updateCompany/${id}`, // id 放在 URL 中
     method: 'put',
-    headers: {
+/*    headers: {
       Authorization: `Bearer ${getToken()}`,
       'Content-Type': 'application/json'
-    },
+    },  */
     data // 请求体只包含需要更新的数据
   });
 };
@@ -125,10 +125,10 @@ export const deleteCompany = (id) => {
   return request({
     url: `/api/system/deleteCompany/${id}`,
     method: 'delete',
-    headers: {
+/*    headers: {
       Authorization: `Bearer ${getToken()}`,
       'Content-Type': 'application/json'
-    },
+    },  */
   })
 }
 
@@ -137,10 +137,10 @@ export const backupCompany = (id) => {
   return request({
     url: `/api/system/companies/${id}/backup`,
     method: 'post',
-    headers: {
+/*    headers: {
       Authorization: `Bearer ${getToken()}`,
       'Content-Type': 'application/json'
-    },
+    }, */
   })
 }
 
@@ -149,10 +149,10 @@ export const restoreCompany = (id) => {
   return request({
     url: `/api/system/companies/${id}/restore`,
     method: 'post',
-    headers: {
+/*    headers: {
       Authorization: `Bearer ${getToken()}`,
       'Content-Type': 'application/json'
-    },
+    },  */
   })
 }
 
