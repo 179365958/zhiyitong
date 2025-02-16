@@ -1,3 +1,4 @@
+// src/services/voucherService.js
 const { getConnection } = require('../utils/db');
 
 // 创建凭证
@@ -5,7 +6,7 @@ async function createVoucher(database, voucherData, entries) {
   let connection;
 
   try {
-    connection = await database.getConnection();
+    connection = await getConnection(database);
     await connection.beginTransaction();
 
     // 1. 插入凭证记录
@@ -77,7 +78,7 @@ async function createVoucher(database, voucherData, entries) {
 
 // 获取凭证列表
 async function getVoucherList(database) {
-  const connection = await database.getConnection();
+  const connection = await getConnection(database);
   try {
     const [vouchers] = await connection.execute('SELECT * FROM voucher');
     return vouchers;
@@ -88,7 +89,7 @@ async function getVoucherList(database) {
 
 // 获取凭证详情
 async function getVoucherDetail(database, voucherId) {
-  const connection = await database.getConnection();
+  const connection = await getConnection(database);
   try {
     const [voucher] = await connection.execute('SELECT * FROM voucher WHERE id = ?', [voucherId]);
     if (voucher.length > 0) {
@@ -105,7 +106,7 @@ async function getVoucherDetail(database, voucherId) {
 async function updateVoucher(database, voucherId, voucherData, entries) {
   let connection;
   try {
-    connection = await database.getConnection();
+    connection = await getConnection(database);
     await connection.beginTransaction();
 
     // 1. 更新凭证记录
@@ -161,7 +162,7 @@ async function updateVoucher(database, voucherId, voucherData, entries) {
 
 // 删除凭证
 async function deleteVoucher(database, voucherId) {
-  const connection = await database.getConnection();
+  const connection = await getConnection(database);
   try {
     await connection.execute('DELETE FROM voucher WHERE id = ?', [voucherId]);
   } finally {
@@ -171,7 +172,7 @@ async function deleteVoucher(database, voucherId) {
 
 // 提交凭证审核
 async function submitVoucherReview(database, voucherId) {
-  const connection = await database.getConnection();
+  const connection = await getConnection(database);
   try {
     await connection.execute('UPDATE voucher SET status = "submitted" WHERE id = ?', [voucherId]);
   } finally {
@@ -181,7 +182,7 @@ async function submitVoucherReview(database, voucherId) {
 
 // 审核凭证
 async function reviewVoucher(database, voucherId, reviewData) {
-  const connection = await database.getConnection();
+  const connection = await getConnection(database);
   try {
     await connection.execute('UPDATE voucher SET status = ?, reviewed_by = ?, reviewed_at = ? WHERE id = ?', [
       reviewData.status,
@@ -196,7 +197,7 @@ async function reviewVoucher(database, voucherId, reviewData) {
 
 // 批量审核凭证
 async function batchReviewVouchers(database, voucherIds, reviewData) {
-  const connection = await database.getConnection();
+  const connection = await getConnection(database);
   try {
     await connection.execute(
       'UPDATE voucher SET status = ?, reviewed_by = ?, reviewed_at = ? WHERE id IN (?)',
@@ -209,7 +210,7 @@ async function batchReviewVouchers(database, voucherIds, reviewData) {
 
 // 获取下一个凭证号
 async function getNextVoucherNumber(database) {
-  const connection = await database.getConnection();
+  const connection = await getConnection(database);
   try {
     console.log('Executing query to get next voucher number');
     const [result] = await connection.execute('SELECT MAX(voucher_no) AS maxVoucherNo FROM voucher');
@@ -235,7 +236,7 @@ async function getNextVoucherNumber(database) {
 
 // 获取科目列表
 async function getAccountSubjects(database) {
-  const connection = await database.getConnection();
+  const connection = await getConnection(database);
   try {
     const [subjects] = await connection.execute('SELECT * FROM subject');
     return subjects;
@@ -246,7 +247,7 @@ async function getAccountSubjects(database) {
 
 // 获取常用摘要
 async function getCommonAbstracts(database) {
-  const connection = await database.getConnection();
+  const connection = await getConnection(database);
   try {
     const [abstracts] = await connection.execute('SELECT * FROM common_abstract');
     return abstracts;
@@ -257,7 +258,7 @@ async function getCommonAbstracts(database) {
 
 // 保存常用摘要
 async function saveCommonAbstract(database, abstractData) {
-  const connection = await database.getConnection();
+  const connection = await getConnection(database);
   try {
     await connection.execute('INSERT INTO common_abstract (content, created_by) VALUES (?, ?)', [
       abstractData.content,
@@ -270,7 +271,7 @@ async function saveCommonAbstract(database, abstractData) {
 
 // 获取辅助核算项目
 async function getAuxiliaryItems(database) {
-  const connection = await database.getConnection();
+  const connection = await getConnection(database);
   try {
     const [items] = await connection.execute('SELECT * FROM auxiliary_item');
     return items;
