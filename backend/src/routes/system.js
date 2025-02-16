@@ -1,8 +1,9 @@
+// src/routes/system.js
 const express = require('express');
 const router = express.Router();
 const systemController = require('../controllers/systemController');
-const subjectController = require('../controllers/subjectController');
 const authMiddleware = require('../middleware/auth');
+
 
 // 检查系统初始化状态
 router.get('/check-init', systemController.checkSystemInit, (err, req, res, next) => {
@@ -44,7 +45,8 @@ router.post('/createCompany', authMiddleware, systemController.createCompany, (e
 router.put('/updateCompany/:id', authMiddleware, systemController.updateCompany, (err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something broke!');
-  });
+});
+
 // 删除账套
 router.delete('/deleteCompany/:id', authMiddleware, systemController.deleteCompany, (err, req, res, next) => {
     console.error(err.stack);
@@ -69,30 +71,7 @@ router.post('/login', systemController.login, (err, req, res, next) => {
     res.status(500).send('Something broke!');
 });
 
-// 科目相关路由
-router.get('/subjects', authMiddleware,subjectController.getSubjects, (err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
-});
-router.post('/subjects', authMiddleware, subjectController.addSubject, (err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
-});
-router.put('/subjects/:id', authMiddleware, subjectController.updateSubject, (err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
-});
-router.patch('/subjects/:id/status', authMiddleware, subjectController.toggleSubjectStatus, (err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
-});
-router.post('/subjects/import', authMiddleware, subjectController.importSubjects, (err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
-});
-router.get('/subjects/export', authMiddleware, subjectController.exportSubjects, (err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
-});
+
+
 
 module.exports = router;

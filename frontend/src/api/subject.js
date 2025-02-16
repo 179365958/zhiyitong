@@ -2,14 +2,14 @@ import request from '@/utils/request'
 
 export function getSubjects() {
   return request({
-    url: '/api/system/subjects',
+    url: '/api/subjects',
     method: 'get'
   })
 }
 
 export function addSubject(data) {
   return request({
-    url: '/api/system/subjects',
+    url: '/api/subjects',
     method: 'post',
     data
   })
@@ -17,7 +17,7 @@ export function addSubject(data) {
 
 export function updateSubject(data) {
   return request({
-    url: `/api/system/subjects/${data.id}`,
+    url: `/api/subjects/${data.id}`,
     method: 'put',
     data
   })
@@ -25,21 +25,21 @@ export function updateSubject(data) {
 
 export function toggleSubjectStatus(id) {
   return request({
-    url: `/api/system/subjects/${id}/status`,
+    url: `/api/subjects/${id}/status`,
     method: 'patch'
   })
 }
 
 export function importSubjects() {
   return request({
-    url: '/api/system/subjects/import',
+    url: '/api/subjects/import',
     method: 'post'
   })
 }
 
 export function exportSubjects() {
   return request({
-    url: '/api/system/subjects/export',
+    url: '/api/subjects/export',
     method: 'get'
   })
 }

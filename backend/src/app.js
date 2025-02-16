@@ -4,6 +4,8 @@ const cors = require('cors');
 const logger = require('./utils/logger');
 const systemRoutes = require('./routes/system');
 const voucherRoutes = require('./routes/voucherRoutes'); 
+const subjectRoutes = require('./routes/subjectRoutes');
+
 const path = require('path');
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
@@ -60,6 +62,7 @@ app.use((req, res, next) => {
 // API 路由配置
 app.use('/api/system', systemRoutes);
 app.use('/api/vouchers', voucherRoutes);
+app.use('/api', subjectRoutes);
 
 // 静态文件服务
 app.use(express.static(path.join(__dirname, '../public')));
