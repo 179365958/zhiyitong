@@ -106,9 +106,20 @@ exports.batchReviewVouchers = async (req, res) => {
 // 获取下一个凭证号
 exports.getNextVoucherNumber = async (req, res) => {
   try {
-    const nextVoucherNumber = await voucherService.getNextVoucherNumber(req.database);
+    console.log('Starting to get next voucher number');
+    const database = req.database;
+    console.log('Database object:', database);
+
+    if (!database) {
+      console.error('Database object is undefined or null');
+      return res.status(500).json({ error: 'Database connection is not available' });
+    }
+
+    const nextVoucherNumber = await voucherService.getNextVoucherNumber(database);
+    console.log('Next voucher number fetched successfully:', nextVoucherNumber);
     res.status(200).json({ nextVoucherNumber });
   } catch (error) {
+    console.error('Failed to fetch next voucher number:', error);
     res.status(500).json({ error: 'Failed to fetch next voucher number!' });
   }
 };

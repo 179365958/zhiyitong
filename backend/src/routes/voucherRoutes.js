@@ -45,7 +45,7 @@ router.post(
 router.get('/', authMiddleware, voucherController.getVoucherList);
 
 // 获取下一个凭证号
-router.get('/number',authMiddleware,  voucherController.getNextVoucherNumber); // 移除 authMiddleware
+router.get('/number',authMiddleware,  voucherController.getNextVoucherNumber); 
 
 // 获取凭证详情
 router.get('/:id', authMiddleware, voucherController.getVoucherDetail);
@@ -64,7 +64,6 @@ router.post('/:id/review', authMiddleware, voucherController.reviewVoucher);
 
 // 批量审核凭证
 router.post('/batch-review', authMiddleware, voucherController.batchReviewVouchers);
-
 
 
 // 获取科目列表

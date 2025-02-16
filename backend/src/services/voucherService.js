@@ -211,11 +211,25 @@ async function batchReviewVouchers(database, voucherIds, reviewData) {
 async function getNextVoucherNumber(database) {
   const connection = await database.getConnection();
   try {
+    console.log('Executing query to get next voucher number');
     const [result] = await connection.execute('SELECT MAX(voucher_no) AS maxVoucherNo FROM voucher');
-    const nextVoucherNumber = result[0].maxVoucherNo ? parseInt(result[0].maxVoucherNo) + 1 : 1;
+    console.log('Query result:', result);
+
+    if (result.length === 0 || result[0].maxVoucherNo === null) {
+      console.log('No existing voucher numbers found, starting from 1');
+      return 1;
+    }
+
+    const nextVoucherNumber = parseInt(result[0].maxVoucherNo) + 1;
+    console.log('Next voucher number:', nextVoucherNumber);
     return nextVoucherNumber;
+  } catch (error) {
+    console.error('Error fetching next voucher number:', error);
+    throw new Error('Failed to fetch next voucher number!');
   } finally {
-    connection.release();
+    if (connection) {
+      connection.release();
+    }
   }
 }
 
