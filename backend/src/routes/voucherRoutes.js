@@ -1,4 +1,4 @@
-// voucherRoutes.js
+// src/routes/voucherRoutes.js
 const express = require('express');
 const router = express.Router();
 const voucherController = require('../controllers/voucherController');
@@ -29,7 +29,7 @@ const voucherValidation = [
 // 创建凭证
 router.post(
     '/',
-     authMiddleware, // 注释掉这行以暂时关闭认证
+    authMiddleware,
     voucherValidation,
     (req, res, next) => {
         const errors = validationResult(req);
@@ -38,50 +38,165 @@ router.post(
         }
         next();
     },
-    voucherController.createVoucher
+    voucherController.createVoucher,
+    (err, req, res, next) => {
+        console.error(err.stack);
+        res.status(500).send('Something broke!');
+    }
 );
 
 // 获取凭证列表
-router.get('/', authMiddleware, voucherController.getVoucherList);
+router.get(
+    '/',
+    authMiddleware,
+    voucherController.getVoucherList,
+    (err, req, res, next) => {
+        console.error(err.stack);
+        res.status(500).send('Something broke!');
+    }
+);
 
 // 获取下一个凭证号
-router.get('/number',authMiddleware,  voucherController.getNextVoucherNumber); 
+router.get(
+    '/number',
+    authMiddleware,
+    voucherController.getNextVoucherNumber,
+    (err, req, res, next) => {
+        console.error(err.stack);
+        res.status(500).send('Something broke!');
+    }
+);
 
 // 获取凭证详情
-router.get('/:id', authMiddleware, voucherController.getVoucherDetail);
+router.get(
+    '/:id',
+    authMiddleware,
+    voucherController.getVoucherDetail,
+    (err, req, res, next) => {
+        console.error(err.stack);
+        res.status(500).send('Something broke!');
+    }
+);
 
 // 更新凭证
-router.put('/:id', authMiddleware, voucherController.updateVoucher);
+router.put(
+    '/:id',
+    authMiddleware,
+    voucherController.updateVoucher,
+    (err, req, res, next) => {
+        console.error(err.stack);
+        res.status(500).send('Something broke!');
+    }
+);
 
 // 删除凭证
-router.delete('/:id', authMiddleware, voucherController.deleteVoucher);
+router.delete(
+    '/:id',
+    authMiddleware,
+    voucherController.deleteVoucher,
+    (err, req, res, next) => {
+        console.error(err.stack);
+        res.status(500).send('Something broke!');
+    }
+);
 
 // 提交凭证审核
-router.post('/:id/submit', authMiddleware, voucherController.submitVoucherReview);
+router.post(
+    '/:id/submit',
+    authMiddleware,
+    voucherController.submitVoucherReview,
+    (err, req, res, next) => {
+        console.error(err.stack);
+        res.status(500).send('Something broke!');
+    }
+);
 
 // 审核凭证
-router.post('/:id/review', authMiddleware, voucherController.reviewVoucher);
+router.post(
+    '/:id/review',
+    authMiddleware,
+    voucherController.reviewVoucher,
+    (err, req, res, next) => {
+        console.error(err.stack);
+        res.status(500).send('Something broke!');
+    }
+);
 
 // 批量审核凭证
-router.post('/batch-review', authMiddleware, voucherController.batchReviewVouchers);
-
+router.post(
+    '/batch-review',
+    authMiddleware,
+    voucherController.batchReviewVouchers,
+    (err, req, res, next) => {
+        console.error(err.stack);
+        res.status(500).send('Something broke!');
+    }
+);
 
 // 获取科目列表
-router.get('/account-subjects', authMiddleware, voucherController.getAccountSubjects);
+router.get(
+    '/account-subjects',
+    authMiddleware,
+    voucherController.getAccountSubjects,
+    (err, req, res, next) => {
+        console.error(err.stack);
+        res.status(500).send('Something broke!');
+    }
+);
 
 // 获取常用摘要
-router.get('/common-abstracts', authMiddleware, voucherController.getCommonAbstracts);
+router.get(
+    '/common-abstracts',
+    authMiddleware,
+    voucherController.getCommonAbstracts,
+    (err, req, res, next) => {
+        console.error(err.stack);
+        res.status(500).send('Something broke!');
+    }
+);
 
 // 保存常用摘要
-router.post('/common-abstracts', authMiddleware, voucherController.saveCommonAbstract);
+router.post(
+    '/common-abstracts',
+    authMiddleware,
+    voucherController.saveCommonAbstract,
+    (err, req, res, next) => {
+        console.error(err.stack);
+        res.status(500).send('Something broke!');
+    }
+);
 
 // 获取辅助核算项目
-router.get('/auxiliary-items', authMiddleware, voucherController.getAuxiliaryItems);
+router.get(
+    '/auxiliary-items',
+    authMiddleware,
+    voucherController.getAuxiliaryItems,
+    (err, req, res, next) => {
+        console.error(err.stack);
+        res.status(500).send('Something broke!');
+    }
+);
 
 // 导出凭证
-router.get('/export', authMiddleware, voucherController.exportVouchers);
+router.get(
+    '/export',
+    authMiddleware,
+    voucherController.exportVouchers,
+    (err, req, res, next) => {
+        console.error(err.stack);
+        res.status(500).send('Something broke!');
+    }
+);
 
 // 导入凭证
-router.post('/import', authMiddleware, voucherController.importVouchers);
+router.post(
+    '/import',
+    authMiddleware,
+    voucherController.importVouchers,
+    (err, req, res, next) => {
+        console.error(err.stack);
+        res.status(500).send('Something broke!');
+    }
+);
 
 module.exports = router;
