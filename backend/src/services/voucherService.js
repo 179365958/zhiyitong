@@ -218,12 +218,21 @@ async function getNextVoucherNumber(database) {
 
     if (result.length === 0 || result[0].maxVoucherNo === null) {
       console.log('No existing voucher numbers found, starting from 1');
-      return 1;
+      return 1; // 返回数字
     }
 
-    const nextVoucherNumber = parseInt(result[0].maxVoucherNo) + 1;
+    const maxVoucherNo = result[0].maxVoucherNo;
+    console.log('Max voucher number:', maxVoucherNo);
+
+    // 确保 maxVoucherNo 是一个数字
+    if (typeof maxVoucherNo !== 'number') {
+      console.error('maxVoucherNo 不是一个有效的数字:', maxVoucherNo);
+      throw new Error('获取的最大凭证编号无效');
+    }
+
+    const nextVoucherNumber = parseInt(maxVoucherNo) + 1;
     console.log('Next voucher number:', nextVoucherNumber);
-    return nextVoucherNumber;
+    return nextVoucherNumber; // 返回数字
   } catch (error) {
     console.error('Error fetching next voucher number:', error);
     throw new Error('Failed to fetch next voucher number!');
