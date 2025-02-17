@@ -212,34 +212,25 @@ async function batchReviewVouchers(database, voucherIds, reviewData) {
 async function getNextVoucherNumber(database) {
   const connection = await getConnection(database);
   try {
-    console.log('Executing query to get next voucher number');
-    const [result] = await connection.execute('SELECT MAX(voucher_no) AS maxVoucherNo FROM voucher');
-    console.log('Query result:', result);
+    // 改为按长度排序获取最大凭证号
+    const [result] = await connection.execute(
+      'SELECT voucher_no FROM voucher ORDER BY LENGTH(voucher_no) DESC, voucher_no DESC LIMIT 1'
+    );
 
-    if (result.length === 0 || result[0].maxVoucherNo === null) {
-      console.log('No existing voucher numbers found, starting from 1');
-      return 1; // 返回数字
+    let nextNumber = 1;
+    if (result.length > 0) {
+      const maxVoucherNo = result[0].voucher_no;
+      // 保留前导零处理
+      nextNumber = parseInt(maxVoucherNo) + 1;
     }
-
-    const maxVoucherNo = result[0].maxVoucherNo;
-    console.log('Max voucher number:', maxVoucherNo);
-
-    // 确保 maxVoucherNo 是一个数字
-    if (typeof maxVoucherNo !== 'number') {
-      console.error('maxVoucherNo 不是一个有效的数字:', maxVoucherNo);
-      throw new Error('获取的最大凭证编号无效');
-    }
-
-    const nextVoucherNumber = parseInt(maxVoucherNo) + 1;
-    console.log('Next voucher number:', nextVoucherNumber);
-    return nextVoucherNumber; // 返回数字
+    
+    // 根据业务需求确定位数（示例使用4位）
+    return nextNumber.toString().padStart(4, '0'); // 返回字符串
   } catch (error) {
     console.error('Error fetching next voucher number:', error);
-    throw new Error('Failed to fetch next voucher number!');
+    throw error;
   } finally {
-    if (connection) {
-      connection.release();
-    }
+    connection.release();
   }
 }
 
