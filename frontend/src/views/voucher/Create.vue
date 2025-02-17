@@ -548,7 +548,12 @@ const numberToChinese = (num) => {
 const generateVoucherNumber = async () => {
   try {
     const nextNumber = await getNextVoucherNumber();
-    voucherForm.value.number = nextNumber; // 确保这里直接赋值，不进行转换
+    // 确保 nextNumber 是一个字符串
+    if (typeof nextNumber === 'object' && nextNumber.nextVoucherNumber) {
+      voucherForm.value.number = nextNumber.nextVoucherNumber;
+    } else {
+      voucherForm.value.number = nextNumber;
+    }
   } catch (error) {
     console.error('生成凭证编号失败:', error);
     ElMessage.error('生成凭证编号失败，请重试');
