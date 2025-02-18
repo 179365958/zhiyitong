@@ -1,6 +1,6 @@
 :: 启动后端服务
 echo.
-echo 正在启动后端服务...
+echo starting backend service...
 start "后端服务" cmd /c "cd backend && npm start"
 
 :: 等待2秒
@@ -8,7 +8,7 @@ timeout /t 2 > nul
 
 :: 启动前端服务
 echo.
-echo 正在启动前端服务...
+echo starting frontend service...
 start "前端服务" cmd /c "cd frontend && npm run dev"
 
 :: 等待2秒
