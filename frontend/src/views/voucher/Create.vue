@@ -248,7 +248,7 @@ import { Document, Plus, ArrowLeft, ArrowRight, Printer, Key, Delete, MoreFilled
 import axios from 'axios'
 import { getSubjects } from '@/api/subject'
 import { useUserStore } from '@/stores/user' // 导入用户状态管理
-import { getNextVoucherNumber } from '@/api/voucher' 
+import { getNextVoucherNumber,createVoucher } from '@/api/voucher' 
 
 
 const userStore = useUserStore() // 获取用户状态管理
@@ -441,7 +441,7 @@ const handleAmountBlur = (entry, type) => {
 }
 
 // 保存凭证
-const handleSave = () => {
+const handleSave = async () => {
   if (!voucherForm.value.date) {
     ElMessage.error('请选择凭证日期')
     return false
@@ -454,14 +454,41 @@ const handleSave = () => {
     ElMessage.error('借贷不平衡，请调整金额')
     return false
   }
-  console.log('保存凭证:', voucherForm.value)
-  ElMessage.success('凭证保存成功')
+
+  // 验证每个分录的科目是否存在且有效
+  /*
+  for (const entry of voucherForm.value.entries) {
+    if (!entry.subject) {
+      ElMessage.error('每个分录必须选择一个会计科目')
+      return false
+    }
+    const subject = subjectOptions.value.find(item => item.code === entry.subject)
+    if (!subject) {
+      ElMessage.error(`科目 ${entry.subject} 不存在`)
+      return false
+    }
+  }
+    */
+
+  try {
+    const response = await createVoucher(voucherForm.value)
+    if (response.status === 201) {
+      ElMessage.success('凭证保存成功')
+      // 可以选择清空表单或跳转到其他页面
+      // initializeEntries()
+    }
+  } catch (error) {
+    console.error('保存凭证失败:', error)
+    ElMessage.error('保存凭证失败，请重试')
+  }
 }
 
 // 保存并新增
-const handleSaveAndNew = () => {
-  handleSave()
-  initializeEntries()
+const handleSaveAndNew = async () => {
+  await handleSave()
+  if (voucherForm.value.entries.every(entry => entry.summary === '' && entry.subject === '' && entry.debit === '' && entry.credit === '')) {
+    initializeEntries()
+  }
 }
 
 // 打印凭证
