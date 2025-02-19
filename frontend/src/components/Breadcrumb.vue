@@ -50,16 +50,33 @@ export default {
     },
     getRouteTitle(path) {
       // 根据路径获取路由配置中的 meta.title
-      const matchedRoute = this.$router.options.routes.find(route => route.path === path); // 兼容 Vue Router 4.x
+      const matchedRoute = this.$router.options.routes.find(route => route.path === path);
       console.log('Matched Route:', matchedRoute); // 调试日志
       return matchedRoute?.meta?.title;
     },
     getDefaultTitle(path) {
       // 使用中文作为默认标题
       const pathMap = {
+        /*
         home: '首页',
-        about: '关于我们',
+        dashboard: '工作台',
+        create: '凭证录入',
+        review: '凭证审核',
+        query: '凭证查询',
+        general: '总账',
+        subsidiary: '明细账',
+        balance: '余额表',
+        'balance-sheet': '资产负债表',
+        income: '利润表',
+        'cash-flow': '现金流量表',
+        company: '企业信息',
+        account: '账套管理',
+        subject: '科目设置',
+        user: '用户管理',
+        role: '角色权限',
+        setting: '系统设置',
         // 其他路径映射...
+        */
       };
       return pathMap[path] || path.charAt(0).toUpperCase() + path.slice(1);
     },
