@@ -43,6 +43,8 @@
             <Fold v-if="!isCollapse"/>
             <Expand v-else/>
           </el-icon>
+          <!-- 面包屑导航 -->
+          <Breadcrumb />
         </div>
         <div class="account-select">
           <el-select v-model="selectedAccount" placeholder="请选择账套" @change="handleAccountChange">
@@ -131,8 +133,12 @@ import { getCompanyList, switchDatabase } from '@/api/system';
 import { setCurrentCompany, getCurrentCompany } from '@/utils/auth';
 import { useUserStore } from '@/stores/user';
 import { useAccountStore } from '@/stores/account'; // 引入 Pinia Store
+import Breadcrumb from '@/components/Breadcrumb.vue'; 
 
 export default {
+  components: {
+    Breadcrumb, // 注册 Breadcrumb 组件
+  },
   data() {
     return {
       selectedAccount: '',
@@ -393,6 +399,10 @@ onMounted(async () => {
 
 .collapse-btn:hover {
   color: #409EFF;
+}
+
+.breadcrumb {
+  margin-left: 10px; /* 添加间距 */
 }
 
 :deep(.el-menu-item.is-active) {
