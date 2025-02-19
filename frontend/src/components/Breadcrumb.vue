@@ -32,18 +32,36 @@ export default {
       let fullPath = '';
       this.breadcrumbs = paths.map((path, index) => {
         fullPath += `/${path}`;
-        // 获取路由的 meta.title 或使用路径作为默认名称
-        const name = this.getRouteTitle(fullPath) || path.charAt(0).toUpperCase() + path.slice(1);
+        console.log('Generated fullPath:', fullPath); // 调试日志
+        const name = this.getRouteTitle(fullPath) || this.getDefaultTitle(path);
         return {
           name,
           path: fullPath,
         };
       });
+
+      // 如果面包屑为空，添加首页
+      if (this.breadcrumbs.length === 0) {
+        this.breadcrumbs.push({
+          name: '首页',
+          path: '/',
+        });
+      }
     },
     getRouteTitle(path) {
       // 根据路径获取路由配置中的 meta.title
-      const matchedRoute = this.$router.getRoutes().find(route => route.path === path);
+      const matchedRoute = this.$router.options.routes.find(route => route.path === path); // 兼容 Vue Router 4.x
+      console.log('Matched Route:', matchedRoute); // 调试日志
       return matchedRoute?.meta?.title;
+    },
+    getDefaultTitle(path) {
+      // 使用中文作为默认标题
+      const pathMap = {
+        home: '首页',
+        about: '关于我们',
+        // 其他路径映射...
+      };
+      return pathMap[path] || path.charAt(0).toUpperCase() + path.slice(1);
     },
   },
 };
