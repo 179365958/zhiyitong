@@ -1,41 +1,6 @@
 <template>
   <el-container class="layout-container">
-    <el-aside :width="isCollapse ? '64px' : '200px'" class="aside">
-      <div class="logo">
-        <img src="../assets/logo.svg" alt="logo" />
-        <span v-show="!isCollapse">智易通</span>
-      </div>   
-      <el-menu
-        :default-active="$route.path"
-        class="el-menu-vertical"
-        :collapse="isCollapse"
-        background-color="#304156"
-        text-color="#bfcbd9"
-        active-text-color="#409EFF"
-        :popper-effect="'light'"
-        :default-openeds="[]"
-        :collapse-transition="true"
-        router
-        @select="handleSelect">
-        <template v-for="item in menuItems" :key="item.path">
-          <el-sub-menu v-if="item.children" :index="item.path">
-            <template #title>
-              <el-icon><component :is="item.icon" /></el-icon>
-              <span>{{ item.name }}</span>
-            </template>
-            <el-menu-item v-for="child in item.children"
-              :key="child.path"
-              :index="`${item.path}/${child.path}`">
-              <span>{{ child.name }}</span>
-            </el-menu-item>
-          </el-sub-menu>
-          <el-menu-item v-else :index="item.path">
-            <el-icon><component :is="item.icon" /></el-icon>
-            <span>{{ item.name }}</span>
-          </el-menu-item>
-        </template>
-      </el-menu>
-    </el-aside>
+    <Menu :is-collapse="isCollapse" @select="handleSelect" />
     <el-container>
       <el-header height="50px" class="header">
         <div class="header-left">
@@ -134,10 +99,12 @@ import { setCurrentCompany, getCurrentCompany } from '@/utils/auth';
 import { useUserStore } from '@/stores/user';
 import { useAccountStore } from '@/stores/account'; // 引入 Pinia Store
 import Breadcrumb from '@/components/Breadcrumb.vue'; 
+import Menu from '@/components/Menu.vue'; // 引入 Menu 组件
 
 export default {
   components: {
     Breadcrumb, // 注册 Breadcrumb 组件
+    Menu // 注册 Menu 组件
   },
   data() {
     return {
@@ -258,7 +225,6 @@ export default {
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useTabsStore } from '@/stores/tabs'
-import { menuItems } from '@/router/modules/menu'
 import { useUserStore } from '@/stores/user'
 import { ArrowDown, Fold, Expand } from '@element-plus/icons-vue'
 
