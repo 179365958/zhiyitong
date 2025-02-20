@@ -579,6 +579,44 @@ CREATE TABLE IF NOT EXISTS closing_record (
     UNIQUE KEY uk_period (period_year, period_month)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='结账记录表';
 
+CREATE TABLE IF NOT EXISTS sys_menu (
+    id              BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+    parent_id       BIGINT NOT NULL DEFAULT 0 COMMENT '父菜单ID',
+    tree_path       VARCHAR(255) NULL DEFAULT '' COMMENT '父节点ID路径',
+    name            VARCHAR(64) NOT NULL DEFAULT '' COMMENT '菜单名称',
+    type            TINYINT NOT NULL COMMENT '菜单类型（1-菜单 2-目录 3-外链 4-按钮）',
+    route_name      VARCHAR(255) NULL DEFAULT NULL COMMENT '路由名称（Vue Router 中用于命名路由）',
+    route_path      VARCHAR(128) NULL DEFAULT '' COMMENT '路由路径（Vue Router 中定义的 URL 路径）',
+    component       VARCHAR(128) NULL DEFAULT NULL COMMENT '组件路径（组件页面完整路径，相对于 src/views/，缺省后缀 .vue）',
+    perm            VARCHAR(128) NULL DEFAULT NULL COMMENT '【按钮】权限标识',
+    always_show     TINYINT NULL DEFAULT 0 COMMENT '【目录】只有一个子路由是否始终显示（1-是 0-否）',
+    keep_alive      TINYINT NULL DEFAULT 0 COMMENT '【菜单】是否开启页面缓存（1-是 0-否）',
+    visible         TINYINT(1) NOT NULL DEFAULT 1 COMMENT '显示状态（1-显示 0-隐藏）',
+    sort            INT NULL DEFAULT 0 COMMENT '排序',
+    icon            VARCHAR(64) NULL DEFAULT '' COMMENT '菜单图标',
+    redirect        VARCHAR(128) NULL DEFAULT NULL COMMENT '跳转路径',
+    params          JSON NULL COMMENT '路由参数',
+    status          TINYINT NOT NULL DEFAULT 1 COMMENT '菜单状态（1-启用 0-禁用）',
+    created_at      DATETIME NULL DEFAULT NULL COMMENT '创建时间',
+    created_by      BIGINT NULL DEFAULT NULL COMMENT '创建人ID',
+    updated_at      DATETIME NULL DEFAULT NULL COMMENT '更新时间',
+    updated_by      BIGINT NULL DEFAULT NULL COMMENT '修改人ID',
+    UNIQUE KEY uk_route_path (route_path),
+    INDEX idx_parent_id (parent_id),
+    INDEX idx_visible (visible),
+    INDEX idx_sort (sort)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='菜单管理';
+
+CREATE TABLE IF NOT EXISTS sys_role_menu (
+    role_id         BIGINT NOT NULL COMMENT '角色ID',
+    menu_id         BIGINT NOT NULL COMMENT '菜单ID',
+    created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    created_by      BIGINT NOT NULL COMMENT '创建人ID',
+    PRIMARY KEY (role_id, menu_id),
+    INDEX idx_role_id (role_id),
+    INDEX idx_menu_id (menu_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色和菜单关联表';
+
 
 INSERT INTO sys_user (username, password, real_name, email, mobile, is_admin, created_at, created_by)
 VALUES ('admin', '$2b$10$uYYuRZqOZ3jBGp0rrMV7n./9VkGccPN/zLO/e/MmoqmJbLKtCNmVO', '管理员', 'admin@example.com', '1234567890', 1, NOW(), 1);
