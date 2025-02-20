@@ -263,14 +263,14 @@ const handleTabClick = (tab) => {
 
 // 处理标签页移除
 const removeTab = (targetPath) => {
-  tabsStore.removeTab(targetPath)
+  tabsStore.closeTab(targetPath);
   if (route.path === targetPath) {
-    const lastTab = tabsStore.tabs[tabsStore.tabs.length - 1]
+    const lastTab = tabsStore.tabs[tabsStore.tabs.length - 1];
     if (lastTab) {
-      router.push(lastTab.path)
+      router.push(lastTab.path);
     }
   }
-}
+};
 
 // 处理用户下拉菜单操作
 const handleCommand = (command) => {
