@@ -1,3 +1,4 @@
+// router/index.js
 import { createRouter, createWebHistory } from 'vue-router'
 import { menuItems } from './modules/menu'
 import { getToken } from '@/utils/auth'
@@ -177,13 +178,15 @@ const baseRoutes = [
     path: '/',
     component: Home,
     redirect: '/dashboard',
-    children: generateRoutes(menuItems)
-  },
-  {
-    path: '/settings/profile',
-    name: 'Profile',
-    component: Profile,
-    meta: { title: '个人信息' }
+    children: [
+      ...generateRoutes(menuItems),
+      {
+        path: 'settings/profile',
+        name: 'Profile',
+        component: Profile,
+        meta: { title: '个人信息' }
+      }
+    ]
   },
   {
     path: '/:pathMatch(.*)*',
