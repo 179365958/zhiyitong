@@ -92,3 +92,9 @@ export async function fetchUserInfo() {
     throw new Error('获取用户信息失败');
   }
 }
+
+// 获取用户权限列表
+export function getUserPermissions() {
+  const userInfo = getUserInfo();
+  return userInfo.permissions || [];
+}
