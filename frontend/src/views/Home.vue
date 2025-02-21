@@ -100,11 +100,13 @@ import { useUserStore } from '@/stores/user';
 import { useAccountStore } from '@/stores/account'; // 引入 Pinia Store
 import Breadcrumb from '@/components/Breadcrumb.vue'; 
 import Menu from '@/components/Menu.vue'; // 引入 Menu 组件
+import Profile from '@/views/settings/Profile.vue'; 
 
 export default {
   components: {
     Breadcrumb, // 注册 Breadcrumb 组件
-    Menu // 注册 Menu 组件
+    Menu, // 注册 Menu 组件
+    Profile
   },
   data() {
     return {
