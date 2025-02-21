@@ -1,10 +1,9 @@
 // router/index.js
 import { createRouter, createWebHistory } from 'vue-router'
 import { menuItems } from './modules/menu'
-import { getToken } from '@/utils/auth'
+import { getToken, getUserRoles } from '@/utils/auth' // 假设有一个函数获取用户角色
 import Home from '@/views/Home.vue'
 import Login from '@/views/Admin/Login.vue'
-import { checkSystemInit } from '@/api/system'
 import Profile from '@/views/settings/Profile.vue'
 
 import AdminHome from '@/views/Admin/AdminHome.vue';
@@ -36,7 +35,6 @@ const loadView = (view) => {
       'ledger/Balance': () => import('@/views/ledger/Balance.vue'),
       
       // 账套管理
-      //'account-book/Initialize': () => import('@/views/account-book/Initialize.vue'),
       'account-book/Login': () => import('@/views/Admin/Login.vue'),
       // 财务报表
       'report/BalanceSheet': () => import('@/views/report/BalanceSheet.vue'),
@@ -74,7 +72,7 @@ const loadView = (view) => {
 // 自动生成路由配置
 function generateRoutes(menuItems) {
   const routes = []
-  
+
   menuItems.forEach(item => {
     if (item.children) {
       // 子路由
@@ -85,7 +83,8 @@ function generateRoutes(menuItems) {
           component: loadView(child.component),
           meta: { 
             title: child.name,
-            parentTitle: item.name
+            parentTitle: item.name,
+            requiredRole: child.requiredRole // 添加权限元数据
           }
         })
       })
@@ -95,11 +94,11 @@ function generateRoutes(menuItems) {
         path: item.path,
         name: item.path.slice(1),
         component: loadView(item.component),
-        meta: { title: item.name }
+        meta: { title: item.name, requiredRole: item.requiredRole }
       })
     }
   })
-  
+
   return routes
 }
 
@@ -201,42 +200,68 @@ const router = createRouter({
   routes: baseRoutes
 })
 
+// 异步检查 Token
+async function checkToken() {
+  try {
+    const token = await getToken();
+    return token;
+  } catch (error) {
+    console.error('获取 Token 失败:', error);
+    return null;
+  }
+}
+
 // 路由守卫
-router.beforeEach((to, from, next) => {
-  const token = getToken()
-  
+router.beforeEach(async (to, from, next) => {
+  const token = await checkToken();
+  const roles = getUserRoles();
+
   // 不需要登录就可以访问的页面
-  const publicPages = ['/login', '/install', '/Admin/login']
-  const isPublicPage = publicPages.includes(to.path)
+  const publicPaths = [
+    /^\/login(\/|$)/, // 匹配 /login 或 /login/
+    /^\/install(\/|$)/,
+    /^\/Admin\/login(\/|$)/
+  ];
+  const isPublicPage = publicPaths.some(path => path.test(to.path));
 
   if (isPublicPage) {
     if (token) {
       // 如果是从账套管理登录页登录
       if (to.path === '/Admin/login') {
-        next('/Admin')
+        next('/Admin');
       } 
       // 如果是从主系统登录页登录
       else if (to.path === '/login') {
-        next('/')
+        next('/');
       } 
       else {
-        next()
+        next();
       }
     } else {
-      next() // 允许访问公共页面
+      next(); // 允许访问公共页面
     }
   } else {
     if (token) {
-      next() // 已登录用户可以访问其他页面
-    } else {
-      // 未登录用户重定向到对应的登录页
-      if (to.path.startsWith('/Admin')) {
-        next('/Admin/login')
+      // 检查用户是否有权限访问目标页面
+      const requiredRole = to.meta.requiredRole;
+      if (!requiredRole || roles.includes(requiredRole)) {
+        next();
       } else {
-        next('/login')
+        next('/403'); // 无权限页面
+      }
+    } else {
+      // 防止重定向循环
+      if (from.path !== '/login' && from.path !== '/Admin/login') {
+        if (to.path.startsWith('/Admin')) {
+          next('/Admin/login');
+        } else {
+          next('/login');
+        }
+      } else {
+        next();
       }
     }
   }
-})
+});
 
-export default router
+export default router;

@@ -94,7 +94,7 @@ export async function fetchUserInfo() {
 }
 
 // 获取用户权限列表
-export function getUserPermissions() {
+export function getUserRoles() {
   const userInfo = getUserInfo();
   return userInfo.permissions || [];
 }
