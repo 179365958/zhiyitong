@@ -469,6 +469,11 @@ const handleSave = async () => {
     }
   }
     */
+     // 打印请求数据
+  console.log('Request Data:', {
+    voucher: voucherForm.value,
+    entries: voucherForm.value.entries
+  });
 
   try {
     const response = await createVoucher(voucherForm.value)

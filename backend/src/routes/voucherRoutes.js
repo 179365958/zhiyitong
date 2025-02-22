@@ -26,10 +26,17 @@ const voucherValidation = [
     body('entries.*.created_by').isInt().withMessage('created_by 必须是整数')
 ];
 
+// 自定义中间件：打印接收到的数据
+const logRequestBody = (req, res, next) => {
+    console.log('Received Data:', req.body);
+    next();
+};
+
 // 创建凭证
 router.post(
     '/',
     authMiddleware,
+    logRequestBody, 
     voucherValidation,
     (req, res, next) => {
         const errors = validationResult(req);

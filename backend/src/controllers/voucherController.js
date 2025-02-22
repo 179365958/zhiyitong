@@ -162,11 +162,11 @@ exports.getNextVoucherNumber = async (req, res) => {
   }
 
   try {
-    console.log('Starting to get next voucher number');
-    console.log('Database object:', database);
+//    console.log('Starting to get next voucher number');
+//    console.log('Database object:', database);
 
     const nextVoucherNumber = await voucherService.getNextVoucherNumber(database);
-    console.log('Next voucher number fetched successfully:', nextVoucherNumber);
+//    console.log('Next voucher number fetched successfully:', nextVoucherNumber);
     res.status(200).json({ nextVoucherNumber });
   } catch (error) {
     console.error('Failed to fetch next voucher number:', error);
