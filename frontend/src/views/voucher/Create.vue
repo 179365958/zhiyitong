@@ -52,13 +52,12 @@
       <!-- 凭证信息 -->
       <div class="voucher-info">
         <div class="type-no">
-          <span class="type">{{ voucherForm.type }}</span>
-          <span class="no">{{ voucherForm.number }}</span>
+          <span class="type">{{ voucherForm.voucher.voucher_type }}</span>
+          <span class="no">{{ voucherForm.voucher.voucher_no }}</span>
         </div>
         <div class="date-container">
-          <!-- 日期选择器 -->
           <el-date-picker
-            v-model="voucherForm.date"
+            v-model="voucherForm.voucher.voucher_date"
             type="date"
             size="default"
             style="width: 130px;"
@@ -255,6 +254,7 @@ const userStore = useUserStore() // 获取用户状态管理
 const userInfo = computed(() => userStore.userInfo) // 获取当前用户信息
 
 // 凭证表单数据
+/*
 const voucherForm = ref({
   date: new Date().toISOString().split('T')[0],
   type: '记',
@@ -266,6 +266,35 @@ const voucherForm = ref({
   reviewer: '',
   bookkeeper: ''
 })
+  */
+
+
+const voucherForm = ref({
+  voucher: {
+    period_id: 1, // 示例值
+    voucher_type: '记', // 对应前端的 type
+    voucher_no: '', // 对应前端的 number
+    voucher_date: new Date().toISOString().split('T')[0], // 对应前端的 date
+    summary: '', // 可选
+    total_debit: 0, // 计算借方合计
+    total_credit: 0, // 计算贷方合计
+    created_by: userInfo.value?.id || 1 // 示例值（用户 ID）
+  },
+  entries: [
+    {
+      subject_id: '', // 对应前端的 subject
+      summary: '', // 对应前端的 summary
+      currency_id: 1, // 示例值
+      exchange_rate: 1.0, // 示例值
+      debit_amount: '', // 对应前端的 debit
+      credit_amount: '', // 对应前端的 credit
+      entry_order: 1, // 示例值
+      created_by: userInfo.value?.id || 1 // 示例值（用户 ID）
+    }
+  ]
+});
+
+
 
 // 初始化凭证条目，确保至少有四行
 const initializeEntries = () => {
@@ -582,9 +611,9 @@ const generateVoucherNumber = async () => {
     const nextNumber = await getNextVoucherNumber();
     // 确保 nextNumber 是一个字符串
     if (typeof nextNumber === 'object' && nextNumber.nextVoucherNumber) {
-      voucherForm.value.number = nextNumber.nextVoucherNumber;
+      voucherForm.value.voucher.voucher_no = nextNumber.nextVoucherNumber;
     } else {
-      voucherForm.value.number = nextNumber;
+      voucherForm.value.voucher.voucher_no = nextNumber;
     }
   } catch (error) {
     console.error('生成凭证编号失败:', error);
