@@ -117,9 +117,9 @@
                 >
                   <el-option
                     v-for="item in summaryOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
+                    :key="item.summary_code"
+                    :label="item.summary_name"
+                    :value="item.summary_code"
                   />
                 </el-select>
               </td>
@@ -328,11 +328,17 @@ const handleSearchSummary = async (query) => {
     try {
       summaryLoading.value = true;
       const response = await getCommonAbstracts({ query });
-      summaryOptions.value = response.data.map(item => ({
-        summary_code: item.summary_code, // 使用 summary_code 作为值
-        summary_name: item.summary_name, // 使用 summary_name 作为显示标签
-        ...item // 保留其他字段
-      }));
+      console.log('Response from getCommonAbstracts:', response); // 添加日志
+      if (response && Array.isArray(response.data)) {
+        summaryOptions.value = response.data.map(item => ({
+          summary_code: item.summary_code, // 使用 summary_code 作为值
+          summary_name: item.summary_name, // 使用 summary_name 作为显示标签
+          ...item // 保留其他字段
+        }));
+      } else {
+        console.error('Invalid response format:', response);
+        ElMessage.error('获取摘要失败，请检查API响应格式');
+      }
     } catch (error) {
       console.error('搜索摘要失败:', error);
       ElMessage.error('搜索摘要失败，请重试');
