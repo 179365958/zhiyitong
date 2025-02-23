@@ -185,6 +185,7 @@ export default {
         await this.switchDatabase(selectedCompany, userId);
 
         // 手动触发 Subject.vue 中的 fetchSubjects 方法
+        console.log(this.$refs.subjectComponent);
         this.$refs.subjectComponent.fetchSubjects();
       }
     },
