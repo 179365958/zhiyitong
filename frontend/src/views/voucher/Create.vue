@@ -247,7 +247,7 @@ import { Document, Plus, ArrowLeft, ArrowRight, Printer, Key, Delete, MoreFilled
 import axios from 'axios'
 import { getSubjects } from '@/api/subject'
 import { useUserStore } from '@/stores/user' // 导入用户状态管理
-import { getNextVoucherNumber,createVoucher } from '@/api/voucher' 
+import { getNextVoucherNumber,createVoucher,getCommonAbstracts  } from '@/api/voucher' 
 
 
 const userStore = useUserStore() // 获取用户状态管理
@@ -322,29 +322,27 @@ const summaryOptions = ref([
 
 // 摘要加载状态
 const summaryLoading = ref(false)
-
 // 搜索摘要
 const handleSearchSummary = async (query) => {
   if (query) {
     try {
-      summaryLoading.value = true
-      const response = await axios.get('/api/summaries', { params: { query } })
-      summaryOptions.value = response.data.data
+      summaryLoading.value = true;
+      const response = await getCommonAbstracts({ query });
+      summaryOptions.value = response.data.map(item => ({
+        summary_code: item.summary_code, // 使用 summary_code 作为值
+        summary_name: item.summary_name, // 使用 summary_name 作为显示标签
+        ...item // 保留其他字段
+      }));
     } catch (error) {
-      console.error('搜索摘要失败:', error)
-      ElMessage.error('搜索摘要失败，请重试')
+      console.error('搜索摘要失败:', error);
+      ElMessage.error('搜索摘要失败，请重试');
     } finally {
-      summaryLoading.value = false
+      summaryLoading.value = false;
     }
   } else {
-    summaryOptions.value = [
-      { value: '摘要1', label: '摘要1' },
-      { value: '摘要2', label: '摘要2' },
-      { value: '摘要3', label: '摘要3' },
-    ]
+    summaryOptions.value = [];
   }
-}
-
+};
 // 获取科目选项数据
 const fetchSubjectOptions = async () => {
   try {
