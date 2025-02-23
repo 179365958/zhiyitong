@@ -640,3 +640,17 @@ INSERT INTO closing_record (
 ) VALUES 
 (2024, 1, '月结', 2, NOW(), 1),
 (2024, 2, '月结', 0, NOW(), 1);
+
+INSERT INTO accounting_summary (
+    summary_code, summary_name, description, created_at, created_by
+) VALUES 
+('SUM001', '商品销售收入', '销售商品所得收入', NOW(), 1),
+('SUM002', '服务收入', '提供服务所得收入', NOW(), 1),
+('SUM003', '原材料采购', '采购原材料的支出', NOW(), 1),
+('SUM004', '员工工资', '支付员工工资', NOW(), 1),
+('SUM005', '租金支出', '支付租赁费用', NOW(), 1),
+('SUM006', '银行存款利息收入', '银行存款产生的利息收入', NOW(), 1),
+('SUM007', '固定资产折旧', '固定资产的折旧费用', NOW(), 1),
+('SUM008', '广告费用', '广告宣传费用支出', NOW(), 1),
+('SUM009', '税费支出', '支付的各项税费', NOW(), 1),
+('SUM010', '销售成本', '销售商品的成本', NOW(), 1);
