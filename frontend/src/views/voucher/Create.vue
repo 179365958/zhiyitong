@@ -471,7 +471,7 @@ const handleAmountBlur = (entry, type) => {
 
 // 保存凭证
 const handleSave = async () => {
-  if (!voucherForm.value.date) {
+  if (!voucherForm.value.voucher.voucher_date) {
     ElMessage.error('请选择凭证日期')
     return false
   }
