@@ -245,12 +245,32 @@ async function getAccountSubjects(database) {
   }
 }
 
-// 获取常用摘要
-async function getCommonAbstracts(database) {
+// 获取科目列表
+async function getAccountSubjects(database) {
   const connection = await getConnection(database);
   try {
-    const [abstracts] = await connection.execute('SELECT * FROM common_abstract');
+    const [subjects] = await connection.execute('SELECT * FROM subject');
+    return subjects;
+  } finally {
+    connection.release();
+  }
+}
+
+// 获取常用摘要
+async function getCommonAbstracts(database, query) {
+  const connection = await getConnection(database);
+  try {
+    const sql = `
+      SELECT summary_code, summary_name
+      FROM accounting_summary
+      WHERE summary_name LIKE ?
+      LIMIT 10
+    `;
+    const [abstracts] = await connection.execute(sql, [`%${query}%`]);
     return abstracts;
+  } catch (error) {
+    console.error('Error fetching common abstracts:', error);
+    throw error;
   } finally {
     connection.release();
   }
@@ -260,15 +280,18 @@ async function getCommonAbstracts(database) {
 async function saveCommonAbstract(database, abstractData) {
   const connection = await getConnection(database);
   try {
-    await connection.execute('INSERT INTO common_abstract (content, created_by) VALUES (?, ?)', [
-      abstractData.content,
-      abstractData.created_by
-    ]);
+    const sql = `
+      INSERT INTO accounting_summary (summary_code, summary_name)
+      VALUES (?, ?)
+    `;
+    await connection.execute(sql, [abstractData.summary_code, abstractData.summary_name]);
+  } catch (error) {
+    console.error('Error saving common abstract:', error);
+    throw error;
   } finally {
     connection.release();
   }
 }
-
 // 获取辅助核算项目
 async function getAuxiliaryItems(database) {
   const connection = await getConnection(database);
