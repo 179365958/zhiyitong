@@ -313,12 +313,9 @@ const subjectOptions = ref([])
 // 加载状态
 const loading = ref(false)
 
-// 摘要选项数据
-const summaryOptions = ref([
-  { value: '摘要1', label: '摘要1' },
-  { value: '摘要2', label: '摘要2' },
-  { value: '摘要3', label: '摘要3' },
-])
+// 初始化摘要选项数据
+const summaryOptions = ref([]);
+
 
 // 摘要加载状态
 const summaryLoading = ref(false)
@@ -331,8 +328,8 @@ const handleSearchSummary = async (query) => {
       console.log('Response from getCommonAbstracts:', response); // 添加日志
       if (response && Array.isArray(response.data)) {
         summaryOptions.value = response.data.map(item => ({
-          summary_code: item.summary_code, // 使用 summary_code 作为值
-          summary_name: item.summary_name, // 使用 summary_name 作为显示标签
+          summary_code: item.summary_code || '', // 确保不会是 undefined
+          summary_name: item.summary_name || '', // 确保不会是 undefined
           ...item // 保留其他字段
         }));
       } else {
