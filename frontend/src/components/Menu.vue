@@ -1,6 +1,6 @@
 <template>
   <el-aside :width="isCollapse ? '64px' : '200px'" class="aside">
-    <div class="logo">
+    <div class="logo" @click="goToHome">
       <img src="../assets/logo.svg" alt="logo" />
       <span v-show="!isCollapse">智易通</span>
     </div>   
@@ -40,6 +40,7 @@
 <script>
 import { menuItems } from '@/router/modules/menu'
 import { ArrowDown, Fold, Expand } from '@element-plus/icons-vue'
+import { useRouter } from 'vue-router'
 
 export default {
   components: {
@@ -61,6 +62,10 @@ export default {
   methods: {
     handleSelect(index) {
       this.$emit('select', index)
+    },
+    goToHome() {
+      const router = useRouter()
+      router.push('/')
     }
   }
 }
@@ -79,6 +84,7 @@ export default {
   padding: 0 16px;
   background-color: #2b2f3a;
   overflow: hidden;
+  cursor: pointer; /* 添加鼠标指针样式 */
 }
 
 .logo img {
